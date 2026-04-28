@@ -128,5 +128,27 @@ export const updateProfile = (data) => API.put('/profile', data);
 export const getMyDonations = () => API.get('/my-donations');
 export const getMyEvents = () => API.get('/my-events');
 export const registerForEvent = (eventId) => API.post(`/events/${eventId}/register`);
+// ===== Members (admin) =====
+export const getMembers = () => API.get('/admin/members');
+export const updateMember = (id, data) => API.put(`/admin/members/${id}`, data);
+export const deleteMember = (id) => API.delete(`/admin/members/${id}`);
 
+// ===== Sympathizers =====
+export const submitSympathizerRequest = (data) => API.post('/sympathizer-request', data);
+export const getSympathizers = () => API.get('/admin/sympathizers');
+export const deleteSympathizer = (id) => API.delete(`/admin/sympathizers/${id}`);
+
+// ===== Volunteers =====
+export const submitVolunteerRequest = (data) => API.post('/volunteer-request', data);
+export const getVolunteers = () => API.get('/admin/volunteers');
+export const deleteVolunteer = (id) => API.delete(`/admin/volunteers/${id}`);
+
+// ===== Newsletter =====
+export const subscribeNewsletter = (email) => API.post('/newsletter/subscribe', { email });
+export const getNewsletterSubscribers = () => API.get('/admin/newsletter');
+export const deleteNewsletterSubscriber = (id) => API.delete(`/admin/newsletter/${id}`);
+export const sendNewsletter = (data) => API.post('/admin/newsletter/send', data);
+
+// ===== Stats =====
+export const getStats = () => API.get('/admin/stats');
 export default API;

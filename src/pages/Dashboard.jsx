@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getMe } from '../services/api';
 import MemberDashboard from './MemberDashboard';
 import AdminDashboard from './AdminDashboard';
-import VisitorDashboard from './.SympathizerDashboard';
+import VisitorDashboard from './SympathizerDashboard';
 
 export default function Dashboard() {
     const [user, setUser] = useState(null);
