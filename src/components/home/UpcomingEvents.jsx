@@ -1,0 +1,34 @@
+import { useEffect, useState } from 'react';
+import API from '../../services/api';
+import { Link } from 'react-router-dom';
+
+export default function UpcomingEvents() {
+    const [events, setEvents] = useState([]);
+    useEffect(() => {
+        API.get('/events')
+            .then(res => {
+                const upcoming = res.data.filter(ev => new Date(ev.end_time) > new Date());
+                setEvents(upcoming.slice(0, 3));
+            })
+            .catch(err => console.error(err));
+    }, []);
+    const cardStyle = { border: '1px solid #ddd', padding: '1rem', marginBottom: '1rem', borderRadius: '8px' };
+    return (
+        <div style={{ marginBottom: '2rem' }}>
+            <h2>Upcoming Events</h2>
+            {events.length === 0 ? (
+                <p>No upcoming events at the moment.</p>
+            ) : (
+                events.map(ev => (
+                    <div key={ev.id} style={cardStyle}>
+                        <h3>{ev.title}</h3>
+                        <p><strong>When:</strong> {new Date(ev.start_time).toLocaleString()}</p>
+                        <p><strong>Where:</strong> {ev.location}</p>
+                        <p>{ev.description?.substring(0, 100)}...</p>
+                    </div>
+                ))
+            )}
+            <Link to="/events">Browse all events →</Link>
+        </div>
+    );
+}
