@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 
-// Helper to get full image URL
 const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;

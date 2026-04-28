@@ -1,7 +1,8 @@
+import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
 
-export default function Layout({ children }) {
+export default function Layout() {
     const layoutStyle = {
         display: 'flex',
         flexDirection: 'column',
@@ -16,7 +17,9 @@ export default function Layout({ children }) {
     return (
         <div style={layoutStyle}>
             <Navbar />
-            <main style={mainStyle}>{children}</main>
+            <main style={mainStyle}>
+                <Outlet />  {/* This renders the nested route component */}
+            </main>
             <Footer />
         </div>
     );

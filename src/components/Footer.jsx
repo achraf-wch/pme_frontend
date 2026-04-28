@@ -17,6 +17,10 @@ export default function Footer() {
                 <Link to="/privacy" style={linkStyle}>Privacy</Link>
                 <Link to="/terms" style={linkStyle}>Terms</Link>
                 <Link to="/contact" style={linkStyle}>Contact</Link>
+                <Link to="/media" style={linkStyle}>Gallery</Link>
+                <Link to="/news" style={linkStyle}>News</Link>
+                <Link to="/events" style={linkStyle}>Events</Link>
+                <Link to="/donate" style={linkStyle}>Donate</Link>
             </div>
             <p style={{ marginTop: '0.5rem' }}>&copy; {new Date().getFullYear()} Political Party. All rights reserved.</p>
         </footer>

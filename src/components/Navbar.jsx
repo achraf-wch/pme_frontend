@@ -11,8 +11,10 @@ export default function Navbar() {
             try {
                 const res = await getMe();
                 setUser(res.data);
+                localStorage.setItem('user', JSON.stringify(res.data));
             } catch (err) {
                 setUser(null);
+                localStorage.removeItem('user');
             }
         };
         fetchUser();
@@ -21,6 +23,7 @@ export default function Navbar() {
     const handleLogout = async () => {
         await logout();
         localStorage.removeItem('token');
+        localStorage.removeItem('user');
         setUser(null);
         navigate('/');
     };
@@ -32,18 +35,22 @@ export default function Navbar() {
         padding: '1rem 2rem',
         backgroundColor: '#2c3e50',
         color: 'white',
+        flexWrap: 'wrap',
     };
     const linkStyle = { color: 'white', textDecoration: 'none', marginLeft: '1rem' };
     const brandStyle = { fontWeight: 'bold', fontSize: '1.5rem', textDecoration: 'none', color: 'white' };
+    const rightLinksStyle = { display: 'flex', alignItems: 'center', gap: '1rem' };
 
     return (
         <nav style={navStyle}>
             <Link to="/" style={brandStyle}>Political Party</Link>
-            <div>
+            <div style={rightLinksStyle}>
                 <Link to="/news" style={linkStyle}>News</Link>
                 <Link to="/events" style={linkStyle}>Events</Link>
-                <Link to="/contact" style={linkStyle}>Contact</Link>
                 <Link to="/donate" style={linkStyle}>Donate</Link>
+                <Link to="/contact" style={linkStyle}>Contact</Link>
+                <Link to="/media" style={linkStyle}>Gallery</Link>
+                <Link to="/about" style={linkStyle}>About</Link>
                 {user ? (
                     <>
                         <Link to="/dashboard" style={linkStyle}>Dashboard</Link>
