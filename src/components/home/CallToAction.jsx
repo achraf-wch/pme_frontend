@@ -2,36 +2,30 @@ import { Link } from 'react-router-dom';
 
 export default function CallToAction() {
     return (
-        <div className="bg-slate-50 border border-slate-200 rounded-3xl p-8 md:p-12 my-16 text-center relative overflow-hidden group">
-            {/* Cercles décoratifs */}
-            <div className="absolute -top-24 -left-24 w-64 h-64 bg-blue-500/5 rounded-full group-hover:scale-110 transition-transform"></div>
-            <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-yellow-500/5 rounded-full group-hover:scale-110 transition-transform"></div>
-
-            <div className="relative z-10 max-w-2xl mx-auto">
-                <h2 className="text-3xl font-black text-slate-900 mb-4">Soutenez notre vision innovante</h2>
-                <p className="text-slate-600 mb-10 text-lg">
-                    Chaque contribution, qu'elle soit financière ou humaine, renforce notre mouvement pour un avenir politique différent au Maroc.
-                </p>
-                
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <Link 
-                        to="/donate" 
-                        className="px-10 py-4 bg-[#27ae60] hover:bg-[#219150] text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
-                    >
-                        <span className="text-xl">💳</span> Faire un don sécurisé
+        <section className="bg-white px-4 sm:px-6 py-16">
+            <div className="max-w-7xl mx-auto bg-slate-950 text-white rounded-lg p-8 md:p-12 grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                    <p className="text-emerald-400 font-bold uppercase tracking-widest text-xs mb-3">Participation | المشاركة</p>
+                    <h2 className="text-3xl md:text-4xl font-black">Un parcours clair pour chaque citoyen</h2>
+                    <p className="text-slate-300 mt-4 leading-relaxed">
+                        Inscription, demande d’adhésion, bénévolat, contribution financière et contact sont accessibles depuis des formulaires dédiés, avec suivi administratif depuis la console.
+                    </p>
+                    <p className="text-slate-300 mt-3 leading-relaxed" dir="rtl">
+                        مسارات واضحة للانخراط، التطوع، المساهمة، والتواصل، مع تتبع إداري من لوحة التحكم.
+                    </p>
+                </div>
+                <div className="flex flex-col sm:flex-row md:justify-end gap-3">
+                    <Link to="/register" className="px-6 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black rounded-md text-center transition-colors">
+                        Rejoindre
                     </Link>
-                    <Link 
-                        to="/register" 
-                        className="px-10 py-4 bg-[#2980b9] hover:bg-[#2471a3] text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2"
-                    >
-                        <span className="text-xl">🤝</span> Rejoindre le parti
+                    <Link to="/donate" className="px-6 py-4 bg-white hover:bg-slate-100 text-slate-950 font-black rounded-md text-center transition-colors">
+                        Contribuer
+                    </Link>
+                    <Link to="/contact" className="px-6 py-4 border border-white/30 hover:bg-white/10 text-white font-black rounded-md text-center transition-colors">
+                        Contacter
                     </Link>
                 </div>
-                
-                <p className="mt-8 text-xs text-slate-400 uppercase tracking-[0.2em] font-medium">
-                    Ensemble vers l'émergence
-                </p>
             </div>
-        </div>
+        </section>
     );
 }

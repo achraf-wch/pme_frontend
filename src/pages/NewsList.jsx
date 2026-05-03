@@ -9,11 +9,14 @@ const getImageUrl = (path) => {
 
 export default function NewsList() {
     const [news, setNews] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        API.get('/news')
+        // 🔁 Use the feed endpoint (filters by audience)
+        API.get('/news/feed')
             .then(res => setNews(res.data))
-            .catch(err => console.error(err));
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
     }, []);
 
     return (
@@ -23,13 +26,17 @@ export default function NewsList() {
                 <h2 className="text-4xl font-black text-[#2c3e50] uppercase tracking-tighter">Dernières Actualités</h2>
             </div>
 
-            {news.length === 0 ? (
-                <p className="text-center text-slate-400 py-20 italic">Aucune actualité publiée pour le moment.</p>
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                    <p className="text-slate-500 font-medium">Chargement des actualités...</p>
+                </div>
+            ) : news.length === 0 ? (
+                <p className="text-center text-slate-400 py-20 italic">Aucune actualité publique pour le moment.</p>
             ) : (
                 <div className="space-y-16">
                     {news.map(article => (
                         <article key={article.id} className="group grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-                            {/* Media Section */}
                             <div className="md:col-span-5 relative">
                                 <div className="overflow-hidden rounded-[2rem] shadow-xl">
                                     {article.image_path ? (
@@ -47,7 +54,6 @@ export default function NewsList() {
                                 </div>
                             </div>
 
-                            {/* Content Section */}
                             <div className="md:col-span-7 pt-2">
                                 <div className="flex items-center gap-3 mb-4 text-xs font-bold text-blue-500 uppercase tracking-[0.2em]">
                                     <span>Communiqué</span>

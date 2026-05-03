@@ -29,69 +29,72 @@ export default function Navbar() {
         navigate('/');
     };
 
+    const closeMenu = () => setIsOpen(false);
+    const navItems = [
+        { to: '/', label: 'Accueil' },
+        { to: '/about', label: 'Parti' },
+        { to: '/program', label: 'Programme' },
+        { to: '/news', label: 'Actualités' },
+        { to: '/events', label: 'Activités' },
+        { to: '/media', label: 'Médiathèque' },
+        { to: '/contact', label: 'Contact' },
+    ];
+
     return (
-        <nav className="bg-[#2c3e50]/95 backdrop-blur-md text-white sticky top-0 z-50 border-b border-white/10 shadow-xl">
-            <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+        <nav className="bg-white/95 backdrop-blur-md text-slate-900 sticky top-0 z-50 border-b border-slate-200 shadow-sm">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex justify-between items-center">
                 
-                {/* Logo Section */}
                 <Link to="/" className="flex items-center gap-3 group">
-                    <div className="w-10 h-10 bg-gradient-to-tr from-blue-500 to-emerald-400 rounded-xl flex items-center justify-center font-black text-white shadow-lg group-hover:rotate-12 transition-transform">
+                    <div className="w-11 h-11 bg-[#166534] rounded-lg flex items-center justify-center font-black text-white shadow-sm">
                         PME
                     </div>
                     <div className="flex flex-col">
-                        <span className="font-extrabold text-xl tracking-tight leading-none">Le PME</span>
-                        <span className="text-[10px] uppercase tracking-[0.2em] text-blue-400 font-bold">Maroc Émergent</span>
+                        <span className="font-extrabold text-lg tracking-tight leading-none">Parti Maroc Émergent</span>
+                        <span className="text-[11px] text-slate-500 font-bold" dir="rtl">منصة رقمية حزبية متكاملة</span>
                     </div>
                 </Link>
 
-                {/* Desktop Menu - Avec "Accueil" et tes liens originaux */}
-                <div className="hidden md:flex items-center space-x-1">
-                    <Link to="/" className="px-4 py-2 rounded-lg hover:bg-white/5 transition-all text-sm font-bold flex items-center gap-2">
-                        <span className="text-lg"></span> Accueil
-                    </Link>
-                    <Link to="/news" className="px-4 py-2 rounded-lg hover:bg-white/5 transition-all text-sm font-medium">News</Link>
-                    <Link to="/events" className="px-4 py-2 rounded-lg hover:bg-white/5 transition-all text-sm font-medium">Events</Link>
-                    <Link to="/donate" className="px-4 py-2 rounded-lg hover:bg-white/5 transition-all text-sm font-medium text-emerald-400 font-bold">Donate</Link>
-                    <Link to="/contact" className="px-4 py-2 rounded-lg hover:bg-white/5 transition-all text-sm font-medium">Contact</Link>
-                    <Link to="/media" className="px-4 py-2 rounded-lg hover:bg-white/5 transition-all text-sm font-medium">Gallery</Link>
-                    <Link to="/about" className="px-4 py-2 rounded-lg hover:bg-white/5 transition-all text-sm font-medium">About</Link>
+                <div className="hidden lg:flex items-center gap-1">
+                    {navItems.map(item => (
+                        <Link key={item.to} to={item.to} className="px-3 py-2 rounded-md hover:bg-slate-100 transition-all text-sm font-semibold">
+                            {item.label}
+                        </Link>
+                    ))}
+                    <Link to="/donate" className="px-3 py-2 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all text-sm font-extrabold">Contribuer</Link>
                     
-                    <div className="w-px h-6 bg-white/20 mx-3"></div>
+                    <div className="w-px h-6 bg-slate-200 mx-2"></div>
 
                     {user ? (
-                        <div className="flex items-center gap-4">
-                            <Link to="/dashboard" className="text-sm font-bold bg-blue-600/20 text-blue-400 px-4 py-2 rounded-lg hover:bg-blue-600 hover:text-white transition-all">Dashboard</Link>
-                            <button onClick={handleLogout} className="text-xs font-bold uppercase tracking-widest text-red-400 border border-red-500/30 px-3 py-2 rounded-lg hover:bg-red-500 hover:text-white transition-all">Logout</button>
+                        <div className="flex items-center gap-2">
+                            <Link to="/dashboard" className="text-sm font-bold bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-all">Tableau de bord</Link>
+                            <button onClick={handleLogout} className="text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition-all">Sortir</button>
                         </div>
                     ) : (
                         <div className="flex items-center gap-3 pl-2">
-                            <Link to="/login" className="text-sm font-medium hover:text-blue-400 transition-colors">Login</Link>
-                            <Link to="/register" className="bg-white text-[#2c3e50] px-5 py-2.5 rounded-xl font-bold text-sm shadow-lg hover:shadow-white/10 hover:-translate-y-0.5 transition-all">Register</Link>
+                            <Link to="/login" className="text-sm font-semibold hover:text-emerald-700 transition-colors">Connexion</Link>
+                            <Link to="/register" className="bg-slate-900 text-white px-5 py-2.5 rounded-md font-bold text-sm hover:bg-slate-700 transition-all">Adhérer</Link>
                         </div>
                     )}
                 </div>
 
-                {/* Mobile Toggle */}
-                <button onClick={() => setIsOpen(!isOpen)} className="md:hidden p-2 hover:bg-white/5 rounded-lg">
-                    <div className="w-6 h-0.5 bg-white mb-1.5"></div>
-                    <div className="w-6 h-0.5 bg-white mb-1.5"></div>
-                    <div className="w-4 h-0.5 bg-white ml-2"></div>
+                <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 hover:bg-slate-100 rounded-md" aria-label="Ouvrir le menu">
+                    <div className="w-6 h-0.5 bg-slate-900 mb-1.5"></div>
+                    <div className="w-6 h-0.5 bg-slate-900 mb-1.5"></div>
+                    <div className="w-4 h-0.5 bg-slate-900 ml-2"></div>
                 </button>
             </div>
 
-            {/* Mobile Menu */}
             {isOpen && (
-                <div className="md:hidden bg-[#2c3e50] border-t border-white/5 p-6 space-y-4 animate-in slide-in-from-top duration-300">
-                    <Link to="/" className="block text-lg font-bold" onClick={() => setIsOpen(false)}>🏠 Accueil</Link>
-                    <Link to="/news" className="block text-lg" onClick={() => setIsOpen(false)}>News</Link>
-                    <Link to="/events" className="block text-lg" onClick={() => setIsOpen(false)}>Events</Link>
-                    <Link to="/donate" className="block text-lg text-emerald-400" onClick={() => setIsOpen(false)}>Donate</Link>
-                    <Link to="/contact" className="block text-lg" onClick={() => setIsOpen(false)}>Contact</Link>
-                    <div className="pt-4 border-t border-white/10 flex flex-col gap-4">
+                <div className="lg:hidden bg-white border-t border-slate-200 p-5 space-y-3 shadow-xl">
+                    {navItems.map(item => (
+                        <Link key={item.to} to={item.to} className="block text-base font-semibold py-2" onClick={closeMenu}>{item.label}</Link>
+                    ))}
+                    <Link to="/donate" className="block text-base font-extrabold text-emerald-700 py-2" onClick={closeMenu}>Contribuer</Link>
+                    <div className="pt-4 border-t border-slate-200 flex flex-col gap-3">
                         {user ? (
-                            <Link to="/dashboard" className="w-full text-center py-3 bg-blue-600 rounded-xl font-bold" onClick={() => setIsOpen(false)}>Dashboard</Link>
+                            <Link to="/dashboard" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Tableau de bord</Link>
                         ) : (
-                            <Link to="/register" className="w-full text-center py-3 bg-white text-[#2c3e50] rounded-xl font-bold" onClick={() => setIsOpen(false)}>Register Now</Link>
+                            <Link to="/register" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Demander l'adhésion</Link>
                         )}
                     </div>
                 </div>

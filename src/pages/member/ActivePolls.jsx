@@ -3,39 +3,83 @@ import { getActivePolls, submitVote } from '../../services/api';
 
 export default function ActivePolls() {
     const [polls, setPolls] = useState([]);
-    const [voted, setVoted] = useState({});
+    const [voting, setVoting] = useState({});
     const [message, setMessage] = useState('');
+
     useEffect(() => { fetchPolls(); }, []);
+
     const fetchPolls = async () => {
-        const res = await getActivePolls();
-        setPolls(res.data);
-        // optionally check which polls user already voted (needs backend endpoint /my-votes)
+        try {
+            const res = await getActivePolls();
+            setPolls(res.data);
+        } catch (err) { console.error(err); }
     };
+
     const handleVote = async (pollId, optionId) => {
+        setVoting(prev => ({ ...prev, [pollId]: true }));
         try {
             await submitVote(pollId, optionId);
-            setMessage('Vote recorded!');
-            fetchPolls(); // refresh list
+            setMessage('Votre vote a été enregistré avec succès !');
+            fetchPolls();
         } catch (err) {
-            setMessage(err.response?.data?.message || 'Error voting');
+            setMessage(err.response?.data?.message || 'Erreur lors du vote');
+        } finally {
+            setVoting(prev => ({ ...prev, [pollId]: false }));
         }
     };
+
     return (
-        <div>
-            <h3>Active Polls</h3>
-            {message && <p>{message}</p>}
-            {polls.length === 0 ? <p>No active polls</p> : polls.map(poll => (
-                <div key={poll.id} style={{ border: '1px solid #ccc', margin: 10, padding: 10 }}>
-                    <h4>{poll.title}</h4>
-                    <p>{poll.description}</p>
-                    <p>Ends: {new Date(poll.end_date).toLocaleString()}</p>
-                    {poll.options.map(opt => (
-                        <button key={opt.id} onClick={() => handleVote(poll.id, opt.id)} style={{ marginRight: 5 }}>
-                            {opt.option_text}
-                        </button>
+        <div className="space-y-8 text-left">
+            <h3 className="text-2xl font-black text-[#1a1a2e] uppercase tracking-tight border-b border-slate-100 pb-4">
+                Sondages Actifs | الاستطلاعات
+            </h3>
+            
+            {message && (
+                <div className="bg-blue-50 text-blue-700 p-4 rounded-2xl border border-blue-100 text-sm font-bold animate-pulse">
+                    {message}
+                </div>
+            )}
+
+            {polls.length === 0 ? (
+                <div className="bg-slate-50 p-10 rounded-[2rem] text-center border-2 border-dashed border-slate-200">
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Aucun sondage actif pour le moment</p>
+                </div>
+            ) : (
+                <div className="grid gap-6">
+                    {polls.map(poll => (
+                        <div key={poll.id} className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-all">
+                            <h4 className="text-xl font-black text-[#1a1a2e] mb-2 uppercase italic">{poll.title}</h4>
+                            <p className="text-slate-500 text-sm mb-6 leading-relaxed">{poll.description}</p>
+                            
+                            <div className="flex items-center gap-2 mb-6">
+                                <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Fin le : {new Date(poll.end_date).toLocaleDateString('fr-FR')}
+                                </p>
+                            </div>
+
+                            {poll.has_voted ? (
+                                <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-center">
+                                    ✓ Participation Enregistrée
+                                </div>
+                            ) : (
+                                <div className="flex flex-wrap gap-3">
+                                    {poll.options.map(opt => (
+                                        <button
+                                            key={opt.id}
+                                            onClick={() => handleVote(poll.id, opt.id)}
+                                            disabled={voting[poll.id]}
+                                            className="px-6 py-3 bg-[#1a1a2e] text-[#c9a84c] rounded-xl hover:bg-black transition-all disabled:opacity-50 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-slate-200"
+                                        >
+                                            {voting[poll.id] ? '...' : opt.option_text}
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     ))}
                 </div>
-            ))}
+            )}
         </div>
     );
 }

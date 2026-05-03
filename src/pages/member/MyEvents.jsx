@@ -1,56 +1,79 @@
 import { useEffect, useState } from 'react';
-import { getMyEvents, getEvents, registerForEvent } from '../../services/api';
+import { getMyEvents, getPublicEvents, registerForEvent } from '../../services/api';
 
 export default function MyEvents() {
-    const [myEvents, setMyEvents] = useState([]);
-    const [allEvents, setAllEvents] = useState([]);
+    const [registeredEvents, setRegisteredEvents] = useState([]);
+    const [availableEvents, setAvailableEvents] = useState([]);
     const [message, setMessage] = useState('');
-    
-    useEffect(() => {
-        fetchData();
-    }, []);
-    
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => { fetchData(); }, []);
+
     const fetchData = async () => {
-        const [myRes, allRes] = await Promise.all([getMyEvents(), getEvents()]);
-        setMyEvents(myRes.data);
-        setAllEvents(allRes.data);
+        try {
+            const [myRes, availRes] = await Promise.all([getMyEvents(), getPublicEvents()]);
+            setRegisteredEvents(myRes.data);
+            setAvailableEvents(availRes.data);
+        } catch (err) { console.error(err); }
     };
-    
+
     const handleRegister = async (eventId) => {
+        setLoading(true);
         try {
             await registerForEvent(eventId);
-            setMessage('Registered successfully');
-            fetchData(); // refresh lists
+            setMessage('Inscription réussie !');
+            fetchData();
         } catch (err) {
-            setMessage(err.response?.data?.message || 'Error registering');
-        }
+            setMessage(err.response?.data?.message || 'Erreur lors de l’inscription');
+        } finally { setLoading(false); }
     };
-    
+
+    const EventCard = ({ ev, isRegistered }) => (
+        <div className={`p-6 rounded-[2rem] border transition-all ${isRegistered ? 'bg-slate-50 border-slate-100' : 'bg-white border-slate-100 shadow-sm hover:shadow-md'}`}>
+            <div className="flex justify-between items-start mb-4">
+                <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none">{ev.title}</h4>
+                {isRegistered && <span className="bg-emerald-500 text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest">Inscrit</span>}
+            </div>
+            <div className="space-y-1 mb-6">
+                <p className="text-blue-500 text-[10px] font-black uppercase tracking-widest">📍 {ev.location}</p>
+                <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">📅 {new Date(ev.start_time).toLocaleString('fr-FR')}</p>
+            </div>
+            {!isRegistered && (
+                <button 
+                    onClick={() => handleRegister(ev.id)} 
+                    disabled={loading}
+                    className="w-full py-3 bg-[#1a1a2e] text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all disabled:opacity-50"
+                >
+                    {loading ? 'Traitement...' : "Réserver ma place"}
+                </button>
+            )}
+        </div>
+    );
+
     return (
-        <div>
-            <h3>My Registered Events</h3>
-            {myEvents.length === 0 ? (
-                <p>No registrations yet</p>
-            ) : (
-                myEvents.map(reg => (
-                    <div key={reg.id} style={{ border: '1px solid #ccc', margin: 5, padding: 5 }}>
-                        <strong>{reg.event.title}</strong> - {new Date(reg.event.start_time).toLocaleString()} at {reg.event.location}
-                    </div>
-                ))
+        <div className="space-y-12 text-left">
+            {message && (
+                <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
+                    {message}
+                </div>
             )}
-            
-            <h3>All Events</h3>
-            {allEvents.length === 0 ? (
-                <p>No events found</p>
-            ) : (
-                allEvents.map(ev => (
-                    <div key={ev.id} style={{ border: '1px solid #ccc', margin: 5, padding: 5 }}>
-                        <strong>{ev.title}</strong> - {new Date(ev.start_time).toLocaleString()} - {ev.location}
-                        <button onClick={() => handleRegister(ev.id)}>Register</button>
+            <section>
+                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight mb-6 italic">Mes Inscriptions | مشاركاتي</h3>
+                {registeredEvents.length === 0 ? (
+                    <p className="text-slate-400 text-xs font-bold uppercase tracking-widest bg-slate-50 p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center">Aucun événement prévu.</p>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {registeredEvents.map(reg => <EventCard key={reg.id} ev={reg.event} isRegistered={true} />)}
                     </div>
-                ))
-            )}
-            {message && <p>{message}</p>}
+                )}
+            </section>
+
+            <section>
+                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight mb-6 italic">À Découvrir | فعاليات قادمة</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {availableEvents.map(ev => <EventCard key={ev.id} ev={ev} isRegistered={false} />)}
+                </div>
+            </section>
         </div>
     );
 }

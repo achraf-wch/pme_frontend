@@ -10,8 +10,7 @@ export default function Layout() {
     };
     const mainStyle = {
         flex: 1,
-        padding: '2rem',
-        backgroundColor: '#f5f5f5',
+        backgroundColor: '#f8fafc',
     };
 
     return (

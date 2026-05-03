@@ -1,7 +1,10 @@
 import axios from 'axios';
 
+export const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000/api';
+export const ASSET_BASE_URL = process.env.REACT_APP_ASSET_URL || API_BASE_URL.replace(/\/api\/?$/, '');
+
 const API = axios.create({
-    baseURL: 'http://localhost:8000/api',
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -20,135 +23,171 @@ API.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Authentication functions
-export const register = (name, email, password, passwordConfirmation) => 
-    API.post('/register', { name, email, password, password_confirmation: passwordConfirmation });
-
-export const login = (email, password) => 
-    API.post('/login', { email, password });
-
-export const logout = () => 
-    API.post('/logout');
-
-export const getMe = () => 
-    API.get('/me');
-
-// Membership request
-export const submitMembershipRequest = (motivation) => 
-    API.post('/membership-request', { motivation });
-
-// Admin endpoints
-export const getPendingRequests = () => 
-    API.get('/admin/membership-requests');
-
-export const approveRequest = (id) => 
-    API.put(`/admin/membership-requests/${id}/approve`);
-
-export const rejectRequest = (id) => 
-    API.put(`/admin/membership-requests/${id}/reject`);
-
-// Polls
-export const getPolls = () => API.get('/polls');
-export const createPoll = (pollData) => API.post('/polls', pollData);
-export const getActivePolls = () => API.get('/polls/active');
-export const submitVote = (pollId, optionId) => API.post('/vote', { poll_id: pollId, option_id: optionId });
-export const getPollResults = (pollId) => API.get(`/polls/${pollId}/results`);
-
-// Donations
-export const getDonations = () => API.get('/donations');
-export const updateDonationStatus = (id, status) => API.put(`/donations/${id}`, { status });
-
-// ===== News =====
-export const getNews = () => API.get('/news');
-
-export const createNews = (data) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, val]) => {
-        if (val !== null && val !== undefined) formData.append(key, val);
-    });
-    return API.post('/news', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+export const getStorageUrl = (path) => {
+    if (!path) return null;
+    if (path.startsWith('http')) return path;
+    return `${ASSET_BASE_URL}/storage/${path}`;
 };
 
-export const updateNews = (id, data) => {
-    const formData = new FormData();
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+/**
+ * Build a FormData object from a plain data object.
+ * Arrays are appended with the `key[]` notation that Laravel expects.
+ */
+function toFormData(data) {
+    const fd = new FormData();
     Object.entries(data).forEach(([key, val]) => {
-        if (val !== null && val !== undefined) formData.append(key, val);
+        if (val === null || val === undefined) return;
+        if (Array.isArray(val)) {
+            val.forEach((item) => fd.append(`${key}[]`, item));
+        } else {
+            fd.append(key, val);
+        }
     });
-    formData.append('_method', 'PUT');
-    return API.post(`/news/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+    return fd;
+}
+
+// ── Authentication ────────────────────────────────────────────────────────────
+
+export const register = (name, email, password, passwordConfirmation) =>
+    API.post('/register', { name, email, password, password_confirmation: passwordConfirmation });
+
+export const login = (email, password) =>
+    API.post('/login', { email, password });
+
+export const logout = () =>
+    API.post('/logout');
+
+export const getMe = () =>
+    API.get('/me');
+
+// ── Membership request ────────────────────────────────────────────────────────
+
+export const submitMembershipRequest = (motivation) =>
+    API.post('/membership-request', { motivation });
+
+// ── Admin endpoints ───────────────────────────────────────────────────────────
+
+export const getPendingRequests = () => API.get('/admin/membership-requests');
+export const approveRequest = (id) => API.put(`/admin/membership-requests/${id}/approve`);
+export const rejectRequest  = (id) => API.put(`/admin/membership-requests/${id}/reject`);
+
+// ── Polls ─────────────────────────────────────────────────────────────────────
+
+export const getPolls       = ()               => API.get('/polls');
+export const createPoll     = (pollData)       => API.post('/polls', pollData);
+export const getActivePolls = ()               => API.get('/polls/active');
+export const getPublicPolls = ()               => API.get('/polls/feed');
+export const submitVote     = (pollId, optionId) => API.post('/vote', { poll_id: pollId, option_id: optionId });
+export const getPollResults = (pollId)         => API.get(`/polls/${pollId}/results`);
+
+// ── Donations ─────────────────────────────────────────────────────────────────
+
+export const getDonations          = ()           => API.get('/donations');
+export const updateDonationStatus  = (id, status) => API.put(`/donations/${id}`, { status });
+
+// ── News ──────────────────────────────────────────────────────────────────────
+
+export const getNews       = () => API.get('/news');
+export const getPublicNews = () => API.get('/news/feed');
+
+export const createNews = (data) =>
+    API.post('/news', toFormData(data), {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+export const updateNews = (id, data) => {
+    const fd = toFormData(data);
+    fd.append('_method', 'PUT');
+    return API.post(`/news/${id}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
 };
 
 export const deleteNews = (id) => API.delete(`/news/${id}`);
 
-// ===== Contacts =====
-export const getContacts = () => API.get('/contacts');
-export const deleteContact = (id) => API.delete(`/contacts/${id}`);
+// ── Contacts ──────────────────────────────────────────────────────────────────
 
-// ===== Events =====
-export const getEvents = () => API.get('/events');
+export const getContacts    = ()   => API.get('/contacts');
+export const deleteContact  = (id) => API.delete(`/contacts/${id}`);
 
-export const createEvent = (data) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, val]) => {
-        if (val !== null && val !== undefined) formData.append(key, val);
+// ── Events ────────────────────────────────────────────────────────────────────
+
+export const getEvents             = ()        => API.get('/events');
+export const getPublicEvents       = ()        => API.get('/events/feed');
+export const getMyEvents           = ()        => API.get('/my-events');
+export const getEventRegistrations = (id)      => API.get(`/events/${id}/registrations`);
+export const registerForEvent      = (eventId) => API.post(`/events/${eventId}/register`);
+export const deleteEvent           = (id)      => API.delete(`/events/${id}`);
+
+export const createEvent = (data) =>
+    API.post('/events', toFormData(data), {
+        headers: { 'Content-Type': 'multipart/form-data' },
     });
-    return API.post('/events', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-};
 
 export const updateEvent = (id, data) => {
-    const formData = new FormData();
-    Object.entries(data).forEach(([key, val]) => {
-        if (val !== null && val !== undefined) formData.append(key, val);
+    const fd = toFormData(data);
+    fd.append('_method', 'PUT');
+    return API.post(`/events/${id}`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
     });
-    formData.append('_method', 'PUT');
-    return API.post(`/events/${id}`, formData, { headers: { 'Content-Type': 'multipart/form-data' } });
 };
 
-export const deleteEvent = (id) => API.delete(`/events/${id}`);
-export const getEventRegistrations = (id) => API.get(`/events/${id}/registrations`);
+// ── Static Pages ──────────────────────────────────────────────────────────────
 
-// ===== Static Pages =====
-export const getStaticPages = () => API.get('/static-pages');
+export const getStaticPages  = ()           => API.get('/static-pages');
 export const updateStaticPage = (slug, data) => API.put(`/static-pages/${slug}`, data);
 
-// ===== Media =====
-export const getMedia = () => API.get('/media');
-export const uploadMedia = (file) => {
-    const formData = new FormData();
-    formData.append('file', file);
-    return API.post('/media', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-};
-export const deleteMedia = (id) => API.delete(`/media/${id}`);
+// ── Media ─────────────────────────────────────────────────────────────────────
 
-// Profile
-export const getProfile = () => API.get('/profile');
+export const getMedia    = ()     => API.get('/media');
+export const deleteMedia = (id)   => API.delete(`/media/${id}`);
+
+export const uploadMedia = (file) => {
+    const fd = new FormData();
+    fd.append('file', file);
+    return API.post('/media', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
+};
+
+// ── Profile ───────────────────────────────────────────────────────────────────
+
+export const getProfile    = ()     => API.get('/profile');
 export const updateProfile = (data) => API.put('/profile', data);
 
-// Member-specific
+// ── Member-specific ───────────────────────────────────────────────────────────
+
 export const getMyDonations = () => API.get('/my-donations');
-export const getMyEvents = () => API.get('/my-events');
-export const registerForEvent = (eventId) => API.post(`/events/${eventId}/register`);
-// ===== Members (admin) =====
-export const getMembers = () => API.get('/admin/members');
-export const updateMember = (id, data) => API.put(`/admin/members/${id}`, data);
-export const deleteMember = (id) => API.delete(`/admin/members/${id}`);
 
-// ===== Sympathizers =====
+// ── Members (admin) ───────────────────────────────────────────────────────────
+
+export const getMembers    = ()           => API.get('/admin/members');
+export const updateMember  = (id, data)   => API.put(`/admin/members/${id}`, data);
+export const deleteMember  = (id)         => API.delete(`/admin/members/${id}`);
+
+// ── Sympathizers ──────────────────────────────────────────────────────────────
+
 export const submitSympathizerRequest = (data) => API.post('/sympathizer-request', data);
-export const getSympathizers = () => API.get('/admin/sympathizers');
-export const deleteSympathizer = (id) => API.delete(`/admin/sympathizers/${id}`);
+export const getSympathizers          = ()      => API.get('/admin/sympathizers');
+export const deleteSympathizer        = (id)    => API.delete(`/admin/sympathizers/${id}`);
 
-// ===== Volunteers =====
+// ── Volunteers ────────────────────────────────────────────────────────────────
+
 export const submitVolunteerRequest = (data) => API.post('/volunteer-request', data);
-export const getVolunteers = () => API.get('/admin/volunteers');
-export const deleteVolunteer = (id) => API.delete(`/admin/volunteers/${id}`);
+export const getVolunteers          = ()      => API.get('/admin/volunteers');
+export const deleteVolunteer        = (id)    => API.delete(`/admin/volunteers/${id}`);
 
-// ===== Newsletter =====
-export const subscribeNewsletter = (email) => API.post('/newsletter/subscribe', { email });
-export const getNewsletterSubscribers = () => API.get('/admin/newsletter');
-export const deleteNewsletterSubscriber = (id) => API.delete(`/admin/newsletter/${id}`);
-export const sendNewsletter = (data) => API.post('/admin/newsletter/send', data);
+// ── Newsletter ────────────────────────────────────────────────────────────────
 
-// ===== Stats =====
+export const subscribeNewsletter        = (email) => API.post('/newsletter/subscribe', { email });
+export const getNewsletterSubscribers   = ()       => API.get('/admin/newsletter');
+export const deleteNewsletterSubscriber = (id)     => API.delete(`/admin/newsletter/${id}`);
+export const sendNewsletter             = (data)   => API.post('/admin/newsletter/send', data);
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+
 export const getStats = () => API.get('/admin/stats');
+
 export default API;

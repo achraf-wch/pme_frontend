@@ -1,48 +1,53 @@
 import { useEffect, useState } from 'react';
-import API from '../../services/api';
+import API, { getStorageUrl } from '../../services/api';
 import { Link } from 'react-router-dom';
-
-const getImageUrl = (path) => {
-    if (!path) return null;
-    if (path.startsWith('http')) return path;
-    return `http://localhost:8000/storage/${path}`;
-};
 
 export default function UpcomingEvents() {
     const [events, setEvents] = useState([]);
+
     useEffect(() => {
-        API.get('/events')
+        API.get('/events/feed')
             .then(res => {
                 const upcoming = res.data.filter(ev => new Date(ev.end_time) > new Date());
                 setEvents(upcoming.slice(0, 3));
             })
-            .catch(err => console.error(err));
+            .catch(() => setEvents([]));
     }, []);
 
-    const cardStyle = { border: '1px solid #ddd', padding: '1rem', marginBottom: '1rem', borderRadius: '8px' };
     return (
-        <div style={{ marginBottom: '2rem' }}>
-            <h2>Upcoming Events</h2>
-            {events.length === 0 ? (
-                <p>No upcoming events at the moment.</p>
-            ) : (
-                events.map(ev => (
-                    <div key={ev.id} style={cardStyle}>
-                        {ev.attachment_path && (
-                            <img 
-                                src={getImageUrl(ev.attachment_path)} 
-                                alt={ev.title}
-                                style={{ width: '100%', maxHeight: '200px', objectFit: 'cover', borderRadius: '8px', marginBottom: '1rem' }}
-                            />
-                        )}
-                        <h3>{ev.title}</h3>
-                        <p><strong>When:</strong> {new Date(ev.start_time).toLocaleString()}</p>
-                        <p><strong>Where:</strong> {ev.location}</p>
-                        <p>{ev.description?.substring(0, 100)}...</p>
+        <section className="bg-slate-50 py-16 px-4 sm:px-6">
+            <div className="max-w-7xl mx-auto">
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-10">
+                    <div>
+                        <p className="text-emerald-700 font-bold uppercase tracking-widest text-xs mb-2">Activités | الأنشطة</p>
+                        <h2 className="text-3xl md:text-4xl font-black text-slate-900">Prochains événements</h2>
+                        <p className="text-slate-500 mt-2" dir="rtl">تسجيل وتتبع المشاركين في الأنشطة الحزبية</p>
                     </div>
-                ))
-            )}
-            <Link to="/events">Browse all events →</Link>
-        </div>
+                    <Link to="/events" className="text-emerald-700 font-bold">Toutes les activités →</Link>
+                </div>
+
+                {events.length === 0 ? (
+                    <div className="bg-white border border-dashed border-slate-200 rounded-lg p-10 text-center text-slate-500">
+                        Aucun événement public à venir pour le moment.
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        {events.map(ev => (
+                            <article key={ev.id} className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
+                                {ev.attachment_path && (
+                                    <img src={getStorageUrl(ev.attachment_path)} alt={ev.title} className="w-full h-44 object-cover" />
+                                )}
+                                <div className="p-5">
+                                    <h3 className="font-black text-lg text-slate-900">{ev.title}</h3>
+                                    <p className="text-sm text-emerald-700 font-bold mt-3">{new Date(ev.start_time).toLocaleString('fr-FR')}</p>
+                                    <p className="text-sm text-slate-500 mt-1">{ev.location}</p>
+                                    <p className="text-sm text-slate-600 mt-4 leading-relaxed">{ev.description?.substring(0, 120)}...</p>
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
+            </div>
+        </section>
     );
 }

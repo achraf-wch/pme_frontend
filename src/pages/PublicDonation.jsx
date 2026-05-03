@@ -4,7 +4,7 @@ import API from '../services/api';
 const PRESET_AMOUNTS = [10, 25, 50, 100, 200, 500];
 
 export default function PublicDonation() {
-    const [form, setForm] = useState({ donor_name: '', donor_email: '', amount: '' });
+    const [form, setForm] = useState({ name: '', email: '', amount: '', frequency: 'once', note: '' });
     const [customAmount, setCustomAmount] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
@@ -22,7 +22,7 @@ export default function PublicDonation() {
             await API.post('/donations', form);
             setSuccess(true);
             setError('');
-            setForm({ donor_name: '', donor_email: '', amount: '' });
+            setForm({ name: '', email: '', amount: '', frequency: 'once', note: '' });
         } catch (err) {
             setError('Erreur lors de l\'envoi. Veuillez réessayer. | حدث خطأ، حاول مجدداً.');
             setSuccess(false);
@@ -235,8 +235,8 @@ export default function PublicDonation() {
                                             </label>
                                             <input
                                                 type="text"
-                                                value={form.donor_name}
-                                                onChange={e => setForm({ ...form, donor_name: e.target.value })}
+                                                value={form.name}
+                                                onChange={e => setForm({ ...form, name: e.target.value })}
                                                 className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
                                                 placeholder="Votre nom complet"
                                                 required
@@ -248,11 +248,39 @@ export default function PublicDonation() {
                                             </label>
                                             <input
                                                 type="email"
-                                                value={form.donor_email}
-                                                onChange={e => setForm({ ...form, donor_email: e.target.value })}
+                                                value={form.email}
+                                                onChange={e => setForm({ ...form, email: e.target.value })}
                                                 className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
                                                 placeholder="votre@email.com"
                                                 required
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
+                                                Type | النوع
+                                            </label>
+                                            <select
+                                                value={form.frequency}
+                                                onChange={e => setForm({ ...form, frequency: e.target.value })}
+                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                            >
+                                                <option value="once">Contribution unique</option>
+                                                <option value="monthly">Contribution mensuelle</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
+                                                Note | ملاحظة
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={form.note}
+                                                onChange={e => setForm({ ...form, note: e.target.value })}
+                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                                placeholder="Objet de la contribution"
                                             />
                                         </div>
                                     </div>

@@ -9,11 +9,14 @@ const getImageUrl = (path) => {
 
 export default function EventList() {
     const [events, setEvents] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        API.get('/events')
+        // 🔁 Use the feed endpoint (filters by audience automatically)
+        API.get('/events/feed')
             .then(res => setEvents(res.data))
-            .catch(err => console.error(err));
+            .catch(err => console.error(err))
+            .finally(() => setLoading(false));
     }, []);
 
     return (
@@ -24,10 +27,15 @@ export default function EventList() {
                 <div className="h-1.5 w-24 bg-blue-500 mx-auto mt-6 rounded-full"></div>
             </div>
 
-            {events.length === 0 ? (
+            {loading ? (
+                <div className="flex flex-col items-center justify-center py-20">
+                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                    <p className="text-slate-500 font-medium">Chargement des événements...</p>
+                </div>
+            ) : events.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-20 bg-slate-50 rounded-3xl border-2 border-dashed border-slate-200">
                     <span className="text-4xl mb-4">🗓️</span>
-                    <p className="text-slate-500 font-medium">Aucun événement prévu pour le moment.</p>
+                    <p className="text-slate-500 font-medium">Aucun événement public pour le moment.</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
