@@ -5,6 +5,7 @@ import { getMe } from '../services/api';
 import MemberDashboard from './MemberDashboard';
 import AdminDashboard from './AdminDashboard';
 import VisitorDashboard from './SympathizerDashboard';
+import { isAdminRole, roleNameOf } from '../utils/roles';
 
 export default function Dashboard() {
     const [user, setUser] = useState(null);
@@ -31,9 +32,11 @@ export default function Dashboard() {
     // Now user is guaranteed to exist (not null)
     if (!user) return <div>No user data</div>;
 
-    if (user.role.name === 'admin') {
+    const role = roleNameOf(user);
+
+    if (isAdminRole(role)) {
         return <AdminDashboard user={user} />;
-    } else if (user.role.name === 'member') {
+    } else if (role === 'member') {
         return <MemberDashboard user={user} />;
     } else {
         return <VisitorDashboard user={user} />;

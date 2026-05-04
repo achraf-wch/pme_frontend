@@ -48,6 +48,7 @@ import ActivePolls from './pages/member/ActivePolls';
 import MyDonations from './pages/member/MyDonations';
 import MyEvents from './pages/member/MyEvents';
 import ProfileEditor from './pages/member/ProfileEditor';
+import { ADMIN_ROLES, ALL_ROLES, MEMBER_ROLES } from './utils/roles';
 
 // Route Guard
 function ProtectedRoute({ element, allowedRoles }) {
@@ -81,37 +82,37 @@ function App() {
                     <Route path="/media" element={<MediaGallery />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
+
+                    {/* Protected routes */}
+                    <Route path="/dashboard" element={<ProtectedRoute allowedRoles={ALL_ROLES} element={<Dashboard />} />} />
+                    <Route path="/membership-request" element={<ProtectedRoute allowedRoles={ALL_ROLES} element={<MembershipRequestForm />} />} />
+
+                    {/* Sympathizer */}
+                    <Route path="/visitor/dashboard" element={<ProtectedRoute allowedRoles={ALL_ROLES} element={<SympathizerDashboard />} />} />
+
+                    {/* Member */}
+                    <Route path="/member/dashboard" element={<ProtectedRoute allowedRoles={MEMBER_ROLES} element={<MemberDashboard />} />} />
+                    <Route path="/member/active-polls" element={<ProtectedRoute allowedRoles={ALL_ROLES} element={<ActivePolls />} />} />
+                    <Route path="/member/my-donations" element={<ProtectedRoute allowedRoles={ALL_ROLES} element={<MyDonations />} />} />
+                    <Route path="/member/my-events" element={<ProtectedRoute allowedRoles={ALL_ROLES} element={<MyEvents />} />} />
+                    <Route path="/member/profile" element={<ProtectedRoute allowedRoles={ALL_ROLES} element={<ProfileEditor />} />} />
+
+                    {/* Admin */}
+                    <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<AdminDashboard />} />} />
+                    <Route path="/admin/stats" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<StatsPanel />} />} />
+                    <Route path="/admin/members" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<MembersManager />} />} />
+                    <Route path="/admin/sympathizers" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<SympathizersManager />} />} />
+                    <Route path="/admin/volunteers" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<VolunteersManager />} />} />
+                    <Route path="/admin/polls" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<AdminPollList />} />} />
+                    <Route path="/admin/create-poll" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<CreatePoll />} />} />
+                    <Route path="/admin/donations" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<DonationsList />} />} />
+                    <Route path="/admin/news" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<NewsManager />} />} />
+                    <Route path="/admin/events" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<EventsManager />} />} />
+                    <Route path="/admin/contacts" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<ContactsList />} />} />
+                    <Route path="/admin/newsletter" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<NewsletterManager />} />} />
+                    <Route path="/admin/static-pages" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<StaticPagesEditor />} />} />
+                    <Route path="/admin/media" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<MediaManager />} />} />
                 </Route>
-
-                {/* Protected routes */}
-                <Route path="/dashboard" element={<ProtectedRoute element={<Dashboard />} />} />
-                <Route path="/membership-request" element={<ProtectedRoute element={<MembershipRequestForm />} />} />
-
-                {/* Sympathizer */}
-                <Route path="/visitor/dashboard" element={<ProtectedRoute allowedRoles={['sympathizer', 'volunteer', 'admin']} element={<SympathizerDashboard />} />} />
-
-                {/* Member */}
-                <Route path="/member/dashboard" element={<ProtectedRoute allowedRoles={['member', 'admin']} element={<MemberDashboard />} />} />
-                <Route path="/member/active-polls" element={<ProtectedRoute allowedRoles={['member', 'admin']} element={<ActivePolls />} />} />
-                <Route path="/member/my-donations" element={<ProtectedRoute allowedRoles={['member', 'admin']} element={<MyDonations />} />} />
-                <Route path="/member/my-events" element={<ProtectedRoute allowedRoles={['member', 'admin']} element={<MyEvents />} />} />
-                <Route path="/member/profile" element={<ProtectedRoute allowedRoles={['member', 'admin']} element={<ProfileEditor />} />} />
-
-                {/* Admin */}
-                <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={['admin']} element={<AdminDashboard />} />} />
-                <Route path="/admin/stats" element={<ProtectedRoute allowedRoles={['admin']} element={<StatsPanel />} />} />
-                <Route path="/admin/members" element={<ProtectedRoute allowedRoles={['admin']} element={<MembersManager />} />} />
-                <Route path="/admin/sympathizers" element={<ProtectedRoute allowedRoles={['admin']} element={<SympathizersManager />} />} />
-                <Route path="/admin/volunteers" element={<ProtectedRoute allowedRoles={['admin']} element={<VolunteersManager />} />} />
-                <Route path="/admin/polls" element={<ProtectedRoute allowedRoles={['admin']} element={<AdminPollList />} />} />
-                <Route path="/admin/create-poll" element={<ProtectedRoute allowedRoles={['admin']} element={<CreatePoll />} />} />
-                <Route path="/admin/donations" element={<ProtectedRoute allowedRoles={['admin']} element={<DonationsList />} />} />
-                <Route path="/admin/news" element={<ProtectedRoute allowedRoles={['admin']} element={<NewsManager />} />} />
-                <Route path="/admin/events" element={<ProtectedRoute allowedRoles={['admin']} element={<EventsManager />} />} />
-                <Route path="/admin/contacts" element={<ProtectedRoute allowedRoles={['admin']} element={<ContactsList />} />} />
-                <Route path="/admin/newsletter" element={<ProtectedRoute allowedRoles={['admin']} element={<NewsletterManager />} />} />
-                <Route path="/admin/static-pages" element={<ProtectedRoute allowedRoles={['admin']} element={<StaticPagesEditor />} />} />
-                <Route path="/admin/media" element={<ProtectedRoute allowedRoles={['admin']} element={<MediaManager />} />} />
 
                 {/* Fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />

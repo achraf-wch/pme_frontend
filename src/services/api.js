@@ -189,5 +189,6 @@ export const sendNewsletter             = (data)   => API.post('/admin/newslette
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 export const getStats = () => API.get('/admin/stats');
+export const getBranches = () => API.get('/admin/branches');
 
 export default API;

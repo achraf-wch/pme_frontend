@@ -1,23 +1,34 @@
 import { useEffect, useState } from 'react';
-import API from '../../services/api';
+import API, { getBranches } from '../../services/api';
 
 const ROLES = [
-    { id: 1, name: 'visitor', color: 'bg-slate-100 text-slate-600' },
-    { id: 2, name: 'member', color: 'bg-blue-100 text-blue-600' },
-    { id: 3, name: 'admin', color: 'bg-purple-100 text-purple-600' },
+    'visitor',
+    'sympathizer',
+    'volunteer',
+    'member',
+    'local_official',
+    'regional_official',
+    'central_admin',
+    'admin',
+    'super_admin',
 ];
 
 export default function MembersManager() {
     const [members, setMembers] = useState([]);
-    useEffect(() => { fetchMembers(); }, []);
+    const [branches, setBranches] = useState([]);
+
+    useEffect(() => {
+        fetchMembers();
+        getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
+    }, []);
 
     const fetchMembers = async () => {
         const res = await API.get('/admin/members');
         setMembers(res.data);
     };
 
-    const updateRole = async (id, role_id) => {
-        await API.put(`/admin/members/${id}`, { role_id });
+    const updateMemberField = async (id, payload) => {
+        await API.put(`/admin/members/${id}`, payload);
         fetchMembers();
     };
 
@@ -45,6 +56,9 @@ export default function MembersManager() {
                                 <div>
                                     <h4 className="font-bold text-slate-800">{m.name}</h4>
                                     <p className="text-xs text-slate-400 font-medium">{m.email}</p>
+                                    {m.party_branch && (
+                                        <p className="text-[10px] text-emerald-600 font-black uppercase tracking-widest mt-1">{m.party_branch.name}</p>
+                                    )}
                                 </div>
                             </div>
                             <button onClick={() => deleteMember(m.id)} className="text-red-300 hover:text-red-500 transition-colors">
@@ -54,12 +68,22 @@ export default function MembersManager() {
 
                         <div className="flex items-center justify-between pt-4 border-t border-slate-50">
                             <select
-                                value={m.role_id}
-                                onChange={e => updateRole(m.id, e.target.value)}
+                                value={m.role?.name || ''}
+                                onChange={e => updateMemberField(m.id, { role: e.target.value })}
                                 className="bg-slate-50 border-none text-[10px] font-black uppercase tracking-widest rounded-xl px-3 py-2 cursor-pointer focus:ring-2 focus:ring-blue-500 transition-all"
                             >
                                 {ROLES.map(r => (
-                                    <option key={r.id} value={r.id}>{r.name}</option>
+                                    <option key={r} value={r}>{r}</option>
+                                ))}
+                            </select>
+                            <select
+                                value={m.party_branch_id || ''}
+                                onChange={e => updateMemberField(m.id, { party_branch_id: e.target.value || null })}
+                                className="bg-slate-50 border-none text-[10px] font-black uppercase tracking-widest rounded-xl px-3 py-2 cursor-pointer focus:ring-2 focus:ring-emerald-500 transition-all max-w-[180px]"
+                            >
+                                <option value="">Sans antenne</option>
+                                {branches.map(branch => (
+                                    <option key={branch.id} value={branch.id}>{branch.name}</option>
                                 ))}
                             </select>
                             <span className="text-[10px] text-slate-300 font-bold uppercase tracking-tighter italic">

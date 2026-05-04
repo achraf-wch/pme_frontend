@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getEvents, createEvent, updateEvent, deleteEvent, getEventRegistrations, getStorageUrl } from '../../services/api';
+import { getBranches, getEvents, createEvent, updateEvent, deleteEvent, getEventRegistrations, getStorageUrl } from '../../services/api';
 
 const AUDIENCE_OPTIONS = [
   { value: 'public', label: 'Public', desc: 'Visible sur le site', icon: '🌐' },
@@ -14,6 +14,7 @@ const emptyForm = {
   title: '', description: '', location: '',
   start_time: '', end_time: '', max_attendees: '',
   audience: ['public'],
+  party_branch_id: '',
 };
 
 export default function EventsManager() {
@@ -25,8 +26,12 @@ export default function EventsManager() {
   const [registrations, setRegistrations] = useState({});
   const [openRegs, setOpenRegs] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [branches, setBranches] = useState([]);
 
-  useEffect(() => { fetchEvents(); }, []);
+  useEffect(() => {
+    fetchEvents();
+    getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
+  }, []);
 
   const fetchEvents = async () => {
     const res = await getEvents();
@@ -73,6 +78,7 @@ export default function EventsManager() {
       end_time: ev.end_time.substring(0, 16),
       max_attendees: ev.max_attendees || '',
       audience: ev.audience || ['public'],
+      party_branch_id: ev.party_branch_id || '',
     });
     setAttachPreview(getStorageUrl(ev.attachment_path));
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -145,6 +151,22 @@ export default function EventsManager() {
           </div>
 
           <div style={s.fieldGroup}>
+            <label style={s.label}>Antenne / périmètre</label>
+            <select
+              style={s.input}
+              value={form.party_branch_id}
+              onChange={e => setForm({ ...form, party_branch_id: e.target.value })}
+            >
+              <option value="">Automatique selon mon rôle</option>
+              {branches.map(branch => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name} · {branch.type}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={s.fieldGroup}>
             <label style={s.label}>Audience cible</label>
             <div style={s.audienceGrid}>
               {AUDIENCE_OPTIONS.map(opt => {
@@ -209,6 +231,7 @@ export default function EventsManager() {
                 <span style={s.eventLocation}>📍 {ev.location}</span>
                 <span style={s.eventTime}>{formatTime(ev.start_time)} – {formatTime(ev.end_time)}</span>
                 {ev.max_attendees && <span style={s.eventCap}>👥 max {ev.max_attendees}</span>}
+                {ev.party_branch && <span style={s.eventCap}>🏢 {ev.party_branch.name}</span>}
               </div>
               <h4 style={s.eventTitle}>{ev.title}</h4>
               <p style={s.eventDesc}>{ev.description}</p>
@@ -239,6 +262,7 @@ export default function EventsManager() {
                         <div>
                           <div style={s.regName}>{r.user.name}</div>
                           <div style={s.regEmail}>{r.user.email}</div>
+                          {r.user.party_branch && <div style={s.regEmail}>{r.user.party_branch.name}</div>}
                         </div>
                       </div>
                     ))}

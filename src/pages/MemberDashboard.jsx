@@ -1,72 +1,77 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import ActivePolls from './member/ActivePolls';
 import MyDonations from './member/MyDonations';
 import MyEvents from './member/MyEvents';
 import ProfileEditor from './member/ProfileEditor';
+import { ROLE_DESCRIPTIONS, ROLE_LABELS, roleNameOf } from '../utils/roles';
 
 export default function MemberDashboard({ user }) {
     const [activeTab, setActiveTab] = useState('profile');
+    const role = roleNameOf(user);
 
     const tabs = [
-        { id: 'profile',   label: 'Profil',     component: <ProfileEditor /> },
-        { id: 'polls',     label: 'Sondages',   component: <ActivePolls /> },
-        { id: 'donations', label: 'Donations',  component: <MyDonations /> },
-        { id: 'events',    label: 'Événements',  component: <MyEvents /> },
+        { id: 'profile', label: 'Profil', component: <ProfileEditor /> },
+        { id: 'polls', label: 'Votes ouverts', component: <ActivePolls /> },
+        { id: 'donations', label: 'Contributions', component: <MyDonations /> },
+        { id: 'events', label: 'Activités', component: <MyEvents /> },
     ];
 
     return (
-        <div className="max-w-6xl mx-auto px-4 py-10">
-            {/* En-tête du Tableau de Bord */}
-            <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-100 pb-8">
-                <div className="text-left">
-                    <p className="text-[10px] font-black text-blue-600 uppercase tracking-[0.3em] mb-2">Espace Officiel</p>
-                    <h2 className="text-4xl font-black text-[#1a1a2e] uppercase tracking-tighter italic">
-                        Tableau de bord <span className="text-slate-400">/ Membre</span>
-                    </h2>
-                </div>
-                <div className="text-left md:text-right">
-                    <p className="text-slate-500 font-medium">Ravi de vous revoir, <span className="text-[#1a1a2e] font-black">{user?.name}</span></p>
+        <div className="bg-slate-50 min-h-screen">
+            <div className="border-b border-slate-200 bg-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">Espace membre</p>
+                        <h1 className="text-3xl font-black text-slate-900 mt-1">Bienvenue, {user?.name}</h1>
+                        <p className="text-slate-500 mt-2">{ROLE_LABELS[role] || 'Membre'} · accès sécurisé</p>
+                        <p className="text-slate-500 mt-2" dir="rtl">{ROLE_DESCRIPTIONS[role]}</p>
+                    </div>
+                    <div className="flex flex-wrap gap-3">
+                        <Link to="/" className="px-4 py-2 rounded-md border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50">
+                            Retour au site
+                        </Link>
+                        <Link to="/donate" className="px-4 py-2 rounded-md bg-emerald-700 text-white font-bold text-sm hover:bg-emerald-600">
+                            Contribuer
+                        </Link>
+                    </div>
                 </div>
             </div>
 
-            {/* Navigation par Onglets */}
-            <div className="flex flex-wrap gap-2 mb-10 bg-slate-50 p-2 rounded-[1.5rem] border border-slate-100">
-                {tabs.map(tab => (
-                    <button
-                        key={tab.id}
-                        onClick={() => setActiveTab(tab.id)}
-                        className={`flex-1 min-w-[120px] py-4 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
-                            activeTab === tab.id 
-                            ? 'bg-[#1a1a2e] text-[#c9a84c] shadow-lg shadow-blue-900/20' 
-                            : 'text-slate-400 hover:text-slate-600 hover:bg-slate-100'
-                        }`}
-                    >
-                        {tab.label}
-                    </button>
-                ))}
-            </div>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+                <div className="grid md:grid-cols-4 gap-4 mb-8">
+                    {[
+                        ['Statut', ROLE_LABELS[role] || role],
+                        ['Vote interne', 'Selon votre éligibilité'],
+                        ['Contributions', 'Historique personnel'],
+                        ['Activités', 'Inscriptions suivies'],
+                    ].map(([label, value]) => (
+                        <div key={label} className="bg-white border border-slate-200 rounded-lg p-5">
+                            <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{label}</p>
+                            <p className="font-black text-slate-900 mt-2">{value}</p>
+                        </div>
+                    ))}
+                </div>
 
-            {/* Zone de Contenu Dynamique */}
-            <div className="bg-white rounded-[2.5rem] shadow-sm border border-slate-100 p-8 min-h-[400px]">
-                <div className="animate-fadeIn">
+                <div className="bg-white border border-slate-200 rounded-lg p-2 mb-6 flex flex-wrap gap-2">
+                    {tabs.map(tab => (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={`flex-1 min-w-[140px] px-4 py-3 rounded-md text-sm font-black transition-all ${
+                                activeTab === tab.id
+                                    ? 'bg-slate-900 text-white'
+                                    : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                            }`}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+
+                <section className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 md:p-8 min-h-[420px]">
                     {tabs.find(t => t.id === activeTab)?.component}
-                </div>
-            </div>
-
-            {/* Footer informatif */}
-            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 opacity-50">
-                <div className="p-6 border border-dashed border-slate-300 rounded-2xl flex items-center gap-4">
-                    <span className="text-2xl">🛡️</span>
-                    <p className="text-[9px] font-black uppercase tracking-widest leading-tight text-left">Accès Sécurisé <br/>Membre Vérifié</p>
-                </div>
-                <div className="p-6 border border-dashed border-slate-300 rounded-2xl flex items-center gap-4">
-                    <span className="text-2xl">🏛️</span>
-                    <p className="text-[9px] font-black uppercase tracking-widest leading-tight text-left">Influence Directe <br/>Sur les Projets</p>
-                </div>
-                <div className="p-6 border border-dashed border-slate-300 rounded-2xl flex items-center gap-4">
-                    <span className="text-2xl">🤝</span>
-                    <p className="text-[9px] font-black uppercase tracking-widest leading-tight text-left">Soutien Actif <br/>Communautaire</p>
-                </div>
+                </section>
             </div>
         </div>
     );
