@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPoll, getPolls, getPollResults } from '../../services/api';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const AUDIENCE_OPTIONS = [
   { value: 'public', label: 'Public', desc: 'Tout le monde', icon: '🌐' },
@@ -27,6 +28,7 @@ export default function CreatePoll() {
   const [polls, setPolls] = useState([]);
   const [results, setResults] = useState({});
   const [openResults, setOpenResults] = useState(null);
+  const [confirmPublish, setConfirmPublish] = useState(false);
 
   useEffect(() => { fetchPolls(); }, []);
 
@@ -58,10 +60,22 @@ export default function CreatePoll() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (form.audience.length === 0) return alert('Sélectionnez au moins une audience.');
+    if (form.audience.length === 0) {
+      setMessage({ type: 'error', text: 'Sélectionnez au moins une audience.' });
+      return;
+    }
     const validOpts = form.options.filter(o => o.trim() !== '');
-    if (validOpts.length < 2) return alert('Au moins 2 options sont requises.');
-    if (!window.confirm('Confirmer et publier ce vote pour l’audience sélectionnée ?')) return;
+    if (validOpts.length < 2) {
+      setMessage({ type: 'error', text: 'Au moins 2 options sont requises.' });
+      return;
+    }
+    setMessage(null);
+    setConfirmPublish(true);
+  };
+
+  const publishPoll = async () => {
+    const validOpts = form.options.filter(o => o.trim() !== '');
+    setConfirmPublish(false);
     setSaving(true);
     setMessage(null);
     try {
@@ -102,6 +116,16 @@ export default function CreatePoll() {
 
   return (
     <div style={s.root}>
+      <ConfirmDialog
+        open={confirmPublish}
+        title="Publier ce sondage ?"
+        message="Le vote sera visible pour l'audience sélectionnée et les membres autorisés pourront participer pendant la période définie."
+        confirmLabel="Publier"
+        loading={saving}
+        onConfirm={publishPoll}
+        onCancel={() => setConfirmPublish(false)}
+      />
+
       {/* CREATE FORM */}
       <div style={s.card}>
         <div style={s.cardHeader}>
