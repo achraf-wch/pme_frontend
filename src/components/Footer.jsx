@@ -8,8 +8,8 @@ export default function Footer() {
                     {/* Colonne Marque */}
                     <div className="col-span-1 md:col-span-1">
                         <div className="flex items-center gap-3 mb-6">
-                            <div className="bg-white/10 p-1.5 rounded-full">
-                                <div className="w-7 h-7 bg-white rounded-full"></div>
+                            <div className="bg-white p-1.5 rounded-md">
+                                <img src="/imgs/logo.webp" alt="Le PME" className="w-10 h-10 object-contain" />
                             </div>
                             <span className="text-white font-black text-2xl tracking-tighter">Le PME</span>
                         </div>
@@ -32,6 +32,8 @@ export default function Footer() {
                             <li><Link to="/events" className="hover:text-blue-400 transition-colors flex items-center gap-2">Nos Événements</Link></li>
                             <li><Link to="/media" className="hover:text-blue-400 transition-colors flex items-center gap-2">Médiathèque</Link></li>
                             <li><Link to="/program" className="hover:text-blue-400 transition-colors flex items-center gap-2">Programme</Link></li>
+                            <li><Link to="/pages/social-project" className="hover:text-blue-400 transition-colors flex items-center gap-2">Projet sociétal</Link></li>
+                            <li><Link to="/search" className="hover:text-blue-400 transition-colors flex items-center gap-2">Recherche interne</Link></li>
                             <li><Link to="/faq" className="hover:text-blue-400 transition-colors flex items-center gap-2">FAQ</Link></li>
                         </ul>
                     </div>
@@ -54,6 +56,7 @@ export default function Footer() {
                             <li><Link to="/privacy" className="hover:text-blue-400 transition-colors italic">Protection des données (CNDP)</Link></li>
                             <li><Link to="/terms" className="hover:text-blue-400 transition-colors">Conditions d'utilisation</Link></li>
                             <li><Link to="/accessibility" className="hover:text-blue-400 transition-colors">Accessibilité</Link></li>
+                            <li><Link to="/pages/leadership-structures" className="hover:text-blue-400 transition-colors">Leadership et structures</Link></li>
                         </ul>
                     </div>
                 </div>
