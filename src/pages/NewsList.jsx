@@ -4,8 +4,47 @@ import API from '../services/api';
 const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
+    if (path.startsWith('/')) return path;
     return `http://localhost:8000/storage/${path}`;
 };
+
+const staticNews = [
+    {
+        id: 'constitution',
+        title: 'بيان تأسيس حزب المغرب الصاعد',
+        content: 'Declaration of the Constitution of the Emerging Morocco Party. Déclaration de Constitution du parti du Maroc Emergent. Join our movement now: كن اليوم من السباقين لغد أفضل.',
+        image_path: '/imgs/pmeCreation.webp',
+        published_at: '2024-07-05',
+    },
+    {
+        id: 'founder-cv',
+        title: 'CV du fondateur السيرة الذاتية للمؤسس',
+        content: 'Ali Amzine est directeur de l’Académie internationale pour la formation et la qualification en technologie, langues et métiers. Écrivain économique, ingénieur informaticien, formateur en intelligence collective et intégrateur en intelligence artificielle.',
+        image_path: '/imgs/AliAmzineCv.webp',
+        published_at: '2024-07-05',
+    },
+    {
+        id: 'collective-intelligence',
+        title: 'حزب المغرب الصاعد والعمل بالذكاء الجماعي Brainstorming',
+        content: 'Les comités de laboratoires spécialisés du PME produisent, innovent et étudient des idées et programmes de développement selon une méthode de brainstorming collectif, au service de solutions créatives et réalistes.',
+        image_path: '/imgs/img.webp',
+        published_at: '2024-07-05',
+    },
+    {
+        id: 'innovative-vision',
+        title: 'NOTRE VISION INNOVANTE',
+        content: 'ANTI POPULISTES, PRO EMERGENCE, PRO FORMATION. Le PME propose une alternative réaliste fondée sur la formation, l’emploi, l’innovation, la citoyenneté et la modernisation de l’action politique.',
+        image_path: '/imgs/PRO_EMERGENCE.webp',
+        published_at: '2024-07-05',
+    },
+    {
+        id: 'digital-school',
+        title: 'مدرستي الرقمية Mon École Digitale',
+        content: 'Projet Mon École Digitale du PME: une vision de développement scientifique et numérique pour soutenir la formation, l’égalité d’accès au savoir et l’innovation éducative.',
+        image_path: '/imgs/img4.webp',
+        published_at: '2024-07-05',
+    },
+];
 
 export default function NewsList() {
     const [news, setNews] = useState([]);
@@ -19,6 +58,8 @@ export default function NewsList() {
             .finally(() => setLoading(false));
     }, []);
 
+    const visibleNews = news.length > 0 ? news : staticNews;
+
     return (
         <div className="max-w-5xl mx-auto px-6 py-16">
             <div className="flex items-center gap-4 mb-12">
@@ -31,11 +72,9 @@ export default function NewsList() {
                     <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
                     <p className="text-slate-500 font-medium">Chargement des actualités...</p>
                 </div>
-            ) : news.length === 0 ? (
-                <p className="text-center text-slate-400 py-20 italic">Aucune actualité publique pour le moment.</p>
             ) : (
                 <div className="space-y-16">
-                    {news.map(article => (
+                    {visibleNews.map(article => (
                         <article key={article.id} className="group grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                             <div className="md:col-span-5 relative">
                                 <div className="overflow-hidden rounded-[2rem] shadow-xl">

@@ -1,335 +1,447 @@
 import { useEffect, useState } from 'react';
 import { getBranches, getEvents, createEvent, updateEvent, deleteEvent, getEventRegistrations, getStorageUrl } from '../../services/api';
 
+// ─── Constants ────────────────────────────────────────────────────────────────
 const AUDIENCE_OPTIONS = [
-  { value: 'public', label: 'Public', desc: 'Visible sur le site', icon: '🌐' },
-  { value: 'visitor', label: 'Visiteurs', desc: 'Inscrits non-membres', icon: '👤' },
-  { value: 'sympathizer', label: 'Sympathisants', desc: 'Sympathisants du parti', icon: '🤝' },
-  { value: 'member', label: 'Membres', desc: 'Membres actifs', icon: '✓' },
-  { value: 'local_official', label: 'Élus Locaux', desc: 'Responsables locaux', icon: '🏛' },
-  { value: 'central_admin', label: 'Admin Central', desc: 'Administration centrale', icon: '⚙' },
+    { value: 'public',            label: 'Public',          desc: 'Visible sur le site',      icon: '🌐' },
+    { value: 'visitor',           label: 'Visiteurs',       desc: 'Inscrits non-membres',     icon: '👤' },
+    { value: 'sympathizer',       label: 'Sympathisants',   desc: 'Sympathisants du parti',   icon: '🤝' },
+    { value: 'volunteer',         label: 'Bénévoles',       desc: 'Bénévoles inscrits',       icon: '🙋' },
+    { value: 'member',            label: 'Membres',         desc: 'Membres actifs',           icon: '✅' },
+    { value: 'local_official',    label: 'Élus Locaux',     desc: 'Responsables locaux',      icon: '🏘️' },
+    { value: 'regional_official', label: 'Élus Régionaux',  desc: 'Responsables régionaux',   icon: '🏛️' },
+    { value: 'central_admin',     label: 'Admin Central',   desc: 'Administration centrale',  icon: '⚙️' },
+    { value: 'super_admin',       label: 'Superviseur',     desc: 'Supervision complète',     icon: '⭐' },
 ];
 
 const emptyForm = {
-  title: '', description: '', location: '',
-  start_time: '', end_time: '', max_attendees: '',
-  audience: ['public'],
-  party_branch_id: '',
+    title: '', description: '', location: '',
+    start_time: '', end_time: '', max_attendees: '',
+    audience: ['public'], party_branch_id: '',
 };
 
-export default function EventsManager() {
-  const [events, setEvents] = useState([]);
-  const [form, setForm] = useState(emptyForm);
-  const [editingId, setEditingId] = useState(null);
-  const [attachFile, setAttachFile] = useState(null);
-  const [attachPreview, setAttachPreview] = useState(null);
-  const [registrations, setRegistrations] = useState({});
-  const [openRegs, setOpenRegs] = useState(null);
-  const [saving, setSaving] = useState(false);
-  const [branches, setBranches] = useState([]);
-
-  useEffect(() => {
-    fetchEvents();
-    getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
-  }, []);
-
-  const fetchEvents = async () => {
-    const res = await getEvents();
-    setEvents(res.data);
-  };
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0] ?? null;
-    setAttachFile(file);
-    setAttachPreview(file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null);
-  };
-
-  const toggleAudience = (val) => {
-    setForm(f => {
-      const has = f.audience.includes(val);
-      if (has) return { ...f, audience: f.audience.filter(a => a !== val) };
-      return { ...f, audience: [...f.audience, val] };
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (form.audience.length === 0) return alert('Sélectionnez au moins une audience.');
-    setSaving(true);
-    const payload = { ...form };
-    if (attachFile) payload.attachment = attachFile;
-    if (editingId) await updateEvent(editingId, payload);
-    else await createEvent(payload);
-    setSaving(false);
-    setEditingId(null);
-    setForm(emptyForm);
-    setAttachFile(null);
-    setAttachPreview(null);
-    fetchEvents();
-  };
-
-  const editItem = (ev) => {
-    setEditingId(ev.id);
-    setForm({
-      title: ev.title,
-      description: ev.description,
-      location: ev.location,
-      start_time: ev.start_time.substring(0, 16),
-      end_time: ev.end_time.substring(0, 16),
-      max_attendees: ev.max_attendees || '',
-      audience: ev.audience || ['public'],
-      party_branch_id: ev.party_branch_id || '',
-    });
-    setAttachPreview(getStorageUrl(ev.attachment_path));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const deleteItem = async (id) => {
-    if (!window.confirm('Supprimer cet événement ?')) return;
-    await deleteEvent(id);
-    fetchEvents();
-  };
-
-  const showRegistrations = async (id) => {
-    if (openRegs === id) { setOpenRegs(null); return; }
-    if (!registrations[id]) {
-      const res = await getEventRegistrations(id);
-      setRegistrations(prev => ({ ...prev, [id]: res.data }));
-    }
-    setOpenRegs(id);
-  };
-
-  const cancelEdit = () => {
-    setEditingId(null);
-    setForm(emptyForm);
-    setAttachPreview(null);
-    setAttachFile(null);
-  };
-
-  const formatTime = (dt) => new Date(dt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-
-  return (
-    <div style={s.root}>
-      {/* FORM */}
-      <div style={s.card}>
-        <div style={s.cardHeader}>
-          <div style={s.cardLabel}>{editingId ? 'Modifier' : 'Créer'}</div>
-          <h2 style={s.cardTitle}>{editingId ? "Modifier l'événement" : 'Nouvel Événement'}</h2>
-        </div>
-
-        <form onSubmit={handleSubmit} style={s.form}>
-          <div style={s.fieldGroup}>
-            <label style={s.label}>Titre de l'événement</label>
-            <input style={s.input} type="text" placeholder="Nom de l'événement..." value={form.title} onChange={e => setForm({ ...form, title: e.target.value })} required />
-          </div>
-
-          <div style={s.fieldGroup}>
-            <label style={s.label}>Description</label>
-            <textarea style={{ ...s.input, minHeight: 100, resize: 'vertical', fontFamily: 'inherit' }} placeholder="Décrivez l'événement..." value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required />
-          </div>
-
-          <div style={s.grid2}>
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Lieu</label>
-              <input style={s.input} type="text" placeholder="Adresse / Lieu" value={form.location} onChange={e => setForm({ ...form, location: e.target.value })} required />
-            </div>
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Max. participants</label>
-              <input style={s.input} type="number" placeholder="Illimité si vide" value={form.max_attendees} onChange={e => setForm({ ...form, max_attendees: e.target.value })} min="1" />
-            </div>
-          </div>
-
-          <div style={s.grid2}>
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Date de début</label>
-              <input style={s.input} type="datetime-local" value={form.start_time} onChange={e => setForm({ ...form, start_time: e.target.value })} required />
-            </div>
-            <div style={s.fieldGroup}>
-              <label style={s.label}>Date de fin</label>
-              <input style={s.input} type="datetime-local" value={form.end_time} onChange={e => setForm({ ...form, end_time: e.target.value })} required />
-            </div>
-          </div>
-
-          <div style={s.fieldGroup}>
-            <label style={s.label}>Antenne / périmètre</label>
-            <select
-              style={s.input}
-              value={form.party_branch_id}
-              onChange={e => setForm({ ...form, party_branch_id: e.target.value })}
-            >
-              <option value="">Automatique selon mon rôle</option>
-              {branches.map(branch => (
-                <option key={branch.id} value={branch.id}>
-                  {branch.name} · {branch.type}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div style={s.fieldGroup}>
-            <label style={s.label}>Audience cible</label>
-            <div style={s.audienceGrid}>
-              {AUDIENCE_OPTIONS.map(opt => {
-                const active = form.audience.includes(opt.value);
-                return (
-                  <button type="button" key={opt.value} onClick={() => toggleAudience(opt.value)}
-                    style={{ ...s.audienceChip, ...(active ? s.audienceChipActive : {}) }}>
-                    <span style={{ fontSize: 16 }}>{opt.icon}</span>
-                    <div>
-                      <div style={s.chipLabel}>{opt.label}</div>
-                      <div style={s.chipDesc}>{opt.desc}</div>
-                    </div>
-                    {active && <span style={s.checkmark}>✓</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div style={s.fieldGroup}>
-            <label style={s.label}>Pièce jointe / Image</label>
-            <input type="file" onChange={handleFileChange} style={{ fontSize: 12, color: '#666' }} />
-            {attachPreview && (
-              <div style={{ marginTop: 8, position: 'relative', display: 'inline-block' }}>
-                <img src={attachPreview} style={s.previewImg} alt="Preview" />
-                <button type="button" onClick={() => { setAttachPreview(null); setAttachFile(null); }} style={s.removeBtn}>✕</button>
-              </div>
-            )}
-          </div>
-
-          <div style={s.formActions}>
-            <button type="submit" style={s.btnPrimary} disabled={saving}>
-              {saving ? 'Enregistrement...' : editingId ? 'Mettre à jour' : 'Créer l\'événement'}
-            </button>
-            {editingId && <button type="button" onClick={cancelEdit} style={s.btnSecondary}>Annuler</button>}
-          </div>
-        </form>
-      </div>
-
-      {/* LIST */}
-      <div style={s.listHeader}>
-        <h3 style={s.listTitle}>Événements</h3>
-        <span style={s.listCount}>{events.length} événement{events.length !== 1 ? 's' : ''}</span>
-      </div>
-
-      <div style={s.list}>
-        {events.map(ev => (
-          <div key={ev.id} style={s.eventCard}>
-            <div style={s.eventSidebar}>
-              {ev.attachment_path
-                ? <img src={getStorageUrl(ev.attachment_path)} style={s.eventImg} alt="" />
-                : <div style={s.eventImgEmpty}><span style={{ fontSize: 28, opacity: 0.25 }}>📅</span></div>
-              }
-              <div style={s.eventDate}>
-                <div style={s.eventDay}>{new Date(ev.start_time).getDate()}</div>
-                <div style={s.eventMonth}>{new Date(ev.start_time).toLocaleDateString('fr-FR', { month: 'short' }).toUpperCase()}</div>
-              </div>
-            </div>
-
-            <div style={s.eventBody}>
-              <div style={s.eventMeta}>
-                <span style={s.eventLocation}>📍 {ev.location}</span>
-                <span style={s.eventTime}>{formatTime(ev.start_time)} – {formatTime(ev.end_time)}</span>
-                {ev.max_attendees && <span style={s.eventCap}>👥 max {ev.max_attendees}</span>}
-                {ev.party_branch && <span style={s.eventCap}>🏢 {ev.party_branch.name}</span>}
-              </div>
-              <h4 style={s.eventTitle}>{ev.title}</h4>
-              <p style={s.eventDesc}>{ev.description}</p>
-
-              <div style={s.audienceTags}>
-                {(ev.audience || []).map(a => (
-                  <span key={a} style={s.audienceBadge}>
-                    {AUDIENCE_OPTIONS.find(o => o.value === a)?.label || a}
-                  </span>
-                ))}
-              </div>
-
-              <div style={s.eventActions}>
-                <button onClick={() => showRegistrations(ev.id)} style={s.actionOutline}>
-                  {openRegs === ev.id ? 'Masquer' : 'Inscriptions'} {registrations[ev.id] ? `(${registrations[ev.id].length})` : ''}
-                </button>
-                <button onClick={() => editItem(ev)} style={s.actionBtn}>Modifier</button>
-                <button onClick={() => deleteItem(ev.id)} style={s.actionBtnDanger}>Supprimer</button>
-              </div>
-
-              {openRegs === ev.id && registrations[ev.id] && (
-                <div style={s.regsPanel}>
-                  <div style={s.regsHeader}>{registrations[ev.id].length} participant{registrations[ev.id].length !== 1 ? 's' : ''} inscrit{registrations[ev.id].length !== 1 ? 's' : ''}</div>
-                  <div style={s.regsList}>
-                    {registrations[ev.id].map(r => (
-                      <div key={r.user.id} style={s.regItem}>
-                        <div style={s.regAvatar}>{r.user.name.charAt(0).toUpperCase()}</div>
-                        <div>
-                          <div style={s.regName}>{r.user.name}</div>
-                          <div style={s.regEmail}>{r.user.email}</div>
-                          {r.user.party_branch && <div style={s.regEmail}>{r.user.party_branch.name}</div>}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+// ─── Shared: Confirm Modal ────────────────────────────────────────────────────
+function ConfirmModal({ icon, title, message, confirmLabel, confirmCls, onConfirm, onCancel }) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onCancel} />
+            <div className="relative bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 border border-slate-100">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center mb-5 ${icon.bg}`}>
+                    <span className="text-2xl">{icon.emoji}</span>
                 </div>
-              )}
+                <h4 className="text-lg font-black text-slate-900 mb-2">{title}</h4>
+                <p className="text-slate-500 text-sm leading-relaxed mb-7">{message}</p>
+                <div className="flex gap-3">
+                    <button onClick={onCancel} className="flex-1 py-3 rounded-2xl border border-slate-200 text-slate-600 text-sm font-bold hover:bg-slate-50 transition-colors">
+                        Annuler
+                    </button>
+                    <button onClick={onConfirm} className={`flex-1 py-3 rounded-2xl text-white text-sm font-bold transition-colors ${confirmCls}`}>
+                        {confirmLabel}
+                    </button>
+                </div>
             </div>
-          </div>
-        ))}
-        {events.length === 0 && <div style={s.emptyState}>Aucun événement créé pour l'instant.</div>}
-      </div>
-    </div>
-  );
+        </div>
+    );
 }
 
-const s = {
-  root: { fontFamily: "'Georgia', 'Times New Roman', serif", maxWidth: 860, margin: '0 auto', padding: '2rem 1rem', color: '#1a1a2e' },
-  card: { background: '#fff', border: '1px solid #e8e4dc', borderRadius: 16, marginBottom: '2.5rem', overflow: 'hidden' },
-  cardHeader: { background: '#1a1a2e', padding: '1.5rem 2rem', borderBottom: '3px solid #c9a84c' },
-  cardLabel: { fontSize: 10, letterSpacing: '0.2em', color: '#c9a84c', fontFamily: 'sans-serif', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 },
-  cardTitle: { margin: 0, fontSize: 20, fontWeight: 400, color: '#f5f0e8', fontStyle: 'italic' },
-  form: { padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.25rem' },
-  fieldGroup: { display: 'flex', flexDirection: 'column', gap: 8 },
-  label: { fontSize: 11, fontFamily: 'sans-serif', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6b6b7a' },
-  input: { fontFamily: "'Georgia', serif", fontSize: 14, padding: '12px 16px', border: '1px solid #ddd8cf', borderRadius: 8, outline: 'none', color: '#1a1a2e', background: '#faf9f7', width: '100%', boxSizing: 'border-box' },
-  grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' },
-  audienceGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 8 },
-  audienceChip: { display: 'flex', alignItems: 'center', gap: 8, padding: '10px 12px', border: '1px solid #e0dbd0', borderRadius: 10, cursor: 'pointer', background: '#faf9f7', textAlign: 'left', position: 'relative' },
-  audienceChipActive: { border: '1.5px solid #1a1a2e', background: '#f0ede5' },
-  chipLabel: { fontSize: 12, fontWeight: 700, fontFamily: 'sans-serif', color: '#1a1a2e' },
-  chipDesc: { fontSize: 10, color: '#888', marginTop: 1 },
-  checkmark: { position: 'absolute', top: 5, right: 8, fontSize: 11, color: '#1a1a2e', fontWeight: 700 },
-  previewImg: { width: 80, height: 80, objectFit: 'cover', borderRadius: 8, display: 'block' },
-  removeBtn: { position: 'absolute', top: -6, right: -6, background: '#1a1a2e', color: '#fff', border: 'none', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: 10 },
-  formActions: { display: 'flex', gap: 12, paddingTop: 8 },
-  btnPrimary: { padding: '12px 28px', background: '#1a1a2e', color: '#c9a84c', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'sans-serif', fontWeight: 700, fontSize: 12, letterSpacing: '0.15em', textTransform: 'uppercase' },
-  btnSecondary: { padding: '12px 24px', background: 'transparent', color: '#888', border: '1px solid #ddd', borderRadius: 8, cursor: 'pointer', fontFamily: 'sans-serif', fontSize: 12 },
-  listHeader: { display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: '1rem' },
-  listTitle: { margin: 0, fontSize: 16, fontWeight: 400, fontStyle: 'italic', color: '#1a1a2e' },
-  listCount: { fontSize: 12, color: '#999', fontFamily: 'sans-serif' },
-  list: { display: 'flex', flexDirection: 'column', gap: 12 },
-  eventCard: { display: 'flex', background: '#fff', border: '1px solid #e8e4dc', borderRadius: 12, overflow: 'hidden' },
-  eventSidebar: { width: 90, flexShrink: 0, background: '#1a1a2e', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8, padding: '1rem 0.5rem' },
-  eventImg: { width: '100%', height: 70, objectFit: 'cover', display: 'block' },
-  eventImgEmpty: { width: 60, height: 60, background: '#2d2d4a', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' },
-  eventDate: { textAlign: 'center' },
-  eventDay: { fontSize: 26, fontWeight: 400, color: '#c9a84c', lineHeight: 1 },
-  eventMonth: { fontSize: 10, color: '#888', letterSpacing: '0.15em', fontFamily: 'sans-serif' },
-  eventBody: { flex: 1, padding: '1.25rem' },
-  eventMeta: { display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 8 },
-  eventLocation: { fontSize: 12, color: '#c9a84c', fontFamily: 'sans-serif', fontWeight: 600 },
-  eventTime: { fontSize: 12, color: '#888', fontFamily: 'sans-serif' },
-  eventCap: { fontSize: 12, color: '#888', fontFamily: 'sans-serif' },
-  eventTitle: { margin: '0 0 6px', fontSize: 17, fontWeight: 400, color: '#1a1a2e' },
-  eventDesc: { margin: '0 0 10px', fontSize: 13, color: '#777', lineHeight: 1.5, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' },
-  audienceTags: { display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 },
-  audienceBadge: { fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#1a1a2e', color: '#c9a84c', fontFamily: 'sans-serif', fontWeight: 700, letterSpacing: '0.05em' },
-  eventActions: { display: 'flex', gap: 12, alignItems: 'center' },
-  actionOutline: { background: 'none', border: '1px solid #1a1a2e', padding: '5px 12px', borderRadius: 6, cursor: 'pointer', fontSize: 11, fontFamily: 'sans-serif', fontWeight: 700, letterSpacing: '0.1em', color: '#1a1a2e' },
-  actionBtn: { background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, color: '#1a1a2e', textDecoration: 'underline' },
-  actionBtnDanger: { background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, color: '#c0392b', textDecoration: 'underline' },
-  regsPanel: { marginTop: 12, background: '#f5f2eb', borderRadius: 8, padding: '1rem', border: '1px solid #e0dbd0' },
-  regsHeader: { fontSize: 11, fontFamily: 'sans-serif', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: '#888', marginBottom: 10 },
-  regsList: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 8 },
-  regItem: { display: 'flex', gap: 10, alignItems: 'center', background: '#fff', borderRadius: 8, padding: '8px 12px', border: '1px solid #e8e4dc' },
-  regAvatar: { width: 32, height: 32, borderRadius: '50%', background: '#1a1a2e', color: '#c9a84c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 700, flexShrink: 0 },
-  regName: { fontSize: 13, fontWeight: 400, color: '#1a1a2e' },
-  regEmail: { fontSize: 11, color: '#aaa', fontFamily: 'sans-serif' },
-  emptyState: { textAlign: 'center', padding: '3rem', color: '#aaa', fontStyle: 'italic', fontSize: 14 },
-};
+// ─── Validation Modal ─────────────────────────────────────────────────────────
+function ValidationModal({ message, onClose }) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white rounded-3xl shadow-2xl p-8 w-full max-w-sm mx-4 border border-amber-100">
+                <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center mb-5">
+                    <span className="text-2xl">⚠️</span>
+                </div>
+                <h4 className="text-lg font-black text-slate-900 mb-2">Vérifiez le formulaire</h4>
+                <p className="text-slate-500 text-sm leading-relaxed mb-6">{message}</p>
+                <button onClick={onClose} className="w-full py-3 rounded-2xl bg-slate-900 text-white text-sm font-bold hover:bg-slate-700 transition-colors">
+                    Compris
+                </button>
+            </div>
+        </div>
+    );
+}
+
+const Label = ({ children }) => (
+    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mb-2">{children}</label>
+);
+const inputCls = "w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm text-slate-900 bg-slate-50 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:bg-white transition-colors";
+
+// ─── Event Card ───────────────────────────────────────────────────────────────
+function EventCard({ ev, onEdit, onDelete, onShowRegistrations, isRegOpen, registrations }) {
+    const [deleteModal, setDeleteModal] = useState(false);
+
+    const fmt = (dt) => new Date(dt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    const day = new Date(ev.start_time).getDate();
+    const month = new Date(ev.start_time).toLocaleDateString('fr-FR', { month: 'short' }).toUpperCase();
+
+    const now = new Date();
+    const isPast = new Date(ev.end_time) < now;
+    const isLive = new Date(ev.start_time) <= now && !isPast;
+
+    return (
+        <>
+            {deleteModal && (
+                <ConfirmModal
+                    icon={{ bg: 'bg-red-50', emoji: '🗑️' }}
+                    title="Supprimer cet événement ?"
+                    message={`"${ev.title}" sera supprimé définitivement avec toutes ses inscriptions.`}
+                    confirmLabel="Supprimer"
+                    confirmCls="bg-red-600 hover:bg-red-700"
+                    onConfirm={() => { setDeleteModal(false); onDelete(ev.id); }}
+                    onCancel={() => setDeleteModal(false)}
+                />
+            )}
+
+            <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden hover:shadow-md transition-all">
+                <div className="flex gap-0">
+                    {/* Date sidebar */}
+                    <div className="w-20 shrink-0 bg-slate-900 flex flex-col items-center justify-center py-5 gap-1 relative">
+                        {ev.attachment_path && (
+                            <img src={getStorageUrl(ev.attachment_path)} className="absolute inset-0 w-full h-full object-cover opacity-20" alt="" />
+                        )}
+                        <span className="text-3xl font-black text-amber-400 leading-none relative z-10">{day}</span>
+                        <span className="text-[10px] font-black text-slate-400 tracking-widest relative z-10">{month}</span>
+                        {isLive && (
+                            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        )}
+                    </div>
+
+                    {/* Body */}
+                    <div className="flex-1 p-5 min-w-0">
+                        {/* Meta row */}
+                        <div className="flex flex-wrap gap-2 items-center mb-2">
+                            <span className={`text-[10px] font-black px-2.5 py-0.5 rounded-full border ${isPast ? 'bg-slate-100 text-slate-400 border-slate-200' : isLive ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 'bg-amber-50 text-amber-600 border-amber-200'}`}>
+                                {isPast ? 'Terminé' : isLive ? '● En cours' : 'À venir'}
+                            </span>
+                            <span className="text-xs text-slate-500 font-medium">📍 {ev.location}</span>
+                            <span className="text-xs text-slate-400">{fmt(ev.start_time)} – {fmt(ev.end_time)}</span>
+                            {ev.max_attendees && <span className="text-xs text-slate-400">👥 max {ev.max_attendees}</span>}
+                            {ev.party_branch && <span className="text-xs text-slate-400">🏢 {ev.party_branch.name}</span>}
+                        </div>
+
+                        <h4 className="font-black text-slate-900 text-base leading-snug mb-1">{ev.title}</h4>
+                        <p className="text-slate-500 text-xs leading-relaxed line-clamp-2 mb-3">{ev.description}</p>
+
+                        {/* Audience tags */}
+                        <div className="flex flex-wrap gap-1 mb-4">
+                            {(ev.audience || []).map(a => (
+                                <span key={a} className="px-2 py-0.5 rounded-full text-[9px] font-black bg-slate-900 text-white">
+                                    {AUDIENCE_OPTIONS.find(o => o.value === a)?.label || a}
+                                </span>
+                            ))}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex gap-4 items-center flex-wrap">
+                            <button onClick={() => onShowRegistrations(ev.id)}
+                                className="px-4 py-2 rounded-2xl border border-slate-200 text-xs font-bold text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-all">
+                                {isRegOpen ? 'Masquer' : 'Inscriptions'}
+                                {registrations && <span className="ml-1.5 bg-slate-900 text-white px-1.5 py-0.5 rounded-full text-[9px]">{registrations.length}</span>}
+                            </button>
+                            <button onClick={() => onEdit(ev)} className="text-xs font-black text-slate-700 hover:text-slate-900 underline underline-offset-2">
+                                Modifier
+                            </button>
+                            <button onClick={() => setDeleteModal(true)} className="text-xs font-black text-red-400 hover:text-red-600 underline underline-offset-2">
+                                Supprimer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Registrations panel */}
+                {isRegOpen && registrations && (
+                    <div className="border-t border-slate-100 bg-slate-50 px-6 py-5">
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">
+                            {registrations.length} participant{registrations.length !== 1 ? 's' : ''} inscrit{registrations.length !== 1 ? 's' : ''}
+                        </p>
+                        {registrations.length === 0
+                            ? <p className="text-slate-400 text-sm italic">Aucune inscription pour le moment.</p>
+                            : (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                                    {registrations.map(r => (
+                                        <div key={r.user.id} className="flex items-center gap-3 bg-white border border-slate-100 p-3 rounded-2xl">
+                                            <div className="w-9 h-9 rounded-xl bg-slate-900 text-amber-400 flex items-center justify-center font-black text-sm shrink-0">
+                                                {r.user.name.charAt(0).toUpperCase()}
+                                            </div>
+                                            <div className="min-w-0">
+                                                <p className="font-bold text-slate-800 text-sm truncate">{r.user.name}</p>
+                                                <p className="text-[10px] text-slate-400 truncate">{r.user.email}</p>
+                                                {r.user.party_branch && <p className="text-[10px] text-slate-400 truncate">{r.user.party_branch.name}</p>}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )
+                        }
+                    </div>
+                )}
+            </div>
+        </>
+    );
+}
+
+// ─── Main Component ───────────────────────────────────────────────────────────
+export default function EventsManager() {
+    const [events, setEvents]           = useState([]);
+    const [form, setForm]               = useState(emptyForm);
+    const [editingId, setEditingId]     = useState(null);
+    const [attachFile, setAttachFile]   = useState(null);
+    const [attachPreview, setAttachPreview] = useState(null);
+    const [registrations, setRegistrations] = useState({});
+    const [openRegs, setOpenRegs]       = useState(null);
+    const [saving, setSaving]           = useState(false);
+    const [branches, setBranches]       = useState([]);
+    const [confirmOpen, setConfirmOpen] = useState(false);
+    const [validationMsg, setValidationMsg] = useState(null);
+
+    useEffect(() => {
+        fetchEvents();
+        getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
+    }, []);
+
+    const fetchEvents = async () => {
+        const res = await getEvents();
+        setEvents(res.data);
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0] ?? null;
+        setAttachFile(file);
+        setAttachPreview(file && file.type.startsWith('image/') ? URL.createObjectURL(file) : null);
+    };
+
+    const toggleAudience = (val) => setForm(f => {
+        const has = f.audience.includes(val);
+        return { ...f, audience: has ? f.audience.filter(a => a !== val) : [...f.audience, val] };
+    });
+
+    const handleSubmitAttempt = (e) => {
+        e.preventDefault();
+        if (form.audience.length === 0) return setValidationMsg('Veuillez sélectionner au moins une audience.');
+        setConfirmOpen(true);
+    };
+
+    const handleConfirm = async () => {
+        setConfirmOpen(false);
+        setSaving(true);
+        const payload = { ...form };
+        if (attachFile) payload.attachment = attachFile;
+        if (editingId) await updateEvent(editingId, payload);
+        else await createEvent(payload);
+        setSaving(false);
+        setEditingId(null);
+        setForm(emptyForm);
+        setAttachFile(null);
+        setAttachPreview(null);
+        fetchEvents();
+    };
+
+    const editItem = (ev) => {
+        setEditingId(ev.id);
+        setForm({
+            title: ev.title, description: ev.description, location: ev.location,
+            start_time: ev.start_time.substring(0, 16), end_time: ev.end_time.substring(0, 16),
+            max_attendees: ev.max_attendees || '', audience: ev.audience || ['public'],
+            party_branch_id: ev.party_branch_id || '',
+        });
+        setAttachPreview(getStorageUrl(ev.attachment_path));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const deleteItem = async (id) => {
+        await deleteEvent(id);
+        setEvents(prev => prev.filter(e => e.id !== id));
+    };
+
+    const showRegistrations = async (id) => {
+        if (openRegs === id) { setOpenRegs(null); return; }
+        if (!registrations[id]) {
+            const res = await getEventRegistrations(id);
+            setRegistrations(prev => ({ ...prev, [id]: res.data }));
+        }
+        setOpenRegs(id);
+    };
+
+    const cancelEdit = () => {
+        setEditingId(null);
+        setForm(emptyForm);
+        setAttachPreview(null);
+        setAttachFile(null);
+    };
+
+    return (
+        <div className="max-w-3xl mx-auto space-y-8 pb-12">
+            {/* Modals */}
+            {confirmOpen && (
+                <ConfirmModal
+                    icon={{ bg: 'bg-slate-900', emoji: '📅' }}
+                    title={editingId ? "Mettre à jour l'événement ?" : 'Créer cet événement ?'}
+                    message={`"${form.title}" sera ${editingId ? 'mis à jour' : 'créé'} et rendu visible à l'audience sélectionnée.`}
+                    confirmLabel={editingId ? 'Mettre à jour' : 'Créer l\'événement'}
+                    confirmCls="bg-slate-900 hover:bg-slate-700"
+                    onConfirm={handleConfirm}
+                    onCancel={() => setConfirmOpen(false)}
+                />
+            )}
+            {validationMsg && <ValidationModal message={validationMsg} onClose={() => setValidationMsg(null)} />}
+
+            {/* ── Form ──────────────────────────────────────────────────────── */}
+            <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
+                <div className="bg-slate-900 px-8 py-6 border-b-4 border-amber-400">
+                    <p className="text-[10px] font-black text-amber-400 uppercase tracking-[0.2em] mb-1">
+                        {editingId ? 'Modifier' : 'Créer'}
+                    </p>
+                    <h2 className="text-xl font-black text-white">
+                        {editingId ? "Modifier l'événement" : 'Nouvel Événement | حدث جديد'}
+                    </h2>
+                </div>
+
+                <form onSubmit={handleSubmitAttempt} className="p-8 space-y-6">
+                    {/* Title */}
+                    <div>
+                        <Label>Titre de l'événement</Label>
+                        <input type="text" placeholder="Nom de l'événement..." value={form.title}
+                            onChange={e => setForm({ ...form, title: e.target.value })}
+                            required className={inputCls} />
+                    </div>
+
+                    {/* Description */}
+                    <div>
+                        <Label>Description</Label>
+                        <textarea placeholder="Décrivez l'événement..." value={form.description}
+                            onChange={e => setForm({ ...form, description: e.target.value })}
+                            rows={4} required className={`${inputCls} resize-none`} />
+                    </div>
+
+                    {/* Location + Branch */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <Label>Lieu</Label>
+                            <input type="text" placeholder="Adresse / Lieu" value={form.location}
+                                onChange={e => setForm({ ...form, location: e.target.value })}
+                                required className={inputCls} />
+                        </div>
+                        <div>
+                            <Label>Section du parti</Label>
+                            <select value={form.party_branch_id}
+                                onChange={e => setForm({ ...form, party_branch_id: e.target.value })}
+                                className={inputCls}>
+                                <option value="">— Aucune —</option>
+                                {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Dates */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <Label>Début</Label>
+                            <input type="datetime-local" value={form.start_time}
+                                onChange={e => setForm({ ...form, start_time: e.target.value })}
+                                required className={inputCls} />
+                        </div>
+                        <div>
+                            <Label>Fin</Label>
+                            <input type="datetime-local" value={form.end_time}
+                                onChange={e => setForm({ ...form, end_time: e.target.value })}
+                                required className={inputCls} />
+                        </div>
+                    </div>
+
+                    {/* Max attendees */}
+                    <div className="sm:w-1/2">
+                        <Label>Participants max (optionnel)</Label>
+                        <input type="number" min="1" placeholder="Illimité si vide" value={form.max_attendees}
+                            onChange={e => setForm({ ...form, max_attendees: e.target.value })}
+                            className={inputCls} />
+                    </div>
+
+                    {/* Audience */}
+                    <div>
+                        <Label>Audience</Label>
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {AUDIENCE_OPTIONS.map(opt => {
+                                const active = form.audience.includes(opt.value);
+                                return (
+                                    <button type="button" key={opt.value} onClick={() => toggleAudience(opt.value)}
+                                        className={`flex items-center gap-3 p-3 rounded-2xl border text-left transition-all ${active ? 'border-slate-900 bg-slate-900 text-white' : 'border-slate-200 bg-slate-50 hover:border-slate-300 hover:bg-white'}`}>
+                                        <span className="text-base shrink-0">{opt.icon}</span>
+                                        <div className="min-w-0">
+                                            <p className={`text-xs font-black truncate ${active ? 'text-white' : 'text-slate-800'}`}>{opt.label}</p>
+                                            <p className={`text-[10px] truncate ${active ? 'text-slate-300' : 'text-slate-400'}`}>{opt.desc}</p>
+                                        </div>
+                                        {active && <span className="ml-auto text-amber-400 text-xs shrink-0">✓</span>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Attachment */}
+                    <div>
+                        <Label>Image / Affiche</Label>
+                        <div className="flex items-center gap-4">
+                            {attachPreview && (
+                                <div className="relative shrink-0">
+                                    <img src={attachPreview} className="w-16 h-16 rounded-2xl object-cover border border-slate-200" alt="" />
+                                    <button type="button" onClick={() => { setAttachPreview(null); setAttachFile(null); }}
+                                        className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-slate-900 text-white rounded-full flex items-center justify-center text-[10px] font-black hover:bg-red-600 transition-colors">
+                                        ✕
+                                    </button>
+                                </div>
+                            )}
+                            <label className="flex-1 cursor-pointer">
+                                <div className="py-2.5 px-4 border-2 border-dashed border-slate-200 rounded-2xl text-xs font-bold text-slate-400 hover:border-slate-400 hover:text-slate-600 transition-colors text-center">
+                                    {attachPreview ? 'Changer l\'image…' : 'Choisir une image'}
+                                </div>
+                                <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
+                            </label>
+                        </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-3 pt-2">
+                        <button type="submit" disabled={saving}
+                            className="flex-1 py-4 rounded-2xl bg-slate-900 text-white font-black text-sm uppercase tracking-widest hover:bg-slate-700 transition-colors disabled:opacity-50">
+                            {saving ? 'Enregistrement…' : editingId ? "Mettre à jour" : "Créer l'événement"}
+                        </button>
+                        {editingId && (
+                            <button type="button" onClick={cancelEdit}
+                                className="px-6 py-4 rounded-2xl border border-slate-200 text-slate-500 font-bold text-sm hover:bg-slate-50 transition-colors">
+                                Annuler
+                            </button>
+                        )}
+                    </div>
+                </form>
+            </div>
+
+            {/* ── List ──────────────────────────────────────────────────────── */}
+            <div>
+                <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-black text-slate-900">Événements</h3>
+                    <span className="bg-slate-100 text-slate-500 px-3 py-1 rounded-full text-xs font-black">
+                        {events.length} événement{events.length !== 1 ? 's' : ''}
+                    </span>
+                </div>
+                {events.length === 0
+                    ? <div className="text-center py-16 text-slate-400 text-sm border-2 border-dashed border-slate-200 rounded-3xl">Aucun événement créé pour l'instant.</div>
+                    : (
+                        <div className="space-y-3">
+                            {events.map(ev => (
+                                <EventCard
+                                    key={ev.id} ev={ev}
+                                    onEdit={editItem} onDelete={deleteItem}
+                                    onShowRegistrations={showRegistrations}
+                                    isRegOpen={openRegs === ev.id}
+                                    registrations={registrations[ev.id]}
+                                />
+                            ))}
+                        </div>
+                    )
+                }
+            </div>
+        </div>
+    );
+}

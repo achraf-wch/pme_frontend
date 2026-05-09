@@ -8,16 +8,56 @@ import ContactsList from './admin/ContactsList';
 import EventsManager from './admin/EventsManager';
 import StaticPagesEditor from './admin/StaticPagesEditor';
 import MediaManager from './admin/MediaManager';
-import MembersManager from './admin/MembersManager';
-import SympathizersManager from './admin/SympathizersManager';
-import VolunteersManager from './admin/VolunteersManager';
+import UsersManager from './admin/UserManager';
 import NewsletterManager from './admin/NewsletterManager';
 import StatsPanel from './admin/StatsPanel';
-import { ROLE_DESCRIPTIONS, ROLE_LABELS, roleNameOf } from '../utils/roles';
+import AuditLogs from './admin/AuditLogs';
+import DashboardFeed from './member/DashboardFeed';
+import NotificationBar from '../components/NotificationBar';
+
+// ─── Role config ────────────────────────────────────────────────────────────
+
+export const ROLES = [
+    'visitor',
+    'sympathizer',
+    'member',
+    'local_official',
+    'regional_official',
+    'central_admin',
+    'super_admin',
+];
+
+export const ROLE_LABELS = {
+    visitor:           'Visiteur',
+    sympathizer:       'Soutien',
+    member:            'Membre',
+    local_official:    'Admin Local',
+    regional_official: 'Admin Régional',
+    central_admin:     'Administration Centrale',
+    super_admin:       'Superviseur Général',
+};
+
+export const ROLE_DESCRIPTIONS = {
+    visitor:           'Navigation générale, inscription, demandes d\'adhésion, inscription aux événements et dons.',
+    sympathizer:       'Création de profils, suivi des demandes et réception des notifications.',
+    member:            'Accès à leur espace personnel, mise à jour des informations, suivi de leur statut et vote en cas d\'éligibilité.',
+    local_official:    'Accès aux données autorisées et gestion de certaines activités et de rapports partiels.',
+    regional_official: 'Accès aux données autorisées et gestion de certaines activités et de rapports partiels.',
+    central_admin:     'Gestion du contenu, des adhésions, des dons, des votes et génération de rapports.',
+    super_admin:       'Autorité totale sur le système, les paramètres et la sécurité.',
+};
+
+export function roleNameOf(user) {
+    return user?.role?.name || user?.role || 'visitor';
+}
+
+// ─── Pending Membership Requests ────────────────────────────────────────────
 
 function PendingMembershipRequests() {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [confirmId, setConfirmId] = useState(null);
+    const [confirmAction, setConfirmAction] = useState(null);
 
     const refresh = () => getPendingRequests().then(res => setRequests(res.data));
 
@@ -25,17 +65,54 @@ function PendingMembershipRequests() {
         refresh().finally(() => setLoading(false));
     }, []);
 
-    const approve = (id) => approveRequest(id).then(refresh);
-    const reject = (id) => rejectRequest(id).then(refresh);
+    const handleConfirm = (id, action) => {
+        setConfirmId(id);
+        setConfirmAction(action);
+    };
+
+    const executeAction = () => {
+        const fn = confirmAction === 'approve' ? approveRequest : rejectRequest;
+        fn(confirmId).then(() => {
+            refresh();
+            setConfirmId(null);
+            setConfirmAction(null);
+        });
+    };
 
     if (loading) return <div className="p-10 text-center text-slate-400">Chargement des demandes...</div>;
 
     return (
         <div className="space-y-4">
+            {/* Confirm Modal */}
+            {confirmId && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+                    <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 border border-slate-100">
+                        <div className="text-center space-y-3">
+                            <div className={`w-14 h-14 mx-auto rounded-full flex items-center justify-center text-2xl ${confirmAction === 'approve' ? 'bg-emerald-50' : 'bg-red-50'}`}>
+                                {confirmAction === 'approve' ? '✅' : '🚫'}
+                            </div>
+                            <h4 className="text-lg font-black text-slate-900">
+                                {confirmAction === 'approve' ? 'Approuver la demande ?' : 'Rejeter la demande ?'}
+                            </h4>
+                            <p className="text-slate-500 text-sm">Cette action ne peut pas être annulée.</p>
+                        </div>
+                        <div className="flex gap-3 mt-6">
+                            <button onClick={() => { setConfirmId(null); setConfirmAction(null); }} className="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-slate-700 font-bold text-sm hover:bg-slate-50">
+                                Annuler
+                            </button>
+                            <button onClick={executeAction} className={`flex-1 px-4 py-2 rounded-lg text-white font-bold text-sm ${confirmAction === 'approve' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-500 hover:bg-red-600'}`}>
+                                Confirmer
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             <div>
                 <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">Adhésion</p>
                 <h3 className="text-2xl font-black text-slate-900 mt-1">Demandes en attente</h3>
             </div>
+
             {requests.length === 0 ? (
                 <div className="p-8 bg-slate-50 rounded-lg border border-dashed border-slate-200 text-center text-slate-500">
                     Aucune demande en attente.
@@ -51,8 +128,12 @@ function PendingMembershipRequests() {
                             </p>
                         </div>
                         <div className="flex gap-3 shrink-0">
-                            <button onClick={() => approve(req.id)} className="px-5 py-2 bg-emerald-700 text-white rounded-md font-bold text-sm">Approuver</button>
-                            <button onClick={() => reject(req.id)} className="px-5 py-2 bg-white text-red-600 border border-red-200 rounded-md font-bold text-sm">Rejeter</button>
+                            <button onClick={() => handleConfirm(req.id, 'approve')} className="px-5 py-2 bg-emerald-700 text-white rounded-md font-bold text-sm hover:bg-emerald-800 transition-colors">
+                                Approuver
+                            </button>
+                            <button onClick={() => handleConfirm(req.id, 'reject')} className="px-5 py-2 bg-white text-red-600 border border-red-200 rounded-md font-bold text-sm hover:bg-red-50 transition-colors">
+                                Rejeter
+                            </button>
                         </div>
                     </article>
                 ))
@@ -61,25 +142,29 @@ function PendingMembershipRequests() {
     );
 }
 
+// ─── Tab Definitions ─────────────────────────────────────────────────────────
+
 const TAB_DEFINITIONS = [
-    { id: 'stats', label: 'Vue générale', scope: ['local_official', 'regional_official', 'central_admin', 'admin', 'super_admin'], component: <StatsPanel /> },
-    { id: 'membership', label: 'Adhésions', scope: ['central_admin', 'admin', 'super_admin'], component: <PendingMembershipRequests /> },
-    { id: 'members', label: 'Membres', scope: ['central_admin', 'admin', 'super_admin'], component: <MembersManager /> },
-    { id: 'sympathizers', label: 'Sympathisants', scope: ['central_admin', 'admin', 'super_admin'], component: <SympathizersManager /> },
-    { id: 'volunteers', label: 'Bénévoles', scope: ['central_admin', 'admin', 'super_admin'], component: <VolunteersManager /> },
-    { id: 'polls', label: 'Votes internes', scope: ['central_admin', 'admin', 'super_admin'], component: <CreatePoll /> },
-    { id: 'donations', label: 'Contributions', scope: ['central_admin', 'admin', 'super_admin'], component: <DonationsList /> },
-    { id: 'news', label: 'Actualités', scope: ['central_admin', 'admin', 'super_admin'], component: <NewsManager /> },
-    { id: 'events', label: 'Activités', scope: ['local_official', 'regional_official', 'central_admin', 'admin', 'super_admin'], component: <EventsManager /> },
-    { id: 'contacts', label: 'Messages', scope: ['central_admin', 'admin', 'super_admin'], component: <ContactsList /> },
-    { id: 'newsletter', label: 'Newsletter', scope: ['central_admin', 'admin', 'super_admin'], component: <NewsletterManager /> },
-    { id: 'static', label: 'Pages', scope: ['central_admin', 'admin', 'super_admin'], component: <StaticPagesEditor /> },
-    { id: 'media', label: 'Médias', scope: ['local_official', 'regional_official', 'central_admin', 'admin', 'super_admin'], component: <MediaManager /> },
+    { id: 'overview',   label: 'Pour moi',        scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <DashboardFeed /> },
+    { id: 'stats',      label: 'Vue générale',    scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <StatsPanel /> },
+    { id: 'membership', label: 'Adhésions',        scope: ['central_admin', 'super_admin'], component: <PendingMembershipRequests /> },
+    { id: 'users',      label: 'Utilisateurs',     scope: ['central_admin', 'super_admin'], component: <UsersManager /> },
+    { id: 'polls',      label: 'Votes internes',   scope: ['central_admin', 'super_admin'], component: <CreatePoll /> },
+    { id: 'donations',  label: 'Contributions',    scope: ['central_admin', 'super_admin'], component: <DonationsList /> },
+    { id: 'news',       label: 'Actualités',       scope: ['central_admin', 'super_admin'], component: <NewsManager /> },
+    { id: 'events',     label: 'Activités',        scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <EventsManager /> },
+    { id: 'contacts',   label: 'Messages',         scope: ['central_admin', 'super_admin'], component: <ContactsList /> },
+    { id: 'newsletter', label: 'Newsletter',       scope: ['central_admin', 'super_admin'], component: <NewsletterManager /> },
+    { id: 'static',     label: 'Pages',            scope: ['central_admin', 'super_admin'], component: <StaticPagesEditor /> },
+    { id: 'media',      label: 'Médias',           scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <MediaManager /> },
+    { id: 'audit',      label: 'Journal audit',    scope: ['central_admin', 'super_admin'], component: <AuditLogs /> },
 ];
+
+// ─── Main Dashboard ──────────────────────────────────────────────────────────
 
 export default function AdminDashboard({ user }) {
     const role = roleNameOf(user);
-    const [activeTab, setActiveTab] = useState('stats');
+    const [activeTab, setActiveTab] = useState('overview');
 
     const tabs = useMemo(() => (
         TAB_DEFINITIONS.filter(tab => role === 'super_admin' || tab.scope.includes(role))
@@ -101,13 +186,14 @@ export default function AdminDashboard({ user }) {
                         <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">Console administrative</p>
                         <h1 className="text-3xl font-black text-slate-900 mt-1">Tableau de bord</h1>
                         <p className="text-slate-500 mt-2">
-                            {user?.name} · {ROLE_LABELS[role] || role}
+                            {user?.name} · <span className="font-semibold text-slate-700">{ROLE_LABELS[role] || role}</span>
                         </p>
-                        <p className="text-slate-500 mt-2 max-w-2xl" dir="rtl">
+                        <p className="text-slate-400 text-sm mt-1 max-w-2xl" dir="rtl">
                             {ROLE_DESCRIPTIONS[role]}
                         </p>
                     </div>
                     <div className="flex flex-wrap gap-3">
+                        <NotificationBar />
                         <Link to="/" className="px-4 py-2 rounded-md border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50">
                             Retour au site
                         </Link>

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../services/api';
+import DashboardFeed from './member/DashboardFeed';
 import { ROLE_DESCRIPTIONS, ROLE_LABELS, roleNameOf } from '../utils/roles';
+import NotificationBar from '../components/NotificationBar';
 
 export default function SympathizerDashboard({ user }) {
     const [profile, setProfile] = useState(null);
@@ -29,6 +31,7 @@ export default function SympathizerDashboard({ user }) {
                         <p className="text-slate-500 mt-2" dir="rtl">{ROLE_DESCRIPTIONS[role]}</p>
                     </div>
                     <div className="flex flex-wrap gap-3">
+                        <NotificationBar />
                         <Link to="/" className="px-4 py-2 rounded-md border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50">
                             Retour au site
                         </Link>
@@ -71,6 +74,10 @@ export default function SympathizerDashboard({ user }) {
                 </aside>
 
                 <main className="lg:col-span-8 space-y-6">
+                    <section className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 md:p-6">
+                        <DashboardFeed />
+                    </section>
+
                     <section className="bg-slate-900 rounded-lg p-8 text-white">
                         <p className="text-emerald-400 font-bold uppercase tracking-widest text-xs">Prochaine étape</p>
                         <h2 className="text-3xl font-black mt-3">Transformez votre participation en engagement officiel</h2>

@@ -1,16 +1,19 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import ActivePolls from './member/ActivePolls';
+import DashboardFeed from './member/DashboardFeed';
 import MyDonations from './member/MyDonations';
 import MyEvents from './member/MyEvents';
 import ProfileEditor from './member/ProfileEditor';
 import { ROLE_DESCRIPTIONS, ROLE_LABELS, roleNameOf } from '../utils/roles';
+import NotificationBar from '../components/NotificationBar';
 
 export default function MemberDashboard({ user }) {
-    const [activeTab, setActiveTab] = useState('profile');
+    const [activeTab, setActiveTab] = useState('overview');
     const role = roleNameOf(user);
 
     const tabs = [
+        { id: 'overview', label: 'Pour moi', component: <DashboardFeed /> },
         { id: 'profile', label: 'Profil', component: <ProfileEditor /> },
         { id: 'polls', label: 'Votes ouverts', component: <ActivePolls /> },
         { id: 'donations', label: 'Contributions', component: <MyDonations /> },
@@ -28,6 +31,7 @@ export default function MemberDashboard({ user }) {
                         <p className="text-slate-500 mt-2" dir="rtl">{ROLE_DESCRIPTIONS[role]}</p>
                     </div>
                     <div className="flex flex-wrap gap-3">
+                        <NotificationBar />
                         <Link to="/" className="px-4 py-2 rounded-md border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50">
                             Retour au site
                         </Link>

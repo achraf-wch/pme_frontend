@@ -5,10 +5,12 @@ const AUDIENCE_OPTIONS = [
   { value: 'public', label: 'Public', desc: 'Tout le monde', icon: '🌐' },
   { value: 'visitor', label: 'Visiteurs', desc: 'Inscrits non-membres', icon: '👤' },
   { value: 'sympathizer', label: 'Sympathisants', desc: 'Sympathisants', icon: '🤝' },
+  { value: 'volunteer', label: 'Bénévoles', desc: 'Bénévoles inscrits', icon: '✓' },
   { value: 'member', label: 'Membres', desc: 'Membres actifs', icon: '✓' },
   { value: 'local_official', label: 'Élus Locaux', desc: 'Responsables locaux', icon: '🏛' },
+  { value: 'regional_official', label: 'Élus Régionaux', desc: 'Responsables régionaux', icon: '🏛' },
   { value: 'central_admin', label: 'Admin Central', desc: 'Administration centrale', icon: '⚙' },
-  { value: 'super_admin', label: 'Super Admin', desc: 'Accès complet', icon: '★' },
+  { value: 'super_admin', label: 'Superviseur', desc: 'Accès complet', icon: '★' },
 ];
 
 const emptyForm = {
@@ -59,6 +61,7 @@ export default function CreatePoll() {
     if (form.audience.length === 0) return alert('Sélectionnez au moins une audience.');
     const validOpts = form.options.filter(o => o.trim() !== '');
     if (validOpts.length < 2) return alert('Au moins 2 options sont requises.');
+    if (!window.confirm('Confirmer et publier ce vote pour l’audience sélectionnée ?')) return;
     setSaving(true);
     setMessage(null);
     try {

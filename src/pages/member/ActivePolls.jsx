@@ -16,6 +16,7 @@ export default function ActivePolls() {
     };
 
     const handleVote = async (pollId, optionId) => {
+        if (!window.confirm('Confirmer votre vote ? Cette action ne pourra pas être répétée.')) return;
         setVoting(prev => ({ ...prev, [pollId]: true }));
         try {
             await submitVote(pollId, optionId);

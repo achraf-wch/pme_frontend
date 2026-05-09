@@ -36,16 +36,11 @@ export default function About() {
 
                         {/* Photo + badges */}
                         <div className="shrink-0 text-center">
-                            <div className="w-64 h-64 rounded-[2.5rem] overflow-hidden shadow-2xl border-4 border-white ring-4 ring-blue-100 mx-auto bg-slate-100">
-                                {/* ⬇️ REMPLACE PAR LA VRAIE PHOTO */}
+                            <div className="w-72 h-96 rounded-lg overflow-hidden shadow-2xl border-4 border-white ring-4 ring-blue-100 mx-auto bg-slate-100">
                                 <img
-                                    src="/images/ali-amzine.jpg"
-                                    alt="Ali Amzine"
+                                    src="/imgs/AliAmzineCv.webp"
+                                    alt="CV du fondateur Ali Amzine"
                                     className="w-full h-full object-cover"
-                                    onError={e => {
-                                        e.target.style.display = 'none';
-                                        e.target.parentElement.innerHTML = `<div style="width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;background:linear-gradient(135deg,#1e3a5f,#2980b9);color:white;"><div style="font-size:4rem">👤</div><div style="font-size:0.8rem;margin-top:0.5rem;opacity:0.8">Ali Amzine</div></div>`;
-                                    }}
                                 />
                             </div>
 
@@ -67,7 +62,7 @@ export default function About() {
                             </div>
 
                             {/* Bio arabe */}
-                            <div className="bg-blue-50 p-8 rounded-[2rem] border-r-4 border-blue-600">
+                            <div className="bg-blue-50 p-8 rounded-lg border-r-4 border-blue-600">
                                 <h3 className="text-lg font-bold text-blue-800 mb-4" dir="rtl">السيرة الذاتية</h3>
                                 <p className="text-slate-700 leading-loose text-base" dir="rtl">
                                     هو مدير الأكاديمية الدولية للتكوين والتأهيل في التكنولوجيا واللغات والمهن. كاتب إقتصادي ومكون في الذكاء الجماعي والإبتكار، وفاعل سياسي واجتماعي. مصمم في صناعة المكاتب، مهندس إعلاميات وإدماج برامج الذكاء الإصطناعي، ومحلل سياسي ومكون في اللغات والتواصل.
@@ -75,7 +70,7 @@ export default function About() {
                             </div>
 
                             {/* Bio française */}
-                            <div className="bg-slate-50 p-8 rounded-[2rem] border-l-4 border-emerald-500">
+                            <div className="bg-slate-50 p-8 rounded-lg border-l-4 border-emerald-500">
                                 <h3 className="text-lg font-bold text-emerald-700 mb-4">Biographie</h3>
                                 <p className="text-slate-600 leading-loose text-base italic">
                                     Directeur de l'Académie internationale pour la formation et la qualification en technologie, langues et métiers. Écrivain économique, ingénieur informatique et formateur en intelligence collective et en innovation. Acteur politique et social, designer en industrie du mobilier de bureau, analyste politique et intégrateur en intelligence artificielle.
@@ -89,9 +84,8 @@ export default function About() {
                     DÉCLARATION DE CONSTITUTION
                 ═══════════════════════════════════════════════ */}
                 <section>
-                    <div className="relative bg-gradient-to-br from-[#0d1b2a] to-[#1a3a5c] rounded-[3rem] p-10 md:p-16 text-white overflow-hidden">
-                        <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-full -mr-24 -mt-24" />
-                        <div className="absolute bottom-0 left-0 w-32 h-32 bg-emerald-500/10 rounded-full -ml-16 -mb-16" />
+                    <div className="relative bg-gradient-to-br from-[#0d1b2a] to-[#1a3a5c] rounded-lg p-10 md:p-16 text-white overflow-hidden">
+                        <img src="/imgs/pmeCreation.webp" alt="Déclaration de constitution du PME" className="absolute inset-0 w-full h-full object-cover opacity-25" />
 
                         <div className="relative z-10 text-center space-y-6">
                             <p className="text-blue-400 font-bold uppercase tracking-widest text-xs">
@@ -130,18 +124,20 @@ export default function About() {
 
                     <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
-                            { icon: "⚖️", title: "ANTI POPULISTES", color: "bg-blue-50 border-blue-200 text-blue-800" },
-                            { icon: "🚀", title: "PRO EMERGENCE", color: "bg-red-50 border-red-200 text-red-800" },
-                            { icon: "🎓", title: "PRO FORMATION", color: "bg-emerald-50 border-emerald-200 text-emerald-800" }
+                            { image: "/imgs/ANTI_POPULISTES.webp", title: "ANTI POPULISTES", color: "bg-blue-50 border-blue-200 text-blue-800" },
+                            { image: "/imgs/PRO_EMERGENCE.webp", title: "PRO EMERGENCE", color: "bg-red-50 border-red-200 text-red-800" },
+                            { image: "/imgs/PRO_FORMATION.webp", title: "PRO FORMATION", color: "bg-emerald-50 border-emerald-200 text-emerald-800" }
                         ].map((v, i) => (
-                            <div key={i} className={`border rounded-[2rem] p-8 text-center ${v.color}`}>
-                                <span className="text-4xl mb-4 block">{v.icon}</span>
+                            <div key={i} className={`border rounded-lg overflow-hidden text-center ${v.color}`}>
+                                <img src={v.image} alt={v.title} className="w-full h-44 object-cover bg-white" />
+                                <div className="p-6">
                                 <h4 className="font-black text-lg">{v.title}</h4>
+                                </div>
                             </div>
                         ))}
                     </div>
 
-                    <div className="mt-10 bg-slate-50 rounded-[2rem] p-10 border border-slate-100">
+                    <div className="mt-10 bg-slate-50 rounded-lg p-10 border border-slate-100">
                         <p className="text-slate-700 leading-loose text-lg" dir="rtl">
                             برنامجنا واقعي وبديل حقيقي للحظة الراهنة. وآلياته شعبية واجتماعية مبتكرة كليا، ولا يشبه أو يقلد أي حزب آخر في الداخل أو في الخارج، لأنه بكل بساطة ينطلق من الواقع المعاش ويضع الحلول الدقيقة لما يحتاجه واقع الحال، بعيدا عن الديماغوجية والطوباوية السياسية.
                         </p>
@@ -155,9 +151,9 @@ export default function About() {
                     BRAINSTORMING / INTELLIGENCE COLLECTIVE
                 ═══════════════════════════════════════════════ */}
                 <section>
-                    <div className="flex flex-col md:flex-row gap-10 items-start bg-gradient-to-br from-blue-50 to-slate-50 rounded-[3rem] p-10 md:p-16 border border-blue-100">
-                        <div className="shrink-0 text-6xl">🧠</div>
-                        <div className="space-y-4">
+                    <div className="grid md:grid-cols-5 gap-10 items-stretch bg-gradient-to-br from-blue-50 to-slate-50 rounded-lg p-6 md:p-10 border border-blue-100">
+                        <img src="/imgs/img.webp" alt="Intelligence collective du PME" className="md:col-span-2 w-full h-full min-h-80 object-cover rounded-lg bg-white" />
+                        <div className="md:col-span-3 space-y-4">
                             <h3 className="text-2xl font-black text-[#2c3e50]">
                                 العمل بالذكاء الجماعي | Brainstorming Collectif
                             </h3>
@@ -184,7 +180,7 @@ export default function About() {
                     </div>
 
                     {/* Lecteur vidéo */}
-                    <div className="relative aspect-video bg-[#0d1b2a] rounded-[3rem] shadow-2xl overflow-hidden group cursor-pointer"
+                    <div className="relative aspect-video bg-[#0d1b2a] rounded-lg shadow-2xl overflow-hidden group cursor-pointer"
                         onClick={() => setVideoPlaying(true)}>
 
                         {videoPlaying ? (
@@ -196,10 +192,9 @@ export default function About() {
                             <>
                                 {/* Miniature — remplace par vrai img */}
                                 <img
-                                    src="/images/mon-ecole-digitale-thumbnail.jpg"
+                                    src="/imgs/img4.webp"
                                     alt="Mon École Digitale"
-                                    className="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-60 transition-opacity duration-500"
-                                    onError={e => { e.target.style.display = 'none'; }}
+                                    className="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-70 transition-opacity duration-500"
                                 />
 
                                 {/* Overlay gradient */}

@@ -2,6 +2,30 @@ import { useEffect, useState } from 'react';
 import API, { getStorageUrl } from '../../services/api';
 import { Link } from 'react-router-dom';
 
+const staticArticles = [
+    {
+        id: 'static-constitution',
+        title: 'بيان تأسيس حزب المغرب الصاعد',
+        content: 'Declaration of the Constitution of the Emerging Morocco Party. Déclaration de Constitution du parti du Maroc Emergent.',
+        image_path: '/imgs/pmeCreation.webp',
+        published_at: '2024-07-05',
+    },
+    {
+        id: 'static-ai',
+        title: 'تعرف على حزب المغرب الصاعد بالذكاء الاصطناعي',
+        content: 'Le PME porte une vision politique qui relie intelligence artificielle, innovation, formation et intelligence collective.',
+        image_path: '/imgs/img3.webp',
+        published_at: '2024-07-05',
+    },
+    {
+        id: 'static-brainstorming',
+        title: 'حزب المغرب الصاعد والعمل بالذكاء الجماعي',
+        content: 'Les comités de laboratoires spécialisés produisent et étudient des programmes de développement par brainstorming collectif.',
+        image_path: '/imgs/img.webp',
+        published_at: '2024-07-05',
+    },
+];
+
 function NewsCard({ article }) {
     const imgUrl = getStorageUrl(article.image_path);
 
@@ -97,9 +121,8 @@ export default function FeaturedNews() {
                         <p className="text-slate-400 text-sm mt-1" dir="rtl">تعذر تحميل الأخبار</p>
                     </div>
                 ) : news.length === 0 ? (
-                    <div className="text-center py-16 bg-slate-50 rounded-lg border border-dashed border-slate-200">
-                        <p className="text-slate-500 font-medium">Aucune actualité disponible pour le moment.</p>
-                        <p className="text-slate-400 text-sm mt-1" dir="rtl">لا توجد أخبار متاحة في الوقت الراهن</p>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {staticArticles.map(article => <NewsCard key={article.id} article={article} />)}
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

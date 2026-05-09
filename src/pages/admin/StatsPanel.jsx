@@ -15,7 +15,7 @@ export default function StatsPanel() {
         if (!stats) return [];
 
         return [
-            stats.users && { title: 'Utilisateurs', value: stats.users.total, subValue: `${stats.users.admins || 0} admins` },
+            stats.users && { title: 'Utilisateurs', value: stats.users.total, subValue: `${stats.users.central_admins || 0} admin. centrales · ${stats.users.supervisors || 0} superviseurs` },
             stats.users && { title: 'Membres', value: stats.users.members, subValue: 'Actifs' },
             stats.events && { title: 'Activités', value: stats.events.total, subValue: `${stats.events.registrations} inscriptions` },
             stats.news && { title: 'Actualités', value: stats.news.total, subValue: `${stats.news.published} publiées` },

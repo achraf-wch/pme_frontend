@@ -17,10 +17,11 @@ export default function MyEvents() {
         } catch (err) { console.error(err); }
     };
 
-    const handleRegister = async (eventId) => {
+    const handleRegister = async (event) => {
+        if (!window.confirm(`Confirmer votre inscription à "${event.title}" ?`)) return;
         setLoading(true);
         try {
-            await registerForEvent(eventId);
+            await registerForEvent(event.id);
             setMessage('Inscription réussie !');
             fetchData();
         } catch (err) {
@@ -40,7 +41,7 @@ export default function MyEvents() {
             </div>
             {!isRegistered && (
                 <button 
-                    onClick={() => handleRegister(ev.id)} 
+                    onClick={() => handleRegister(ev)} 
                     disabled={loading}
                     className="w-full py-3 bg-[#1a1a2e] text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all disabled:opacity-50"
                 >
