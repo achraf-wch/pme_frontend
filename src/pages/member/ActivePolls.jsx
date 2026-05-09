@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
 import { getActivePolls, submitVote } from '../../services/api';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function ActivePolls() {
     const [polls, setPolls] = useState([]);
     const [voting, setVoting] = useState({});
     const [message, setMessage] = useState('');
+    const [pendingVote, setPendingVote] = useState(null);
 
     useEffect(() => { fetchPolls(); }, []);
 
@@ -15,8 +17,20 @@ export default function ActivePolls() {
         } catch (err) { console.error(err); }
     };
 
-    const handleVote = async (pollId, optionId) => {
-        if (!window.confirm('Confirmer votre vote ? Cette action ne pourra pas être répétée.')) return;
+    const handleVote = (pollId, optionId) => {
+        const poll = polls.find(item => item.id === pollId);
+        if (poll && new Date(poll.start_date) > new Date()) {
+            setMessage('Ce vote est visible, mais il n’est pas encore ouvert.');
+            return;
+        }
+        const option = poll?.options?.find(item => item.id === optionId);
+        setPendingVote({ pollId, optionId, pollTitle: poll?.title, optionText: option?.option_text });
+    };
+
+    const confirmVote = async () => {
+        if (!pendingVote) return;
+        const { pollId, optionId } = pendingVote;
+        setPendingVote(null);
         setVoting(prev => ({ ...prev, [pollId]: true }));
         try {
             await submitVote(pollId, optionId);
@@ -31,6 +45,17 @@ export default function ActivePolls() {
 
     return (
         <div className="space-y-8 text-left">
+            <ConfirmDialog
+                open={Boolean(pendingVote)}
+                title="Confirmer votre vote ?"
+                message={pendingVote ? `Votre choix "${pendingVote.optionText}" sera enregistré pour "${pendingVote.pollTitle}". Cette action ne pourra pas être répétée.` : ''}
+                confirmLabel="Valider mon vote"
+                tone="success"
+                loading={pendingVote ? Boolean(voting[pendingVote.pollId]) : false}
+                onConfirm={confirmVote}
+                onCancel={() => setPendingVote(null)}
+            />
+
             <h3 className="text-2xl font-black text-[#1a1a2e] uppercase tracking-tight border-b border-slate-100 pb-4">
                 Sondages Actifs | الاستطلاعات
             </h3>
@@ -59,7 +84,11 @@ export default function ActivePolls() {
                                 </p>
                             </div>
 
-                            {poll.has_voted ? (
+                            {new Date(poll.start_date) > new Date() ? (
+                                <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-center">
+                                    Ouvre le {new Date(poll.start_date).toLocaleString('fr-FR')}
+                                </div>
+                            ) : poll.has_voted ? (
                                 <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-center">
                                     ✓ Participation Enregistrée
                                 </div>

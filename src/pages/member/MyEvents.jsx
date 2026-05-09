@@ -1,11 +1,13 @@
 import { useEffect, useState } from 'react';
 import { getMyEvents, getPublicEvents, registerForEvent } from '../../services/api';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function MyEvents() {
     const [registeredEvents, setRegisteredEvents] = useState([]);
     const [availableEvents, setAvailableEvents] = useState([]);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
+    const [pendingEvent, setPendingEvent] = useState(null);
 
     useEffect(() => { fetchData(); }, []);
 
@@ -17,8 +19,12 @@ export default function MyEvents() {
         } catch (err) { console.error(err); }
     };
 
-    const handleRegister = async (event) => {
-        if (!window.confirm(`Confirmer votre inscription à "${event.title}" ?`)) return;
+    const handleRegister = (event) => setPendingEvent(event);
+
+    const confirmRegister = async () => {
+        if (!pendingEvent) return;
+        const event = pendingEvent;
+        setPendingEvent(null);
         setLoading(true);
         try {
             await registerForEvent(event.id);
@@ -53,6 +59,17 @@ export default function MyEvents() {
 
     return (
         <div className="space-y-12 text-left">
+            <ConfirmDialog
+                open={Boolean(pendingEvent)}
+                title="Confirmer votre inscription ?"
+                message={pendingEvent ? `Vous allez réserver une place pour "${pendingEvent.title}".` : ''}
+                confirmLabel="Réserver"
+                tone="success"
+                loading={loading}
+                onConfirm={confirmRegister}
+                onCancel={() => setPendingEvent(null)}
+            />
+
             {message && (
                 <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
                     {message}

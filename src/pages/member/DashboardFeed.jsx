@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getActivePolls, getMedia, getPublicEvents, getPublicNews, registerForEvent } from '../../services/api';
+import { getActivePolls, getMedia, getPublicEvents, getMyNews, registerForEvent } from '../../services/api';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function DashboardFeed() {
     const [polls, setPolls] = useState([]);
@@ -9,6 +10,7 @@ export default function DashboardFeed() {
     const [media, setMedia] = useState([]);
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(true);
+    const [pendingEvent, setPendingEvent] = useState(null);
 
     useEffect(() => {
         fetchFeed();
@@ -16,24 +18,26 @@ export default function DashboardFeed() {
 
     const fetchFeed = async () => {
         setLoading(true);
-        try {
-            const [pollRes, eventRes, newsRes, mediaRes] = await Promise.all([
-                getActivePolls(),
-                getPublicEvents(),
-                getPublicNews(),
-                getMedia({ audience: 'mine' }),
-            ]);
-            setPolls(pollRes.data);
-            setEvents(eventRes.data);
-            setNews(newsRes.data);
-            setMedia(mediaRes.data);
-        } finally {
-            setLoading(false);
-        }
+        const [pollRes, eventRes, newsRes, mediaRes] = await Promise.allSettled([
+            getActivePolls(),
+            getPublicEvents(),
+            getMyNews(),
+            getMedia({ audience: 'mine' }),
+        ]);
+
+        setPolls(pollRes.status === 'fulfilled' ? pollRes.value.data : []);
+        setEvents(eventRes.status === 'fulfilled' ? eventRes.value.data : []);
+        setNews(newsRes.status === 'fulfilled' ? newsRes.value.data : []);
+        setMedia(mediaRes.status === 'fulfilled' ? mediaRes.value.data : []);
+        setLoading(false);
     };
 
-    const reserve = async (event) => {
-        if (!window.confirm(`Confirmer votre inscription à "${event.title}" ?`)) return;
+    const reserve = (event) => setPendingEvent(event);
+
+    const confirmReserve = async () => {
+        if (!pendingEvent) return;
+        const event = pendingEvent;
+        setPendingEvent(null);
         try {
             await registerForEvent(event.id);
             setMessage('Inscription confirmée.');
@@ -49,6 +53,16 @@ export default function DashboardFeed() {
 
     return (
         <div className="space-y-8 text-left">
+            <ConfirmDialog
+                open={Boolean(pendingEvent)}
+                title="Réserver cette activité ?"
+                message={pendingEvent ? `Vous allez confirmer votre inscription à "${pendingEvent.title}".` : ''}
+                confirmLabel="Réserver"
+                tone="success"
+                onConfirm={confirmReserve}
+                onCancel={() => setPendingEvent(null)}
+            />
+
             {message && (
                 <div className="rounded-lg border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">
                     {message}
@@ -107,7 +121,7 @@ export default function DashboardFeed() {
                 ) : (
                     <div className="grid gap-3 md:grid-cols-2">
                         {news.slice(0, 4).map(item => (
-                            <Link key={item.id} to="/news" className="rounded-lg border border-slate-200 bg-white p-4 hover:border-emerald-200 hover:shadow-sm transition-all">
+                            <Link key={item.id} to={`/news/${item.id}`} className="rounded-lg border border-slate-200 bg-white p-4 hover:border-emerald-200 hover:shadow-sm transition-all">
                                 <p className="text-sm font-black text-slate-900">{item.title}</p>
                                 <p className="mt-2 line-clamp-2 text-xs text-slate-500">{item.content}</p>
                             </Link>
