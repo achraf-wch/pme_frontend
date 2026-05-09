@@ -26,6 +26,7 @@ API.interceptors.request.use(
 export const getStorageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
+    if (path.startsWith('/')) return path;
     return `${ASSET_BASE_URL}/storage/${path}`;
 };
 
@@ -62,6 +63,13 @@ export const logout = () =>
 export const getMe = () =>
     API.get('/me');
 
+// ── Notifications ────────────────────────────────────────────────────────────
+
+export const getNotifications = () => API.get('/notifications');
+export const getNotificationSummary = () => API.get('/notifications/summary');
+export const markNotificationRead = (id) => API.put(`/notifications/${id}/read`);
+export const markAllNotificationsRead = () => API.put('/notifications/read-all');
+
 // ── Membership request ────────────────────────────────────────────────────────
 
 export const submitMembershipRequest = (motivation) =>
@@ -89,7 +97,7 @@ export const updateDonationStatus  = (id, status) => API.put(`/donations/${id}`,
 
 // ── News ──────────────────────────────────────────────────────────────────────
 
-export const getNews       = () => API.get('/news');
+export const getNews       = () => API.get('/admin/news');
 export const getPublicNews = () => API.get('/news/feed');
 
 export const createNews = (data) =>
@@ -114,7 +122,7 @@ export const deleteContact  = (id) => API.delete(`/contacts/${id}`);
 
 // ── Events ────────────────────────────────────────────────────────────────────
 
-export const getEvents             = ()        => API.get('/events');
+export const getEvents             = ()        => API.get('/admin/events');
 export const getPublicEvents       = ()        => API.get('/events/feed');
 export const getMyEvents           = ()        => API.get('/my-events');
 export const getEventRegistrations = (id)      => API.get(`/events/${id}/registrations`);
@@ -138,15 +146,17 @@ export const updateEvent = (id, data) => {
 
 export const getStaticPages  = ()           => API.get('/static-pages');
 export const updateStaticPage = (slug, data) => API.put(`/static-pages/${slug}`, data);
+export const searchContent = (query) => API.get('/search', { params: { q: query } });
 
 // ── Media ─────────────────────────────────────────────────────────────────────
 
-export const getMedia    = ()     => API.get('/media');
+export const getMedia    = (params = {}) => API.get('/media', { params });
 export const deleteMedia = (id)   => API.delete(`/media/${id}`);
 
-export const uploadMedia = (file) => {
+export const uploadMedia = (file, audience = ['public']) => {
     const fd = new FormData();
     fd.append('file', file);
+    audience.forEach(role => fd.append('audience[]', role));
     return API.post('/media', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
@@ -190,5 +200,6 @@ export const sendNewsletter             = (data)   => API.post('/admin/newslette
 
 export const getStats = () => API.get('/admin/stats');
 export const getBranches = () => API.get('/admin/branches');
+export const getAuditLogs = (params = {}) => API.get('/admin/audit-logs', { params });
 
 export default API;
