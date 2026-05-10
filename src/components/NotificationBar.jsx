@@ -88,6 +88,16 @@ export default function NotificationBar() {
         setNotifications((items) => items.map((item) => ({ ...item, read_at: item.read_at || new Date().toISOString() })));
     };
 
+    const notificationUrl = (data) => {
+        if (data?.source_type === 'news' && data.source_id) {
+            return `/news/${data.source_id}`;
+        }
+        if (data?.source_type === 'poll' && data.source_id) {
+            return `/member/active-polls?poll=${data.source_id}`;
+        }
+        return data?.action_url || '/dashboard';
+    };
+
     return (
         <div className="relative" ref={panelRef}>
             <button
@@ -138,7 +148,7 @@ export default function NotificationBar() {
                                 return (
                                     <Link
                                         key={notification.id}
-                                        to={data.action_url || '/dashboard'}
+                                        to={notificationUrl(data)}
                                         onClick={() => {
                                             readOne(notification);
                                             setOpen(false);

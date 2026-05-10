@@ -99,6 +99,8 @@ export const updateDonationStatus  = (id, status) => API.put(`/donations/${id}`,
 
 export const getNews       = () => API.get('/admin/news');
 export const getPublicNews = () => API.get('/news/feed');
+export const getMyNews = () => API.get('/my-news');
+export const getNewsItem = (id) => API.get(localStorage.getItem('token') ? `/my-news/${id}` : `/news/${id}`);
 
 export const createNews = (data) =>
     API.post('/news', toFormData(data), {
@@ -124,6 +126,7 @@ export const deleteContact  = (id) => API.delete(`/contacts/${id}`);
 
 export const getEvents             = ()        => API.get('/admin/events');
 export const getPublicEvents       = ()        => API.get('/events/feed');
+export const getPublicEvent        = (id)      => API.get(`/events/${id}`);
 export const getMyEvents           = ()        => API.get('/my-events');
 export const getEventRegistrations = (id)      => API.get(`/events/${id}/registrations`);
 export const registerForEvent      = (eventId) => API.post(`/events/${eventId}/register`);
@@ -161,6 +164,11 @@ export const uploadMedia = (file, audience = ['public']) => {
         headers: { 'Content-Type': 'multipart/form-data' },
     });
 };
+
+export const createEventRecap = (eventId, data) =>
+    API.post(`/events/${eventId}/recaps`, toFormData(data), {
+        headers: { 'Content-Type': 'multipart/form-data' },
+    });
 
 // ── Profile ───────────────────────────────────────────────────────────────────
 

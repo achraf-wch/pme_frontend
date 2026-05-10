@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getBranches, getEvents, createEvent, updateEvent, deleteEvent, getEventRegistrations, getStorageUrl } from '../../services/api';
+import { getBranches, getEvents, createEvent, updateEvent, deleteEvent, getEventRegistrations, getStorageUrl, createEventRecap } from '../../services/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AUDIENCE_OPTIONS = [
@@ -68,8 +68,57 @@ const Label = ({ children }) => (
 );
 const inputCls = "w-full px-4 py-3 border border-slate-200 rounded-2xl text-sm text-slate-900 bg-slate-50 placeholder-slate-300 focus:outline-none focus:ring-2 focus:ring-slate-300 focus:bg-white transition-colors";
 
+function RecapModal({ event, onSave, onCancel, saving }) {
+    const [title, setTitle] = useState(`Récap - ${event.title}`);
+    const [content, setContent] = useState('');
+    const [photos, setPhotos] = useState([]);
+
+    const submit = (e) => {
+        e.preventDefault();
+        onSave(event.id, { title, content, photos });
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onCancel} />
+            <form onSubmit={submit} className="relative mx-4 w-full max-w-xl rounded-3xl border border-slate-100 bg-white p-7 shadow-2xl">
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-700">Après activité</p>
+                <h4 className="mt-1 text-xl font-black text-slate-900">Ajouter un récap</h4>
+                <p className="mt-2 text-sm text-slate-500">{event.title}</p>
+
+                <div className="mt-6 space-y-4">
+                    <div>
+                        <Label>Titre du récap</Label>
+                        <input value={title} onChange={e => setTitle(e.target.value)} required className={inputCls} />
+                    </div>
+                    <div>
+                        <Label>Résumé</Label>
+                        <textarea value={content} onChange={e => setContent(e.target.value)} rows={5} className={`${inputCls} resize-y`} placeholder="Ce qui s'est passé, moments forts, décisions..." />
+                    </div>
+                    <div>
+                        <Label>Photos</Label>
+                        <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-slate-200 px-4 py-4 text-center text-xs font-bold text-slate-400 hover:border-slate-400 hover:text-slate-600">
+                            {photos.length ? `${photos.length} photo(s) sélectionnée(s)` : 'Choisir des photos'}
+                            <input type="file" accept="image/*" multiple className="hidden" onChange={e => setPhotos(Array.from(e.target.files || []))} />
+                        </label>
+                    </div>
+                </div>
+
+                <div className="mt-7 flex gap-3">
+                    <button type="button" onClick={onCancel} className="flex-1 rounded-2xl border border-slate-200 py-3 text-sm font-bold text-slate-600 hover:bg-slate-50">
+                        Annuler
+                    </button>
+                    <button disabled={saving} className="flex-1 rounded-2xl bg-slate-900 py-3 text-sm font-black text-white hover:bg-slate-700 disabled:opacity-50">
+                        {saving ? 'Publication...' : 'Publier le récap'}
+                    </button>
+                </div>
+            </form>
+        </div>
+    );
+}
+
 // ─── Event Card ───────────────────────────────────────────────────────────────
-function EventCard({ ev, onEdit, onDelete, onShowRegistrations, isRegOpen, registrations }) {
+function EventCard({ ev, onEdit, onDelete, onShowRegistrations, onAddRecap, isRegOpen, registrations }) {
     const [deleteModal, setDeleteModal] = useState(false);
 
     const fmt = (dt) => new Date(dt).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
@@ -143,6 +192,12 @@ function EventCard({ ev, onEdit, onDelete, onShowRegistrations, isRegOpen, regis
                             <button onClick={() => onEdit(ev)} className="text-xs font-black text-slate-700 hover:text-slate-900 underline underline-offset-2">
                                 Modifier
                             </button>
+                            {isPast && (
+                                <button onClick={() => onAddRecap(ev)} className="text-xs font-black text-emerald-700 hover:text-emerald-900 underline underline-offset-2">
+                                    Ajouter récap
+                                    {ev.recaps_count > 0 && <span className="ml-1 text-slate-400">({ev.recaps_count})</span>}
+                                </button>
+                            )}
                             <button onClick={() => setDeleteModal(true)} className="text-xs font-black text-red-400 hover:text-red-600 underline underline-offset-2">
                                 Supprimer
                             </button>
@@ -195,6 +250,8 @@ export default function EventsManager() {
     const [branches, setBranches]       = useState([]);
     const [confirmOpen, setConfirmOpen] = useState(false);
     const [validationMsg, setValidationMsg] = useState(null);
+    const [recapEvent, setRecapEvent] = useState(null);
+    const [recapSaving, setRecapSaving] = useState(false);
 
     useEffect(() => {
         fetchEvents();
@@ -271,6 +328,19 @@ export default function EventsManager() {
         setAttachFile(null);
     };
 
+    const saveRecap = async (eventId, data) => {
+        setRecapSaving(true);
+        try {
+            await createEventRecap(eventId, data);
+            setRecapEvent(null);
+            fetchEvents();
+        } catch (err) {
+            setValidationMsg(err.response?.data?.message || 'Impossible de publier le récap.');
+        } finally {
+            setRecapSaving(false);
+        }
+    };
+
     return (
         <div className="max-w-3xl mx-auto space-y-8 pb-12">
             {/* Modals */}
@@ -286,6 +356,7 @@ export default function EventsManager() {
                 />
             )}
             {validationMsg && <ValidationModal message={validationMsg} onClose={() => setValidationMsg(null)} />}
+            {recapEvent && <RecapModal event={recapEvent} onSave={saveRecap} onCancel={() => setRecapEvent(null)} saving={recapSaving} />}
 
             {/* ── Form ──────────────────────────────────────────────────────── */}
             <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm">
@@ -433,6 +504,7 @@ export default function EventsManager() {
                                 <EventCard
                                     key={ev.id} ev={ev}
                                     onEdit={editItem} onDelete={deleteItem}
+                                    onAddRecap={setRecapEvent}
                                     onShowRegistrations={showRegistrations}
                                     isRegOpen={openRegs === ev.id}
                                     registrations={registrations[ev.id]}

@@ -3,13 +3,18 @@ import { useEffect, useState } from 'react';
 import { getMe, logout } from '../services/api';
 
 export default function Navbar() {
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
     const [isOpen, setIsOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
+            if (!localStorage.getItem('token')) {
+                setUser(null);
+                localStorage.removeItem('user');
+                return;
+            }
             try {
                 const res = await getMe();
                 setUser(res.data);
@@ -20,6 +25,12 @@ export default function Navbar() {
             }
         };
         fetchUser();
+        window.addEventListener('pme-auth-changed', fetchUser);
+        window.addEventListener('storage', fetchUser);
+        return () => {
+            window.removeEventListener('pme-auth-changed', fetchUser);
+            window.removeEventListener('storage', fetchUser);
+        };
     }, []);
 
     const handleLogout = async () => {
@@ -27,6 +38,7 @@ export default function Navbar() {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         setUser(null);
+        window.dispatchEvent(new Event('pme-auth-changed'));
         navigate('/');
     };
 
@@ -120,7 +132,11 @@ export default function Navbar() {
                     <Link to="/donate" className="block text-base font-extrabold text-emerald-700 py-2" onClick={closeMenu}>Contribuer</Link>
                     <div className="pt-4 border-t border-slate-200 flex flex-col gap-3">
                         {user ? (
-                            <Link to="/dashboard" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Tableau de bord</Link>
+                            <>
+                                <Link to="/" className="w-full text-center py-3 border border-slate-200 text-slate-700 rounded-md font-bold" onClick={closeMenu}>Accueil</Link>
+                                <Link to="/dashboard" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Tableau de bord</Link>
+                                <button onClick={() => { closeMenu(); handleLogout(); }} className="w-full text-center py-3 border border-red-200 text-red-600 rounded-md font-bold">Sortir</button>
+                            </>
                         ) : (
                             <Link to="/register" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Demander l'adhésion</Link>
                         )}

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import API from '../services/api';
 
 const getImageUrl = (path) => {
@@ -40,7 +41,7 @@ export default function EventList() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {events.map(ev => (
-                        <div key={ev.id} className="group bg-white rounded-[2rem] border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
+                        <article key={ev.id} className="group bg-white rounded-lg border border-slate-100 shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden">
                             {/* Image avec Overlay Date */}
                             <div className="relative h-56">
                                 {ev.attachment_path ? (
@@ -80,12 +81,12 @@ export default function EventList() {
                                             Places : <span className="text-blue-500">{ev.max_attendees}</span>
                                         </span>
                                     )}
-                                    <button className="text-sm font-black text-[#2c3e50] group-hover:text-blue-600 flex items-center gap-2 transition-colors uppercase tracking-wider">
-                                        Détails <span>→</span>
-                                    </button>
+                                    <Link to={`/events/${ev.id}`} className="text-sm font-black text-[#2c3e50] group-hover:text-blue-600 flex items-center gap-2 transition-colors uppercase tracking-wider">
+                                        Parcourir <span>→</span>
+                                    </Link>
                                 </div>
                             </div>
-                        </div>
+                        </article>
                     ))}
                 </div>
             )}

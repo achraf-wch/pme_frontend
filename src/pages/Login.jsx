@@ -14,6 +14,7 @@ export default function Login() {
             const response = await login(email, password);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
+            window.dispatchEvent(new Event('pme-auth-changed'));
             navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');

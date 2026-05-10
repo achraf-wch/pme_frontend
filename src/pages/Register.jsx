@@ -16,6 +16,7 @@ export default function Register() {
             const response = await register(name, email, password, passwordConfirmation);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
+            window.dispatchEvent(new Event('pme-auth-changed'));
             navigate('/dashboard');
         } catch (err) {
             setError(err.response?.data?.errors?.password?.[0] || 'Registration failed');

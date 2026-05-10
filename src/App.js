@@ -7,6 +7,8 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import NewsList from './pages/NewsList';
 import EventList from './pages/EventList';
+import NewsDetail from './pages/NewsDetail';
+import EventDetail from './pages/EventDetail';
 import PublicDonation from './pages/PublicDonation';
 import Contact from './pages/Contact';
 import About from './pages/About';
@@ -71,7 +73,9 @@ function App() {
                 <Route element={<Layout />}>
                     <Route path="/" element={<Home />} />
                     <Route path="/news" element={<NewsList />} />
+                    <Route path="/news/:id" element={<NewsDetail />} />
                     <Route path="/events" element={<EventList />} />
+                    <Route path="/events/:id" element={<EventDetail />} />
                     <Route path="/donate" element={<PublicDonation />} />
                     <Route path="/contact" element={<Contact />} />
                     <Route path="/about" element={<About />} />

@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import API from '../services/api';
+import { Link } from 'react-router-dom';
+import { getMyNews, getPublicNews, getStorageUrl } from '../services/api';
 
 const getImageUrl = (path) => {
     if (!path) return null;
     if (path.startsWith('http')) return path;
     if (path.startsWith('/')) return path;
-    return `http://localhost:8000/storage/${path}`;
+    return getStorageUrl(path);
 };
 
 const staticNews = [
@@ -51,14 +52,14 @@ export default function NewsList() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // 🔁 Use the feed endpoint (filters by audience)
-        API.get('/news/feed')
+        const loader = localStorage.getItem('token') ? getMyNews : getPublicNews;
+        loader()
             .then(res => setNews(res.data))
             .catch(err => console.error(err))
             .finally(() => setLoading(false));
     }, []);
 
-    const visibleNews = news.length > 0 ? news : staticNews;
+    const visibleNews = news.length > 0 || localStorage.getItem('token') ? news : staticNews;
 
     return (
         <div className="max-w-5xl mx-auto px-6 py-16">
@@ -74,7 +75,11 @@ export default function NewsList() {
                 </div>
             ) : (
                 <div className="space-y-16">
-                    {visibleNews.map(article => (
+                    {visibleNews.length === 0 ? (
+                        <div className="rounded-lg border border-dashed border-slate-200 bg-white p-10 text-center text-sm font-bold text-slate-400">
+                            Aucune actualité visible pour votre rôle.
+                        </div>
+                    ) : visibleNews.map(article => (
                         <article key={article.id} className="group grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
                             <div className="md:col-span-5 relative">
                                 <div className="overflow-hidden rounded-[2rem] shadow-xl">
@@ -106,14 +111,10 @@ export default function NewsList() {
                                     {article.title}
                                 </h3>
                                 
-                                <p className="text-slate-600 leading-relaxed mb-6 font-light">
-                                    {article.content}
-                                </p>
-                                
                                 <div className="flex items-center justify-between">
-                                    <button className="flex items-center gap-2 text-sm font-black text-slate-900 border-b-2 border-transparent hover:border-blue-500 transition-all pb-1 uppercase tracking-widest">
-                                        Lire l'article complet
-                                    </button>
+                                    <Link to={`/news/${article.id}`} className="flex items-center gap-2 text-sm font-black text-slate-900 border-b-2 border-transparent hover:border-blue-500 transition-all pb-1 uppercase tracking-widest">
+                                        Parcourir
+                                    </Link>
                                     
                                     <div className="flex gap-2">
                                         <span className="p-2 bg-slate-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">🔗</span>
