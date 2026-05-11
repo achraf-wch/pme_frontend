@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import API from '../../services/api';
+import API, { updateVolunteerStatus } from '../../services/api';
 
 function ConfirmDialog({ name, onConfirm, onCancel }) {
     return (
@@ -48,6 +48,11 @@ export default function VolunteersManager() {
         fetchList();
     };
 
+    const setStatus = async (id, status) => {
+        const res = await updateVolunteerStatus(id, status);
+        setList(prev => prev.map(item => item.id === id ? res.data : item));
+    };
+
     if (loading) return <div className="py-16 text-center text-slate-400">Chargement...</div>;
 
     return (
@@ -77,7 +82,7 @@ export default function VolunteersManager() {
                     <table className="w-full text-sm">
                         <thead>
                             <tr className="bg-slate-50 text-left">
-                                {['Nom', 'Email', 'Téléphone', 'Ville', 'Compétences', 'Motivation', 'Date', ''].map(h => (
+                                {['Nom', 'Email', 'Téléphone', 'Ville / Section', 'Statut', 'Compétences', 'Motivation', 'Date', ''].map(h => (
                                     <th key={h} className="px-4 py-3 text-[10px] font-black text-slate-400 uppercase tracking-widest whitespace-nowrap">
                                         {h}
                                     </th>
@@ -90,7 +95,24 @@ export default function VolunteersManager() {
                                     <td className="px-4 py-3 font-bold text-slate-800 whitespace-nowrap">{v.name}</td>
                                     <td className="px-4 py-3 text-slate-500">{v.email}</td>
                                     <td className="px-4 py-3 text-slate-500 whitespace-nowrap">{v.phone || '—'}</td>
-                                    <td className="px-4 py-3 text-slate-500">{v.city || '—'}</td>
+                                    <td className="px-4 py-3 text-slate-500">
+                                        <p>{v.city || '—'}</p>
+                                        {v.party_branch && <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">{v.party_branch.name}</p>}
+                                    </td>
+                                    <td className="px-4 py-3">
+                                        <select
+                                            value={v.status || 'pending'}
+                                            onChange={e => setStatus(v.id, e.target.value)}
+                                            disabled={v.status === 'completed'}
+                                            className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700 disabled:opacity-50"
+                                        >
+                                            <option value="pending">Envoyée</option>
+                                            <option value="in_progress">En traitement</option>
+                                            <option value="approved">Acceptée</option>
+                                            <option value="rejected">Refusée</option>
+                                            <option value="completed">Terminée</option>
+                                        </select>
+                                    </td>
                                     <td className="px-4 py-3 text-slate-500 max-w-[160px] truncate" title={v.skills}>{v.skills || '—'}</td>
                                     <td className="px-4 py-3 text-slate-500 max-w-[200px] truncate" title={v.motivation}>{v.motivation || '—'}</td>
                                     <td className="px-4 py-3 text-slate-400 text-xs whitespace-nowrap">

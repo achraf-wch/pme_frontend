@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import API from '../../services/api';
+import API, { updateSympathizerStatus } from '../../services/api';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function SympathizersManager() {
@@ -43,6 +43,16 @@ export default function SympathizersManager() {
             setMessage({ type: 'success', text: 'Sympathisant supprimé.' });
         } catch {
             setMessage({ type: 'error', text: 'Suppression impossible pour le moment.' });
+        }
+    };
+
+    const setStatus = async (id, status) => {
+        try {
+            const res = await updateSympathizerStatus(id, status);
+            setList(prev => prev.map(item => item.id === id ? res.data : item));
+            setMessage({ type: 'success', text: 'Statut mis à jour.' });
+        } catch {
+            setMessage({ type: 'error', text: 'Mise à jour impossible.' });
         }
     };
 
@@ -98,7 +108,8 @@ export default function SympathizersManager() {
                                 <tr>
                                     <th className="px-4 py-3">Contact</th>
                                     <th className="px-4 py-3">Téléphone</th>
-                                    <th className="px-4 py-3">Ville</th>
+                                    <th className="px-4 py-3">Ville / Section</th>
+                                    <th className="px-4 py-3">Statut</th>
                                     <th className="px-4 py-3">Message</th>
                                     <th className="px-4 py-3">Date</th>
                                     <th className="px-4 py-3 text-right">Actions</th>
@@ -112,7 +123,24 @@ export default function SympathizersManager() {
                                             <p className="mt-1 text-xs font-bold text-emerald-700">{item.email}</p>
                                         </td>
                                         <td className="px-4 py-3 text-slate-600">{item.phone || '-'}</td>
-                                        <td className="px-4 py-3 text-slate-600">{item.city || '-'}</td>
+                                        <td className="px-4 py-3 text-slate-600">
+                                            <p>{item.city || '-'}</p>
+                                            {item.party_branch && <p className="mt-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">{item.party_branch.name}</p>}
+                                        </td>
+                                        <td className="px-4 py-3">
+                                            <select
+                                                value={item.status || 'pending'}
+                                                onChange={e => setStatus(item.id, e.target.value)}
+                                                disabled={item.status === 'completed'}
+                                                className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700 disabled:opacity-50"
+                                            >
+                                                <option value="pending">Envoyée</option>
+                                                <option value="in_progress">En traitement</option>
+                                                <option value="approved">Acceptée</option>
+                                                <option value="rejected">Refusée</option>
+                                                <option value="completed">Terminée</option>
+                                            </select>
+                                        </td>
                                         <td className="max-w-sm px-4 py-3 text-slate-500">
                                             <p className="line-clamp-3">{item.message || 'Aucun message.'}</p>
                                         </td>

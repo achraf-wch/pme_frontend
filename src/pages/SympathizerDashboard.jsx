@@ -4,13 +4,31 @@ import API from '../services/api';
 import DashboardFeed from './member/DashboardFeed';
 import { ROLE_DESCRIPTIONS, ROLE_LABELS, roleNameOf } from '../utils/roles';
 import NotificationBar from '../components/NotificationBar';
+import { getMembershipRequest, getMySympathizerRequest, getMyVolunteerRequest } from '../services/api';
+
+const requestLabel = {
+    pending: 'Envoyée',
+    in_progress: 'En traitement',
+    approved: 'Approuvée',
+    rejected: 'Refusée',
+    completed: 'Terminée',
+};
 
 export default function SympathizerDashboard({ user }) {
     const [profile, setProfile] = useState(null);
+    const [requests, setRequests] = useState({});
     const role = roleNameOf(user);
 
     useEffect(() => {
         API.get('/profile').then(res => setProfile(res.data)).catch(() => setProfile(null));
+        Promise.allSettled([getMembershipRequest(), getMySympathizerRequest(), getMyVolunteerRequest()])
+            .then(([membership, sympathizer, volunteer]) => {
+                setRequests({
+                    membership: membership.status === 'fulfilled' ? membership.value.data : null,
+                    sympathizer: sympathizer.status === 'fulfilled' ? sympathizer.value.data : null,
+                    volunteer: volunteer.status === 'fulfilled' ? volunteer.value.data : null,
+                });
+            });
     }, []);
 
     const steps = [
@@ -76,6 +94,24 @@ export default function SympathizerDashboard({ user }) {
                 <main className="lg:col-span-8 space-y-6">
                     <section className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 md:p-6">
                         <DashboardFeed />
+                    </section>
+
+                    <section className="bg-white rounded-lg shadow-sm border border-slate-200 p-5 md:p-6">
+                        <p className="text-xs font-black uppercase tracking-widest text-emerald-700">Mes demandes</p>
+                        <div className="mt-4 grid gap-3 md:grid-cols-3">
+                            {[
+                                ['Adhésion', requests.membership, requests.membership?.review_stage],
+                                ['Sympathisant', requests.sympathizer, requests.sympathizer?.status],
+                                ['Bénévole', requests.volunteer, requests.volunteer?.status],
+                            ].map(([title, req, status]) => (
+                                <div key={title} className="rounded-md border border-slate-100 bg-slate-50 p-4">
+                                    <p className="text-sm font-black text-slate-900">{title}</p>
+                                    <p className="mt-2 text-xs font-bold text-slate-500">
+                                        {req ? (requestLabel[status] || status || 'Envoyée') : 'Aucune demande'}
+                                    </p>
+                                </div>
+                            ))}
+                        </div>
                     </section>
 
                     <section className="bg-slate-900 rounded-lg p-8 text-white">

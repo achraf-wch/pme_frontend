@@ -51,8 +51,8 @@ function toFormData(data) {
 
 // ── Authentication ────────────────────────────────────────────────────────────
 
-export const register = (name, email, password, passwordConfirmation) =>
-    API.post('/register', { name, email, password, password_confirmation: passwordConfirmation });
+export const register = (name, email, password, passwordConfirmation, partyBranchId = null) =>
+    API.post('/register', { name, email, password, password_confirmation: passwordConfirmation, party_branch_id: partyBranchId });
 
 export const login = (email, password) =>
     API.post('/login', { email, password });
@@ -72,8 +72,11 @@ export const markAllNotificationsRead = () => API.put('/notifications/read-all')
 
 // ── Membership request ────────────────────────────────────────────────────────
 
-export const submitMembershipRequest = (motivation) =>
-    API.post('/membership-request', { motivation });
+export const submitMembershipRequest = (data) =>
+    API.post('/membership-request', data);
+export const getMembershipRequest = () => API.get('/membership-request');
+export const getMySympathizerRequest = () => API.get('/my-sympathizer-request');
+export const getMyVolunteerRequest = () => API.get('/my-volunteer-request');
 
 // ── Admin endpoints ───────────────────────────────────────────────────────────
 
@@ -189,12 +192,14 @@ export const deleteMember  = (id)         => API.delete(`/admin/members/${id}`);
 
 export const submitSympathizerRequest = (data) => API.post('/sympathizer-request', data);
 export const getSympathizers          = ()      => API.get('/admin/sympathizers');
+export const updateSympathizerStatus  = (id, status) => API.put(`/admin/sympathizers/${id}/status`, { status });
 export const deleteSympathizer        = (id)    => API.delete(`/admin/sympathizers/${id}`);
 
 // ── Volunteers ────────────────────────────────────────────────────────────────
 
 export const submitVolunteerRequest = (data) => API.post('/volunteer-request', data);
 export const getVolunteers          = ()      => API.get('/admin/volunteers');
+export const updateVolunteerStatus  = (id, status) => API.put(`/admin/volunteers/${id}/status`, { status });
 export const deleteVolunteer        = (id)    => API.delete(`/admin/volunteers/${id}`);
 
 // ── Newsletter ────────────────────────────────────────────────────────────────
@@ -207,7 +212,7 @@ export const sendNewsletter             = (data)   => API.post('/admin/newslette
 // ── Stats ─────────────────────────────────────────────────────────────────────
 
 export const getStats = () => API.get('/admin/stats');
-export const getBranches = () => API.get('/admin/branches');
+export const getBranches = () => API.get('/branches');
 export const getAuditLogs = (params = {}) => API.get('/admin/audit-logs', { params });
 
 export default API;
