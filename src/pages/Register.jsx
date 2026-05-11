@@ -1,19 +1,25 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { register } from '../services/api';
+import { getBranches, register } from '../services/api';
 
 export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
+    const [partyBranchId, setPartyBranchId] = useState('');
+    const [branches, setBranches] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
+
+    useEffect(() => {
+        getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await register(name, email, password, passwordConfirmation);
+            const response = await register(name, email, password, passwordConfirmation, partyBranchId || null);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             window.dispatchEvent(new Event('pme-auth-changed'));
@@ -49,6 +55,19 @@ export default function Register() {
                         className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                         required 
                     />
+
+                    <select
+                        value={partyBranchId}
+                        onChange={e => setPartyBranchId(e.target.value)}
+                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                    >
+                        <option value="">Région / section locale (optionnel)</option>
+                        {branches.map(branch => (
+                            <option key={branch.id} value={branch.id}>
+                                {branch.name}
+                            </option>
+                        ))}
+                    </select>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input 

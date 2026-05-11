@@ -4,11 +4,9 @@ import API from '../services/api';
 export default function Terms() {
     const [content, setContent] = useState('Loading...');
     useEffect(() => {
-        API.get('/static-pages')
+        API.get('/static-pages/terms')
             .then(res => {
-                const page = res.data.find(p => p.slug === 'terms');
-                if (page) setContent(page.content);
-                else setContent('Terms of service content will appear here. (Editable by admin)');
+                setContent(res.data.content);
             })
             .catch(() => setContent('Terms of service content will appear here. (Editable by admin)'));
     }, []);

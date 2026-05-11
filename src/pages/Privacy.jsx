@@ -4,11 +4,9 @@ import API from '../services/api';
 export default function Privacy() {
     const [content, setContent] = useState('Loading...');
     useEffect(() => {
-        API.get('/static-pages')
+        API.get('/static-pages/privacy')
             .then(res => {
-                const page = res.data.find(p => p.slug === 'privacy');
-                if (page) setContent(page.content);
-                else setContent('Privacy policy content will appear here. (Editable by admin)');
+                setContent(res.data.content);
             })
             .catch(() => setContent('Privacy policy content will appear here. (Editable by admin)'));
     }, []);

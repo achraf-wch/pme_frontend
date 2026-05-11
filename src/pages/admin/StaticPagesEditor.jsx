@@ -38,7 +38,21 @@ export default function StaticPagesEditor() {
         setSaving(slug);
         setConfirm(null);
         try {
-            await updateStaticPage(slug, { content: editContent[slug] });
+            const page = pages.find(item => item.slug === slug);
+            await updateStaticPage(slug, {
+                title: page.title,
+                content: editContent[slug],
+                meta_title: page.meta_title,
+                meta_description: page.meta_description,
+            });
+            setPages(prev => prev.map(item => (
+                item.slug === slug ? { ...item, content: editContent[slug] } : item
+            )));
+            setEditContent(prev => {
+                const next = { ...prev };
+                delete next[slug];
+                return next;
+            });
             setSaved(prev => ({ ...prev, [slug]: true }));
             setTimeout(() => setSaved(prev => ({ ...prev, [slug]: false })), 2500);
         } finally {
