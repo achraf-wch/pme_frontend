@@ -58,6 +58,8 @@ function PendingMembershipRequests() {
     const [loading, setLoading] = useState(true);
     const [confirmId, setConfirmId] = useState(null);
     const [confirmAction, setConfirmAction] = useState(null);
+    const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+    const currentRole = roleNameOf(currentUser);
 
     const refresh = () => getPendingRequests().then(res => setRequests(res.data));
 
@@ -118,25 +120,59 @@ function PendingMembershipRequests() {
                     Aucune demande en attente.
                 </div>
             ) : (
-                requests.map(req => (
+                requests.map(req => {
+                    const centralDone = Boolean(req.central_reviewed_by);
+                    const completed = req.status !== 'pending' || req.review_stage === 'completed';
+                    const canApprove = currentRole === 'super_admin'
+                        ? req.status === 'pending'
+                        : req.status === 'pending' && !centralDone;
+                    return (
                     <article key={req.id} className="bg-white p-5 rounded-lg border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                         <div>
                             <p className="font-black text-slate-900 text-lg">{req.user.name}</p>
                             <p className="text-emerald-700 text-sm font-semibold">{req.user.email}</p>
+                            {req.user.party_branch && (
+                                <p className="text-xs font-bold text-slate-400 mt-1">{req.user.party_branch.name}</p>
+                            )}
+                            <div className="mt-3 grid gap-2 text-xs font-bold text-slate-500 sm:grid-cols-2">
+                                {req.country && <span>Pays: {req.country}</span>}
+                                {req.regional_branch && <span>Région: {req.regional_branch.name}</span>}
+                                {req.local_branch && <span>Local: {req.local_branch.name}</span>}
+                                {req.age && <span>Âge: {req.age}</span>}
+                                {req.sex && <span>Sexe: {req.sex}</span>}
+                            </div>
+                            <div className="mt-3 flex flex-wrap gap-2">
+                                <span className="rounded-full bg-slate-100 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-slate-600">
+                                    {req.status}
+                                </span>
+                                <span className="rounded-full bg-emerald-50 px-3 py-1 text-[10px] font-black uppercase tracking-widest text-emerald-700">
+                                    {req.review_stage || 'pending'}
+                                </span>
+                            </div>
+                            {req.central_reviewer && (
+                                <p className="mt-2 text-xs font-bold text-slate-500">
+                                    Validée par {req.central_reviewer.name}
+                                </p>
+                            )}
+                            {req.super_reviewer && (
+                                <p className="mt-1 text-xs font-bold text-slate-500">
+                                    Finalisée par {req.super_reviewer.name}
+                                </p>
+                            )}
                             <p className="text-slate-500 text-sm mt-3 bg-slate-50 p-3 rounded-md border border-slate-100">
                                 {req.motivation || 'Aucune motivation fournie.'}
                             </p>
                         </div>
                         <div className="flex gap-3 shrink-0">
-                            <button onClick={() => handleConfirm(req.id, 'approve')} className="px-5 py-2 bg-emerald-700 text-white rounded-md font-bold text-sm hover:bg-emerald-800 transition-colors">
-                                Approuver
+                            <button disabled={!canApprove} onClick={() => handleConfirm(req.id, 'approve')} className="px-5 py-2 bg-emerald-700 text-white rounded-md font-bold text-sm hover:bg-emerald-800 transition-colors disabled:opacity-50">
+                                {currentRole === 'super_admin' ? 'Valider final' : centralDone ? 'Déjà traité' : 'Valider central'}
                             </button>
-                            <button onClick={() => handleConfirm(req.id, 'reject')} className="px-5 py-2 bg-white text-red-600 border border-red-200 rounded-md font-bold text-sm hover:bg-red-50 transition-colors">
+                            <button disabled={completed} onClick={() => handleConfirm(req.id, 'reject')} className="px-5 py-2 bg-white text-red-600 border border-red-200 rounded-md font-bold text-sm hover:bg-red-50 transition-colors disabled:opacity-50">
                                 Rejeter
                             </button>
                         </div>
                     </article>
-                ))
+                );})
             )}
         </div>
     );
@@ -148,22 +184,23 @@ const TAB_DEFINITIONS = [
     { id: 'overview',   label: 'Pour moi',        scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <DashboardFeed /> },
     { id: 'stats',      label: 'Vue générale',    scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <StatsPanel /> },
     { id: 'membership', label: 'Adhésions',        scope: ['central_admin', 'super_admin'], component: <PendingMembershipRequests /> },
-    { id: 'users',      label: 'Utilisateurs',     scope: ['central_admin', 'super_admin'], component: <UsersManager /> },
+    { id: 'users',      label: 'Utilisateurs',     scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <UsersManager /> },
     { id: 'polls',      label: 'Votes internes',   scope: ['central_admin', 'super_admin'], component: <CreatePoll /> },
     { id: 'donations',  label: 'Contributions',    scope: ['central_admin', 'super_admin'], component: <DonationsList /> },
-    { id: 'news',       label: 'Actualités',       scope: ['central_admin', 'super_admin'], component: <NewsManager /> },
+    { id: 'news',       label: 'Actualités',       scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <NewsManager /> },
     { id: 'events',     label: 'Activités',        scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <EventsManager /> },
     { id: 'contacts',   label: 'Messages',         scope: ['central_admin', 'super_admin'], component: <ContactsList /> },
     { id: 'newsletter', label: 'Newsletter',       scope: ['central_admin', 'super_admin'], component: <NewsletterManager /> },
     { id: 'static',     label: 'Pages',            scope: ['central_admin', 'super_admin'], component: <StaticPagesEditor /> },
     { id: 'media',      label: 'Médias',           scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <MediaManager /> },
-    { id: 'audit',      label: 'Journal audit',    scope: ['central_admin', 'super_admin'], component: <AuditLogs /> },
+    { id: 'audit',      label: 'Journal audit',    scope: ['super_admin'], component: <AuditLogs /> },
 ];
 
 // ─── Main Dashboard ──────────────────────────────────────────────────────────
 
 export default function AdminDashboard({ user }) {
-    const role = roleNameOf(user);
+    const effectiveUser = user || JSON.parse(localStorage.getItem('user') || 'null');
+    const role = roleNameOf(effectiveUser);
     const [activeTab, setActiveTab] = useState('overview');
 
     const tabs = useMemo(() => (
@@ -186,7 +223,7 @@ export default function AdminDashboard({ user }) {
                         <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">Console administrative</p>
                         <h1 className="text-3xl font-black text-slate-900 mt-1">Tableau de bord</h1>
                         <p className="text-slate-500 mt-2">
-                            {user?.name} · <span className="font-semibold text-slate-700">{ROLE_LABELS[role] || role}</span>
+                            {effectiveUser?.name} · <span className="font-semibold text-slate-700">{ROLE_LABELS[role] || role}</span>
                         </p>
                         <p className="text-slate-400 text-sm mt-1 max-w-2xl" dir="rtl">
                             {ROLE_DESCRIPTIONS[role]}

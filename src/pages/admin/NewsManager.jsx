@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getNews, createNews, updateNews, deleteNews, getStorageUrl } from '../../services/api';
+import { getBranches, getNews, createNews, updateNews, deleteNews, getStorageUrl } from '../../services/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AUDIENCE_OPTIONS = [
@@ -16,8 +16,37 @@ const AUDIENCE_OPTIONS = [
 
 const emptyForm = {
     title: '', type: 'news', topic: '', region: '',
-    content: '', published_at: '', is_published: true, audience: ['public'],
+    content: '', published_at: '', is_published: true, audience: ['public'], party_branch_id: '',
 };
+
+function currentUser() {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+}
+
+function currentRole() {
+    const user = currentUser();
+    return user?.role?.name || user?.role || 'visitor';
+}
+
+function allowedAudienceOptions() {
+    const role = currentRole();
+    if (role === 'local_official') {
+        return AUDIENCE_OPTIONS.filter(opt => !['regional_official', 'central_admin', 'super_admin'].includes(opt.value));
+    }
+    if (role === 'regional_official') {
+        return AUDIENCE_OPTIONS.filter(opt => !['central_admin', 'super_admin'].includes(opt.value));
+    }
+    return AUDIENCE_OPTIONS;
+}
+
+function writableBranches(branches) {
+    const role = currentRole();
+    const user = currentUser();
+    if (['local_official', 'regional_official'].includes(role)) {
+        return branches.filter(branch => String(branch.id) === String(user?.party_branch_id));
+    }
+    return branches;
+}
 
 // ─── Shared: Confirm Modal ────────────────────────────────────────────────────
 function ConfirmModal({ icon, title, message, confirmLabel, confirmCls, onConfirm, onCancel }) {
@@ -114,6 +143,7 @@ function NewsCard({ item, onEdit, onDelete }) {
                         </span>
                         {item.topic && <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-500 border border-slate-200">{item.topic}</span>}
                         {item.region && <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-slate-100 text-slate-500 border border-slate-200">📍 {item.region}</span>}
+                        {item.party_branch && <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-50 text-emerald-700 border border-emerald-100">{item.party_branch.name}</span>}
                         {(item.audience || []).map(a => (
                             <span key={a} className="px-2 py-0.5 rounded-full text-[9px] font-black bg-slate-900 text-white">
                                 {AUDIENCE_OPTIONS.find(o => o.value === a)?.label || a}
@@ -150,8 +180,12 @@ export default function NewsManager() {
     const [saving, setSaving]                 = useState(false);
     const [confirmOpen, setConfirmOpen]       = useState(false);
     const [validationMsg, setValidationMsg]   = useState(null);
+    const [branches, setBranches]             = useState([]);
 
-    useEffect(() => { fetchNews(); }, []);
+    useEffect(() => {
+        fetchNews();
+        getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
+    }, []);
 
     const fetchNews = async () => {
         const res = await getNews();
@@ -169,6 +203,9 @@ export default function NewsManager() {
         return { ...f, audience: has ? f.audience.filter(a => a !== val) : [...f.audience, val] };
     });
 
+    const audienceOptions = allowedAudienceOptions();
+    const branchOptions = writableBranches(branches);
+
     const editItem = (item) => {
         setEditingId(item.id);
         setForm({
@@ -176,6 +213,7 @@ export default function NewsManager() {
             region: item.region || '', content: item.content,
             published_at: item.published_at ? item.published_at.slice(0, 16) : '',
             is_published: !!item.is_published, audience: item.audience || ['public'],
+            party_branch_id: item.party_branch_id || '',
         });
         setPreview(getStorageUrl(item.image_path));
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -199,6 +237,7 @@ export default function NewsManager() {
             title: form.title, type: form.type, topic: form.topic, region: form.region,
             content: form.content, published_at: form.published_at,
             is_published: form.is_published ? '1' : '0', audience: form.audience,
+            party_branch_id: form.party_branch_id || '',
         };
         if (imageFile) payload.image = imageFile;
         if (attachmentFile) payload.attachment = attachmentFile;
@@ -291,6 +330,18 @@ export default function NewsManager() {
                         </div>
                     </div>
 
+                    <div>
+                        <Label>Portée géographique</Label>
+                        <select value={form.party_branch_id}
+                            onChange={e => setForm({ ...form, party_branch_id: e.target.value })}
+                            className={inputCls}>
+                            <option value="">Tout le monde / national</option>
+                            {branchOptions.map(branch => (
+                                <option key={branch.id} value={branch.id}>{branch.name}</option>
+                            ))}
+                        </select>
+                    </div>
+
                     {/* Content */}
                     <div>
                         <Label>Contenu</Label>
@@ -303,7 +354,7 @@ export default function NewsManager() {
                     <div>
                         <Label>Audience</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            {AUDIENCE_OPTIONS.map(opt => {
+                            {audienceOptions.map(opt => {
                                 const active = form.audience.includes(opt.value);
                                 return (
                                     <button type="button" key={opt.value} onClick={() => toggleAudience(opt.value)}

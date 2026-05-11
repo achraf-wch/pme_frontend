@@ -20,6 +20,46 @@ const emptyForm = {
     audience: ['public'], party_branch_id: '',
 };
 
+function currentUser() {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+}
+
+function currentRole() {
+    const user = currentUser();
+    return user?.role?.name || user?.role || 'visitor';
+}
+
+function isBranchOfficial(role = currentRole()) {
+    return ['local_official', 'regional_official'].includes(role);
+}
+
+function scopedEventForm(base = emptyForm) {
+    const user = currentUser();
+    return isBranchOfficial()
+        ? { ...base, party_branch_id: user?.party_branch_id || '' }
+        : { ...base };
+}
+
+function allowedAudienceOptions() {
+    const role = currentRole();
+    if (role === 'local_official') {
+        return AUDIENCE_OPTIONS.filter(opt => !['regional_official', 'central_admin', 'super_admin'].includes(opt.value));
+    }
+    if (role === 'regional_official') {
+        return AUDIENCE_OPTIONS.filter(opt => !['central_admin', 'super_admin'].includes(opt.value));
+    }
+    return AUDIENCE_OPTIONS;
+}
+
+function writableBranches(branches) {
+    const role = currentRole();
+    const user = currentUser();
+    if (isBranchOfficial(role)) {
+        return branches.filter(branch => String(branch.id) === String(user?.party_branch_id));
+    }
+    return branches;
+}
+
 // ─── Shared: Confirm Modal ────────────────────────────────────────────────────
 function ConfirmModal({ icon, title, message, confirmLabel, confirmCls, onConfirm, onCancel }) {
     return (
@@ -240,7 +280,7 @@ function EventCard({ ev, onEdit, onDelete, onShowRegistrations, onAddRecap, isRe
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function EventsManager() {
     const [events, setEvents]           = useState([]);
-    const [form, setForm]               = useState(emptyForm);
+    const [form, setForm]               = useState(() => scopedEventForm());
     const [editingId, setEditingId]     = useState(null);
     const [attachFile, setAttachFile]   = useState(null);
     const [attachPreview, setAttachPreview] = useState(null);
@@ -274,6 +314,12 @@ export default function EventsManager() {
         return { ...f, audience: has ? f.audience.filter(a => a !== val) : [...f.audience, val] };
     });
 
+    const audienceOptions = allowedAudienceOptions();
+    const branchOptions = writableBranches(branches);
+    const branchScoped = isBranchOfficial();
+    const assignedBranchId = currentUser()?.party_branch_id || '';
+    const assignedBranch = branchOptions.find(branch => String(branch.id) === String(assignedBranchId));
+
     const handleSubmitAttempt = (e) => {
         e.preventDefault();
         if (form.audience.length === 0) return setValidationMsg('Veuillez sélectionner au moins une audience.');
@@ -289,7 +335,7 @@ export default function EventsManager() {
         else await createEvent(payload);
         setSaving(false);
         setEditingId(null);
-        setForm(emptyForm);
+        setForm(scopedEventForm());
         setAttachFile(null);
         setAttachPreview(null);
         fetchEvents();
@@ -301,7 +347,7 @@ export default function EventsManager() {
             title: ev.title, description: ev.description, location: ev.location,
             start_time: ev.start_time.substring(0, 16), end_time: ev.end_time.substring(0, 16),
             max_attendees: ev.max_attendees || '', audience: ev.audience || ['public'],
-            party_branch_id: ev.party_branch_id || '',
+            party_branch_id: branchScoped ? assignedBranchId : (ev.party_branch_id || ''),
         });
         setAttachPreview(getStorageUrl(ev.attachment_path));
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -323,7 +369,7 @@ export default function EventsManager() {
 
     const cancelEdit = () => {
         setEditingId(null);
-        setForm(emptyForm);
+        setForm(scopedEventForm());
         setAttachPreview(null);
         setAttachFile(null);
     };
@@ -398,9 +444,13 @@ export default function EventsManager() {
                             <Label>Section du parti</Label>
                             <select value={form.party_branch_id}
                                 onChange={e => setForm({ ...form, party_branch_id: e.target.value })}
-                                className={inputCls}>
-                                <option value="">— Aucune —</option>
-                                {branches.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                                disabled={branchScoped}
+                                className={`${inputCls} disabled:cursor-not-allowed disabled:opacity-70`}>
+                                {!branchScoped && <option value="">Public national</option>}
+                                {branchScoped && assignedBranchId && !assignedBranch && (
+                                    <option value={assignedBranchId}>Votre région / section</option>
+                                )}
+                                {branchOptions.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
                             </select>
                         </div>
                     </div>
@@ -433,7 +483,7 @@ export default function EventsManager() {
                     <div>
                         <Label>Audience</Label>
                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                            {AUDIENCE_OPTIONS.map(opt => {
+                            {audienceOptions.map(opt => {
                                 const active = form.audience.includes(opt.value);
                                 return (
                                     <button type="button" key={opt.value} onClick={() => toggleAudience(opt.value)}

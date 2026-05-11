@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import API, { getBranches } from '../../services/api';
-import { ROLES, ROLE_LABELS } from '../AdminDashboard';
+import { ROLES, ROLE_LABELS, roleNameOf } from '../AdminDashboard';
 
 const ROLE_COLORS = {
     visitor:           'bg-slate-100 text-slate-600',
@@ -47,7 +47,7 @@ function ConfirmDialog({ message, detail, confirmLabel, confirmClass, onConfirm,
 
 // ─── User Card ───────────────────────────────────────────────────────────────
 
-function UserCard({ user, branches, onUpdate, onDelete }) {
+function UserCard({ user, branches, onUpdate, onDelete, readOnly }) {
     const [confirm, setConfirm] = useState(false);
     const roleName = user.role?.name || user.role || 'visitor';
 
@@ -81,15 +81,17 @@ function UserCard({ user, branches, onUpdate, onDelete }) {
                             )}
                         </div>
                     </div>
-                    <button
-                        onClick={() => setConfirm(true)}
-                        title="Supprimer"
-                        className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50"
-                    >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
+                    {!readOnly && (
+                        <button
+                            onClick={() => setConfirm(true)}
+                            title="Supprimer"
+                            className="text-slate-300 hover:text-red-500 transition-colors p-1 rounded-lg hover:bg-red-50"
+                        >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    )}
                 </div>
 
                 {/* Role badge */}
@@ -100,6 +102,7 @@ function UserCard({ user, branches, onUpdate, onDelete }) {
                 </div>
 
                 {/* Controls */}
+                {!readOnly && (
                 <div className="flex items-center gap-2 pt-3 border-t border-slate-50 flex-wrap">
                     <select
                         value={roleName}
@@ -122,6 +125,7 @@ function UserCard({ user, branches, onUpdate, onDelete }) {
                         ))}
                     </select>
                 </div>
+                )}
 
                 <p className="text-[10px] text-slate-300 font-medium">
                     Inscrit le {new Date(user.created_at).toLocaleDateString('fr-FR')}
@@ -139,6 +143,8 @@ export default function UsersManager() {
     const [search, setSearch]     = useState('');
     const [roleFilter, setRoleFilter] = useState('all');
     const [loading, setLoading]   = useState(true);
+    const currentRole = roleNameOf(JSON.parse(localStorage.getItem('user') || 'null'));
+    const readOnly = !['central_admin', 'super_admin'].includes(currentRole);
 
     useEffect(() => {
         fetchUsers();
@@ -180,6 +186,7 @@ export default function UsersManager() {
                 <div>
                     <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">Administration</p>
                     <h3 className="text-2xl font-black text-slate-900 mt-0.5">Utilisateurs</h3>
+                    {readOnly && <p className="mt-1 text-sm font-semibold text-slate-400">Vue limitée aux utilisateurs de votre périmètre.</p>}
                 </div>
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">
                     {filtered.length} / {users.length} utilisateurs
@@ -244,6 +251,7 @@ export default function UsersManager() {
                             branches={branches}
                             onUpdate={updateUser}
                             onDelete={deleteUser}
+                            readOnly={readOnly}
                         />
                     ))}
                 </div>
