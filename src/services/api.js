@@ -216,4 +216,12 @@ export const getStats = () => API.get('/admin/stats');
 export const getBranches = () => API.get('/branches');
 export const getAuditLogs = (params = {}) => API.get('/admin/audit-logs', { params });
 
+// ── Reports ──────────────────────────────────────────────────────────────────
+
+export const getSentReports = () => API.get('/admin/reports/sent');
+export const getReceivedReports = () => API.get('/admin/reports/received');
+export const createReport = (data) => API.post('/admin/reports', data);
+export const sendReport = (id) => API.put(`/admin/reports/${id}/send`);
+export const downloadReport = (id) => API.get(`/admin/reports/${id}/download`, { responseType: 'blob' });
+
 export default API;

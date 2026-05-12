@@ -46,6 +46,7 @@ import VolunteersManager from './pages/admin/VolunteersManager';
 import NewsletterManager from './pages/admin/NewsletterManager';
 import StatsPanel from './pages/admin/StatsPanel';
 import AuditLogs from './pages/admin/AuditLogs';
+import ReportsManager from './pages/admin/ReportsManager';
 
 // Member pages
 import ActivePolls from './pages/member/ActivePolls';
@@ -107,6 +108,7 @@ function App() {
                     {/* Admin */}
                     <Route path="/admin/dashboard" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<AdminDashboard />} />} />
                     <Route path="/admin/stats" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<StatsPanel />} />} />
+                    <Route path="/admin/reports" element={<ProtectedRoute allowedRoles={ADMIN_ROLES} element={<ReportsManager />} />} />
                     <Route path="/admin/members" element={<ProtectedRoute allowedRoles={LOCAL_ADMIN_ROLES} element={<MembersManager />} />} />
                     <Route path="/admin/sympathizers" element={<ProtectedRoute allowedRoles={CENTRAL_ADMIN_ROLES} element={<SympathizersManager />} />} />
                     <Route path="/admin/volunteers" element={<ProtectedRoute allowedRoles={CENTRAL_ADMIN_ROLES} element={<VolunteersManager />} />} />

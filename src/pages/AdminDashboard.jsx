@@ -12,6 +12,7 @@ import UsersManager from './admin/UserManager';
 import NewsletterManager from './admin/NewsletterManager';
 import StatsPanel from './admin/StatsPanel';
 import AuditLogs from './admin/AuditLogs';
+import ReportsManager from './admin/ReportsManager';
 import DashboardFeed from './member/DashboardFeed';
 import NotificationBar from '../components/NotificationBar';
 
@@ -180,6 +181,7 @@ function PendingMembershipRequests() {
 const TAB_DEFINITIONS = [
     { id: 'overview',   label: 'Pour moi',        scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <DashboardFeed /> },
     { id: 'stats',      label: 'Vue générale',    scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <StatsPanel /> },
+    { id: 'reports',    label: 'Rapports',         scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <ReportsManager /> },
     { id: 'membership', label: 'Adhésions',        scope: ['central_admin', 'super_admin'], component: <PendingMembershipRequests /> },
     { id: 'users',      label: 'Utilisateurs',     scope: ['local_official', 'regional_official', 'central_admin', 'super_admin'], component: <UsersManager /> },
     { id: 'polls',      label: 'Votes internes',   scope: ['central_admin', 'super_admin'], component: <CreatePoll /> },
