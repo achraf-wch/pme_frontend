@@ -8,6 +8,7 @@ export default function MyEvents() {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(false);
     const [pendingEvent, setPendingEvent] = useState(null);
+    const registeredEventIds = new Set(registeredEvents.map(reg => reg.event_id || reg.event?.id).filter(Boolean));
 
     useEffect(() => { fetchData(); }, []);
 
@@ -28,7 +29,7 @@ export default function MyEvents() {
         setLoading(true);
         try {
             await registerForEvent(event.id);
-            setMessage('Inscription réussie !');
+            setMessage('Inscription réussie.');
             fetchData();
         } catch (err) {
             setMessage(err.response?.data?.message || 'Erreur lors de l’inscription');
@@ -45,7 +46,14 @@ export default function MyEvents() {
                 <p className="text-blue-500 text-[10px] font-black uppercase tracking-widest">📍 {ev.location}</p>
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">📅 {new Date(ev.start_time).toLocaleString('fr-FR')}</p>
             </div>
-            {!isRegistered && (
+            {isRegistered ? (
+                <button
+                    disabled
+                    className="w-full py-3 bg-emerald-100 text-emerald-700 rounded-xl font-black uppercase text-[10px] tracking-widest"
+                >
+                    Déjà réservé
+                </button>
+            ) : (
                 <button 
                     onClick={() => handleRegister(ev)} 
                     disabled={loading}
@@ -89,7 +97,9 @@ export default function MyEvents() {
             <section>
                 <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight mb-6 italic">À Découvrir | فعاليات قادمة</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {availableEvents.map(ev => <EventCard key={ev.id} ev={ev} isRegistered={false} />)}
+                    {availableEvents.map(ev => (
+                        <EventCard key={ev.id} ev={ev} isRegistered={registeredEventIds.has(ev.id)} />
+                    ))}
                 </div>
             </section>
         </div>

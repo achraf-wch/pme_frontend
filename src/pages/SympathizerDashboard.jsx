@@ -24,9 +24,9 @@ export default function SympathizerDashboard({ user }) {
         Promise.allSettled([getMembershipRequest(), getMySympathizerRequest(), getMyVolunteerRequest()])
             .then(([membership, sympathizer, volunteer]) => {
                 setRequests({
-                    membership: membership.status === 'fulfilled' ? membership.value.data : null,
-                    sympathizer: sympathizer.status === 'fulfilled' ? sympathizer.value.data : null,
-                    volunteer: volunteer.status === 'fulfilled' ? volunteer.value.data : null,
+                    membership: membership.status === 'fulfilled' && membership.value.data?.id ? membership.value.data : null,
+                    sympathizer: sympathizer.status === 'fulfilled' && sympathizer.value.data?.id ? sympathizer.value.data : null,
+                    volunteer: volunteer.status === 'fulfilled' && volunteer.value.data?.id ? volunteer.value.data : null,
                 });
             });
     }, []);

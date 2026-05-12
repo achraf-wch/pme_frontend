@@ -51,8 +51,8 @@ function toFormData(data) {
 
 // ── Authentication ────────────────────────────────────────────────────────────
 
-export const register = (name, email, password, passwordConfirmation, partyBranchId = null) =>
-    API.post('/register', { name, email, password, password_confirmation: passwordConfirmation, party_branch_id: partyBranchId });
+export const register = (name, email, password, passwordConfirmation) =>
+    API.post('/register', { name, email, password, password_confirmation: passwordConfirmation });
 
 export const login = (email, password) =>
     API.post('/login', { email, password });
@@ -159,10 +159,11 @@ export const searchContent = (query) => API.get('/search', { params: { q: query 
 export const getMedia    = (params = {}) => API.get('/media', { params });
 export const deleteMedia = (id)   => API.delete(`/media/${id}`);
 
-export const uploadMedia = (file, audience = ['public']) => {
+export const uploadMedia = (file, audience = ['public'], partyBranchId = null) => {
     const fd = new FormData();
     fd.append('file', file);
     audience.forEach(role => fd.append('audience[]', role));
+    if (partyBranchId) fd.append('party_branch_id', partyBranchId);
     return API.post('/media', fd, {
         headers: { 'Content-Type': 'multipart/form-data' },
     });

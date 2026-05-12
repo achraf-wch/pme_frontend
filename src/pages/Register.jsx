@@ -1,25 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { getBranches, register } from '../services/api';
+import { register } from '../services/api';
 
 export default function Register() {
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [passwordConfirmation, setPasswordConfirmation] = useState('');
-    const [partyBranchId, setPartyBranchId] = useState('');
-    const [branches, setBranches] = useState([]);
     const [error, setError] = useState('');
     const navigate = useNavigate();
-
-    useEffect(() => {
-        getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
-    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await register(name, email, password, passwordConfirmation, partyBranchId || null);
+            const response = await register(name, email, password, passwordConfirmation);
             localStorage.setItem('token', response.data.token);
             localStorage.setItem('user', JSON.stringify(response.data.user));
             window.dispatchEvent(new Event('pme-auth-changed'));
@@ -33,8 +27,8 @@ export default function Register() {
         <div className="flex items-center justify-center px-6 py-12 md:py-16 bg-slate-50/50 min-h-[calc(100vh-80px)]">
             <div className="w-full max-w-lg bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-10">
                 <div className="text-center mb-8">
-                    <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter">Adhésion</h2>
-                    <p className="text-slate-400 text-sm mt-1 font-medium italic">Rejoignez l'émergence</p>
+                    <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter">Créer un compte</h2>
+                    <p className="text-slate-400 text-sm mt-1 font-medium italic">Accédez à votre espace personnel</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -55,19 +49,6 @@ export default function Register() {
                         className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
                         required 
                     />
-
-                    <select
-                        value={partyBranchId}
-                        onChange={e => setPartyBranchId(e.target.value)}
-                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
-                    >
-                        <option value="">Région / section locale (optionnel)</option>
-                        {branches.map(branch => (
-                            <option key={branch.id} value={branch.id}>
-                                {branch.name}
-                            </option>
-                        ))}
-                    </select>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input 

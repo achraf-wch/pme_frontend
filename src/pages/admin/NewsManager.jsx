@@ -28,13 +28,21 @@ function currentRole() {
     return user?.role?.name || user?.role || 'visitor';
 }
 
+function isBranchOfficial(role = currentRole()) {
+    return ['local_official', 'regional_official'].includes(role);
+}
+
+function scopedNewsForm(base = emptyForm) {
+    const user = currentUser();
+    return isBranchOfficial()
+        ? { ...base, audience: ['member'], party_branch_id: user?.party_branch_id || '' }
+        : { ...base };
+}
+
 function allowedAudienceOptions() {
     const role = currentRole();
-    if (role === 'local_official') {
-        return AUDIENCE_OPTIONS.filter(opt => !['regional_official', 'central_admin', 'super_admin'].includes(opt.value));
-    }
-    if (role === 'regional_official') {
-        return AUDIENCE_OPTIONS.filter(opt => !['central_admin', 'super_admin'].includes(opt.value));
+    if (isBranchOfficial(role)) {
+        return AUDIENCE_OPTIONS.filter(opt => opt.value === 'member');
     }
     return AUDIENCE_OPTIONS;
 }
@@ -42,7 +50,7 @@ function allowedAudienceOptions() {
 function writableBranches(branches) {
     const role = currentRole();
     const user = currentUser();
-    if (['local_official', 'regional_official'].includes(role)) {
+    if (isBranchOfficial(role)) {
         return branches.filter(branch => String(branch.id) === String(user?.party_branch_id));
     }
     return branches;
@@ -172,7 +180,7 @@ function NewsCard({ item, onEdit, onDelete }) {
 // ─── Main Component ───────────────────────────────────────────────────────────
 export default function NewsManager() {
     const [news, setNews]                     = useState([]);
-    const [form, setForm]                     = useState(emptyForm);
+    const [form, setForm]                     = useState(() => scopedNewsForm());
     const [imageFile, setImageFile]           = useState(null);
     const [attachmentFile, setAttachmentFile] = useState(null);
     const [preview, setPreview]               = useState(null);
@@ -205,6 +213,9 @@ export default function NewsManager() {
 
     const audienceOptions = allowedAudienceOptions();
     const branchOptions = writableBranches(branches);
+    const branchScoped = isBranchOfficial();
+    const assignedBranchId = currentUser()?.party_branch_id || '';
+    const assignedBranch = branchOptions.find(branch => String(branch.id) === String(assignedBranchId));
 
     const editItem = (item) => {
         setEditingId(item.id);
@@ -212,8 +223,8 @@ export default function NewsManager() {
             title: item.title, type: item.type || 'news', topic: item.topic || '',
             region: item.region || '', content: item.content,
             published_at: item.published_at ? item.published_at.slice(0, 16) : '',
-            is_published: !!item.is_published, audience: item.audience || ['public'],
-            party_branch_id: item.party_branch_id || '',
+            is_published: !!item.is_published, audience: branchScoped ? ['member'] : (item.audience || ['public']),
+            party_branch_id: branchScoped ? assignedBranchId : (item.party_branch_id || ''),
         });
         setPreview(getStorageUrl(item.image_path));
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -245,7 +256,7 @@ export default function NewsManager() {
         else await createNews(payload);
         setSaving(false);
         setEditingId(null);
-        setForm(emptyForm);
+        setForm(scopedNewsForm());
         setImageFile(null);
         setAttachmentFile(null);
         setPreview(null);
@@ -254,7 +265,7 @@ export default function NewsManager() {
 
     const cancelEdit = () => {
         setEditingId(null);
-        setForm(emptyForm);
+        setForm(scopedNewsForm());
         setPreview(null);
         setImageFile(null);
         setAttachmentFile(null);
@@ -334,8 +345,12 @@ export default function NewsManager() {
                         <Label>Portée géographique</Label>
                         <select value={form.party_branch_id}
                             onChange={e => setForm({ ...form, party_branch_id: e.target.value })}
-                            className={inputCls}>
-                            <option value="">Tout le monde / national</option>
+                            disabled={branchScoped}
+                            className={`${inputCls} disabled:cursor-not-allowed disabled:opacity-70`}>
+                            {!branchScoped && <option value="">Public national</option>}
+                            {branchScoped && assignedBranchId && !assignedBranch && (
+                                <option value={assignedBranchId}>Votre région / section</option>
+                            )}
                             {branchOptions.map(branch => (
                                 <option key={branch.id} value={branch.id}>{branch.name}</option>
                             ))}

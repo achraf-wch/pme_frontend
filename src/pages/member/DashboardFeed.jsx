@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { getActivePolls, getMedia, getPublicEvents, getMyNews, registerForEvent } from '../../services/api';
+import { getActivePolls, getMedia, getPublicEvents, getMyEvents, getMyNews, registerForEvent } from '../../services/api';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function DashboardFeed() {
@@ -11,6 +11,7 @@ export default function DashboardFeed() {
     const [message, setMessage] = useState('');
     const [loading, setLoading] = useState(true);
     const [pendingEvent, setPendingEvent] = useState(null);
+    const [registeredEventIds, setRegisteredEventIds] = useState(new Set());
 
     useEffect(() => {
         fetchFeed();
@@ -18,15 +19,21 @@ export default function DashboardFeed() {
 
     const fetchFeed = async () => {
         setLoading(true);
-        const [pollRes, eventRes, newsRes, mediaRes] = await Promise.allSettled([
+        const [pollRes, eventRes, registeredRes, newsRes, mediaRes] = await Promise.allSettled([
             getActivePolls(),
             getPublicEvents(),
+            getMyEvents(),
             getMyNews(),
             getMedia({ audience: 'mine' }),
         ]);
 
         setPolls(pollRes.status === 'fulfilled' ? pollRes.value.data : []);
         setEvents(eventRes.status === 'fulfilled' ? eventRes.value.data : []);
+        setRegisteredEventIds(new Set(
+            registeredRes.status === 'fulfilled'
+                ? registeredRes.value.data.map(reg => reg.event_id || reg.event?.id).filter(Boolean)
+                : []
+        ));
         setNews(newsRes.status === 'fulfilled' ? newsRes.value.data : []);
         setMedia(mediaRes.status === 'fulfilled' ? mediaRes.value.data : []);
         setLoading(false);
@@ -97,16 +104,22 @@ export default function DashboardFeed() {
                     <p className="rounded-lg border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-xs font-bold uppercase tracking-widest text-slate-400">Aucune activité visible pour votre rôle.</p>
                 ) : (
                     <div className="grid gap-3 md:grid-cols-2">
-                        {events.slice(0, 4).map(event => (
+                        {events.slice(0, 4).map(event => {
+                            const alreadyReserved = registeredEventIds.has(event.id);
+                            return (
                             <article key={event.id} className="rounded-lg border border-slate-200 bg-white p-4">
                                 <p className="text-sm font-black text-slate-900">{event.title}</p>
                                 <p className="mt-2 text-xs font-bold text-slate-500">{event.location}</p>
                                 <p className="mt-1 text-xs text-slate-400">{new Date(event.start_time).toLocaleString('fr-FR')}</p>
-                                <button onClick={() => reserve(event)} className="mt-4 w-full rounded-md bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-widest text-white hover:bg-slate-700">
-                                    Réserver
+                                <button
+                                    onClick={() => reserve(event)}
+                                    disabled={alreadyReserved}
+                                    className="mt-4 w-full rounded-md bg-slate-900 px-3 py-2 text-xs font-black uppercase tracking-widest text-white hover:bg-slate-700 disabled:bg-emerald-100 disabled:text-emerald-700 disabled:hover:bg-emerald-100"
+                                >
+                                    {alreadyReserved ? 'Déjà réservé' : 'Réserver'}
                                 </button>
                             </article>
-                        ))}
+                        );})}
                     </div>
                 )}
             </section>

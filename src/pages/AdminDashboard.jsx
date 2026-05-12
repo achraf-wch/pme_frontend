@@ -121,11 +121,8 @@ function PendingMembershipRequests() {
                 </div>
             ) : (
                 requests.map(req => {
-                    const centralDone = Boolean(req.central_reviewed_by);
                     const completed = req.status !== 'pending' || req.review_stage === 'completed';
-                    const canApprove = currentRole === 'super_admin'
-                        ? req.status === 'pending'
-                        : req.status === 'pending' && !centralDone;
+                    const canApprove = req.status === 'pending';
                     return (
                     <article key={req.id} className="bg-white p-5 rounded-lg border border-slate-200 flex flex-col lg:flex-row lg:items-center justify-between gap-5">
                         <div>
@@ -165,7 +162,7 @@ function PendingMembershipRequests() {
                         </div>
                         <div className="flex gap-3 shrink-0">
                             <button disabled={!canApprove} onClick={() => handleConfirm(req.id, 'approve')} className="px-5 py-2 bg-emerald-700 text-white rounded-md font-bold text-sm hover:bg-emerald-800 transition-colors disabled:opacity-50">
-                                {currentRole === 'super_admin' ? 'Valider final' : centralDone ? 'Déjà traité' : 'Valider central'}
+                                {currentRole === 'super_admin' ? 'Valider final' : 'Valider'}
                             </button>
                             <button disabled={completed} onClick={() => handleConfirm(req.id, 'reject')} className="px-5 py-2 bg-white text-red-600 border border-red-200 rounded-md font-bold text-sm hover:bg-red-50 transition-colors disabled:opacity-50">
                                 Rejeter
@@ -204,7 +201,13 @@ export default function AdminDashboard({ user }) {
     const [activeTab, setActiveTab] = useState('overview');
 
     const tabs = useMemo(() => (
-        TAB_DEFINITIONS.filter(tab => role === 'super_admin' || tab.scope.includes(role))
+        TAB_DEFINITIONS.filter(tab => {
+            if (role === 'super_admin' && tab.id === 'overview') {
+                return false;
+            }
+
+            return role === 'super_admin' || tab.scope.includes(role);
+        })
     ), [role]);
 
     useEffect(() => {

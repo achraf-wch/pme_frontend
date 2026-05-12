@@ -32,7 +32,7 @@ export default function MembershipRequest() {
 
     useEffect(() => {
         getMembershipRequest()
-            .then(res => setExistingRequest(res.data))
+            .then(res => setExistingRequest(res.data?.id ? res.data : null))
             .catch(() => setExistingRequest(null));
         getBranches()
             .then(res => setBranches(res.data))
@@ -48,7 +48,7 @@ export default function MembershipRequest() {
         try {
             const res = await submitMembershipRequest(form);
             setMessage(res.data.message);
-            setExistingRequest(res.data.request);
+            setExistingRequest(res.data.request?.id ? res.data.request : null);
             // Redirection automatique après 2 secondes[cite: 24]
             setTimeout(() => navigate('/dashboard'), 2000);
         } catch (err) {

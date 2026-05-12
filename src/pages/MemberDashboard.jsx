@@ -4,6 +4,8 @@ import ActivePolls from './member/ActivePolls';
 import DashboardFeed from './member/DashboardFeed';
 import MyDonations from './member/MyDonations';
 import MyEvents from './member/MyEvents';
+import MyMedia from './member/MyMedia';
+import MyNews from './member/MyNews';
 import ProfileEditor from './member/ProfileEditor';
 import { ROLE_DESCRIPTIONS, ROLE_LABELS, roleNameOf } from '../utils/roles';
 import NotificationBar from '../components/NotificationBar';
@@ -16,6 +18,8 @@ export default function MemberDashboard({ user }) {
         { id: 'overview', label: 'Pour moi', component: <DashboardFeed /> },
         { id: 'profile', label: 'Profil', component: <ProfileEditor /> },
         { id: 'polls', label: 'Votes ouverts', component: <ActivePolls /> },
+        { id: 'news', label: 'Actualités', component: <MyNews /> },
+        { id: 'media', label: 'Médias', component: <MyMedia /> },
         { id: 'donations', label: 'Contributions', component: <MyDonations /> },
         { id: 'events', label: 'Activités', component: <MyEvents /> },
     ];

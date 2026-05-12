@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { getMedia, uploadMedia, deleteMedia } from '../../services/api';
+import { getBranches, getMedia, uploadMedia, deleteMedia } from '../../services/api';
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 const AUDIENCE_OPTIONS = [
@@ -13,6 +13,36 @@ const AUDIENCE_OPTIONS = [
     { value: 'central_admin',     label: 'Admin Central',          icon: '⚙️' },
     { value: 'super_admin',       label: 'Superviseur',            icon: '⭐' },
 ];
+
+function currentUser() {
+    return JSON.parse(localStorage.getItem('user') || 'null');
+}
+
+function currentRole() {
+    const user = currentUser();
+    return user?.role?.name || user?.role || 'visitor';
+}
+
+function isBranchOfficial(role = currentRole()) {
+    return ['local_official', 'regional_official'].includes(role);
+}
+
+function allowedAudienceOptions() {
+    const role = currentRole();
+    if (isBranchOfficial(role)) {
+        return AUDIENCE_OPTIONS.filter(opt => opt.value === 'member');
+    }
+    return AUDIENCE_OPTIONS;
+}
+
+function writableBranches(branches) {
+    const role = currentRole();
+    const user = currentUser();
+    if (isBranchOfficial(role)) {
+        return branches.filter(branch => String(branch.id) === String(user?.party_branch_id));
+    }
+    return branches;
+}
 
 // ─── Confirm Modal ────────────────────────────────────────────────────────────
 function ConfirmModal({ icon, title, message, confirmLabel, confirmCls, onConfirm, onCancel }) {
@@ -83,13 +113,18 @@ function MediaTile({ item, onDelete }) {
 export default function MediaManager() {
     const [media, setMedia]         = useState([]);
     const [file, setFile]           = useState(null);
-    const [audience, setAudience]   = useState(['public']);
+    const [audience, setAudience]   = useState(() => isBranchOfficial() ? ['member'] : ['public']);
+    const [partyBranchId, setPartyBranchId] = useState(() => isBranchOfficial() ? currentUser()?.party_branch_id || '' : '');
+    const [branches, setBranches]   = useState([]);
     const [uploading, setUploading] = useState(false);
     const [uploadModal, setUploadModal] = useState(false);
     const [validationMsg, setValidationMsg] = useState(null);
     const fileInputRef = useRef(null);
 
-    useEffect(() => { fetchMedia(); }, []);
+    useEffect(() => {
+        fetchMedia();
+        getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
+    }, []);
 
     const fetchMedia = async () => {
         const res = await getMedia();
@@ -116,9 +151,10 @@ export default function MediaManager() {
     const handleUploadConfirm = async () => {
         setUploadModal(false);
         setUploading(true);
-        await uploadMedia(file, audience);
+        await uploadMedia(file, audience, partyBranchId || null);
         setFile(null);
-        setAudience(['public']);
+        setAudience(isBranchOfficial() ? ['member'] : ['public']);
+        setPartyBranchId(isBranchOfficial() ? currentUser()?.party_branch_id || '' : '');
         if (fileInputRef.current) fileInputRef.current.value = '';
         await fetchMedia();
         setUploading(false);
@@ -128,6 +164,12 @@ export default function MediaManager() {
         await deleteMedia(item.id);
         setMedia(prev => prev.filter(m => m.id !== item.id));
     };
+
+    const audienceOptions = allowedAudienceOptions();
+    const branchOptions = writableBranches(branches);
+    const branchScoped = isBranchOfficial();
+    const assignedBranchId = currentUser()?.party_branch_id || '';
+    const assignedBranch = branchOptions.find(branch => String(branch.id) === String(assignedBranchId));
 
     return (
         <div className="space-y-8 text-left">
@@ -188,7 +230,7 @@ export default function MediaManager() {
                 <div>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Audience du fichier</p>
                     <div className="flex flex-wrap gap-2">
-                        {AUDIENCE_OPTIONS.map(opt => (
+                        {audienceOptions.map(opt => (
                             <button key={opt.value} type="button" onClick={() => toggleAudience(opt.value)}
                                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl border text-[11px] font-black uppercase tracking-widest transition-all ${
                                     audience.includes(opt.value)
@@ -200,6 +242,24 @@ export default function MediaManager() {
                             </button>
                         ))}
                     </div>
+                </div>
+
+                <div>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Portée territoriale</p>
+                    <select
+                        value={partyBranchId}
+                        onChange={e => setPartyBranchId(e.target.value)}
+                        disabled={branchScoped}
+                        className="w-full max-w-md rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700 outline-none transition-colors focus:bg-white focus:ring-2 focus:ring-slate-300 disabled:cursor-not-allowed disabled:opacity-70"
+                    >
+                        {!branchScoped && <option value="">Public national</option>}
+                        {branchScoped && assignedBranchId && !assignedBranch && (
+                            <option value={assignedBranchId}>Votre région / section</option>
+                        )}
+                        {branchOptions.map(branch => (
+                            <option key={branch.id} value={branch.id}>{branch.name}</option>
+                        ))}
+                    </select>
                 </div>
 
                 {/* Upload button */}

@@ -36,17 +36,14 @@ function isBranchOfficial(role = currentRole()) {
 function scopedEventForm(base = emptyForm) {
     const user = currentUser();
     return isBranchOfficial()
-        ? { ...base, party_branch_id: user?.party_branch_id || '' }
+        ? { ...base, audience: ['member'], party_branch_id: user?.party_branch_id || '' }
         : { ...base };
 }
 
 function allowedAudienceOptions() {
     const role = currentRole();
-    if (role === 'local_official') {
-        return AUDIENCE_OPTIONS.filter(opt => !['regional_official', 'central_admin', 'super_admin'].includes(opt.value));
-    }
-    if (role === 'regional_official') {
-        return AUDIENCE_OPTIONS.filter(opt => !['central_admin', 'super_admin'].includes(opt.value));
+    if (isBranchOfficial(role)) {
+        return AUDIENCE_OPTIONS.filter(opt => opt.value === 'member');
     }
     return AUDIENCE_OPTIONS;
 }
@@ -346,7 +343,7 @@ export default function EventsManager() {
         setForm({
             title: ev.title, description: ev.description, location: ev.location,
             start_time: ev.start_time.substring(0, 16), end_time: ev.end_time.substring(0, 16),
-            max_attendees: ev.max_attendees || '', audience: ev.audience || ['public'],
+            max_attendees: ev.max_attendees || '', audience: branchScoped ? ['member'] : (ev.audience || ['public']),
             party_branch_id: branchScoped ? assignedBranchId : (ev.party_branch_id || ''),
         });
         setAttachPreview(getStorageUrl(ev.attachment_path));
