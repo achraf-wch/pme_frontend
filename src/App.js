@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Home from './pages/Home';
 import Register from './pages/Register';
 import Login from './pages/Login';
+import GoogleAuthCallback from './pages/GoogleAuthCallback';
 import NewsList from './pages/NewsList';
 import EventList from './pages/EventList';
 import NewsDetail from './pages/NewsDetail';
@@ -89,6 +90,7 @@ function App() {
                     <Route path="/search" element={<Search />} />
                     <Route path="/media" element={<MediaGallery />} />
                     <Route path="/login" element={<Login />} />
+                    <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
                     <Route path="/register" element={<Register />} />
 
                     {/* Protected routes */}

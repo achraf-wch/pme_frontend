@@ -2,11 +2,15 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { login } from '../services/api';
 
+const GOOGLE_CLIENT_ID = '960223834066-us8s5rj2sbu3rnm0nedcr3c6rm12hc68.apps.googleusercontent.com';
+
 export default function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
     const navigate = useNavigate();
+    const googleClientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || GOOGLE_CLIENT_ID;
+    const googleRedirectUri = process.env.REACT_APP_GOOGLE_REDIRECT_URI || `${window.location.origin}/auth/google/callback`;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -19,6 +23,27 @@ export default function Login() {
         } catch (err) {
             setError(err.response?.data?.message || 'Login failed');
         }
+    };
+
+    const handleGoogleLogin = () => {
+        if (!googleClientId) {
+            setError('Google login is not configured.');
+            return;
+        }
+
+        const state = window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random()}`;
+        sessionStorage.setItem('google_oauth_state', state);
+
+        const params = new URLSearchParams({
+            client_id: googleClientId,
+            redirect_uri: googleRedirectUri,
+            response_type: 'code',
+            scope: 'openid email profile',
+            prompt: 'select_account',
+            state,
+        });
+
+        window.location.assign(`https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`);
     };
 
     return (
@@ -66,6 +91,21 @@ export default function Login() {
                         Se connecter
                     </button>
                 </form>
+
+                <div className="my-6 flex items-center gap-3">
+                    <span className="h-px flex-1 bg-slate-100" />
+                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">ou</span>
+                    <span className="h-px flex-1 bg-slate-100" />
+                </div>
+
+                <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-black text-slate-700 transition-all hover:bg-slate-50"
+                >
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 text-xs font-black text-blue-600">G</span>
+                    Continuer avec Google
+                </button>
 
                 <div className="mt-8 pt-6 border-t border-slate-50 text-center">
                     <p className="text-slate-500 text-sm font-medium">

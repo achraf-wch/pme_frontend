@@ -57,6 +57,9 @@ export const register = (name, email, password, passwordConfirmation) =>
 export const login = (email, password) =>
     API.post('/login', { email, password });
 
+export const loginWithGoogleCode = (code) =>
+    API.post('/auth/google/callback', { code });
+
 export const logout = () =>
     API.post('/logout');
 
