@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react';
 import API from '../services/api';
 import { useAuth } from '../contexts/AuthContext'; // adjust to your auth hook
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function PollList() {
     const [polls, setPolls] = useState([]);
     const [loading, setLoading] = useState(false);
     const [voting, setVoting] = useState({});
     const [message, setMessage] = useState(null);
+    const [pendingVote, setPendingVote] = useState(null);
     const { user } = useAuth(); // get current user (null if guest)
 
     useEffect(() => {
@@ -25,11 +27,18 @@ export default function PollList() {
         }
     };
 
-    const handleVote = async (pollId, optionId) => {
+    const handleVote = (poll, option) => {
         if (!user) {
             setMessage({ type: 'error', text: 'Vous devez vous connecter pour voter.' });
             return;
         }
+        setPendingVote({ pollId: poll.id, optionId: option.id, pollTitle: poll.title, optionText: option.option_text });
+    };
+
+    const confirmVote = async () => {
+        if (!pendingVote) return;
+        const { pollId, optionId } = pendingVote;
+        setPendingVote(null);
         setVoting(prev => ({ ...prev, [pollId]: true }));
         try {
             await API.post('/vote', { poll_id: pollId, option_id: optionId });
@@ -56,6 +65,15 @@ export default function PollList() {
 
     return (
         <div className="max-w-4xl mx-auto px-6 py-16">
+            <ConfirmDialog
+                open={Boolean(pendingVote)}
+                title="Confirmer votre vote ?"
+                message={pendingVote ? `Votre choix "${pendingVote.optionText}" sera enregistré pour "${pendingVote.pollTitle}".` : ''}
+                confirmLabel="Valider mon vote"
+                tone="success"
+                onConfirm={confirmVote}
+                onCancel={() => setPendingVote(null)}
+            />
             <div className="flex items-center gap-4 mb-12">
                 <div className="w-2 h-12 bg-blue-500 rounded-full"></div>
                 <h2 className="text-4xl font-black text-[#2c3e50] uppercase tracking-tighter">Sondages & Opinions</h2>
@@ -110,7 +128,7 @@ export default function PollList() {
                                         {poll.options?.map(opt => (
                                             <button
                                                 key={opt.id}
-                                                onClick={() => handleVote(poll.id, opt.id)}
+                                                onClick={() => handleVote(poll, opt)}
                                                 disabled={voting[poll.id]}
                                                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold rounded-full transition shadow-md"
                                             >

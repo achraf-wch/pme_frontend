@@ -1,34 +1,12 @@
 import { useEffect, useState } from 'react';
 import API, { updateVolunteerStatus } from '../../services/api';
-
-function ConfirmDialog({ name, onConfirm, onCancel }) {
-    return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-sm w-full mx-4 border border-slate-100">
-                <div className="text-center space-y-2">
-                    <div className="w-14 h-14 mx-auto rounded-full bg-red-50 flex items-center justify-center text-2xl">🗑️</div>
-                    <h4 className="text-lg font-black text-slate-900">Supprimer ce bénévole ?</h4>
-                    <p className="text-slate-500 text-sm">
-                        <span className="font-bold text-slate-700">{name}</span> sera définitivement supprimé.
-                    </p>
-                </div>
-                <div className="flex gap-3 mt-6">
-                    <button onClick={onCancel} className="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-slate-700 font-bold text-sm hover:bg-slate-50 transition-colors">
-                        Annuler
-                    </button>
-                    <button onClick={onConfirm} className="flex-1 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white font-bold text-sm transition-colors">
-                        Supprimer
-                    </button>
-                </div>
-            </div>
-        </div>
-    );
-}
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function VolunteersManager() {
     const [list, setList]       = useState([]);
     const [loading, setLoading] = useState(true);
     const [confirm, setConfirm] = useState(null); // { id, name }
+    const [pendingStatus, setPendingStatus] = useState(null);
 
     useEffect(() => { fetchList(); }, []);
 
@@ -48,22 +26,41 @@ export default function VolunteersManager() {
         fetchList();
     };
 
-    const setStatus = async (id, status) => {
-        const res = await updateVolunteerStatus(id, status);
-        setList(prev => prev.map(item => item.id === id ? res.data : item));
+    const requestStatus = (item, status) => {
+        if ((item.status || 'pending') === status) return;
+        setPendingStatus({ item, status });
+    };
+
+    const setStatus = async () => {
+        if (!pendingStatus) return;
+        const { item, status } = pendingStatus;
+        setPendingStatus(null);
+        const res = await updateVolunteerStatus(item.id, status);
+        setList(prev => prev.map(row => row.id === item.id ? res.data : row));
     };
 
     if (loading) return <div className="py-16 text-center text-slate-400">Chargement...</div>;
 
     return (
         <div className="space-y-6">
-            {confirm && (
-                <ConfirmDialog
-                    name={confirm.name}
-                    onConfirm={() => remove(confirm.id)}
-                    onCancel={() => setConfirm(null)}
-                />
-            )}
+            <ConfirmDialog
+                open={Boolean(confirm)}
+                title="Supprimer ce bénévole ?"
+                message={confirm ? `${confirm.name} sera définitivement supprimé.` : ''}
+                confirmLabel="Supprimer"
+                tone="danger"
+                onConfirm={() => remove(confirm.id)}
+                onCancel={() => setConfirm(null)}
+            />
+            <ConfirmDialog
+                open={Boolean(pendingStatus)}
+                title="Changer le statut ?"
+                message={pendingStatus ? `${pendingStatus.item.name} passera au statut "${pendingStatus.status}".` : ''}
+                confirmLabel="Mettre à jour"
+                tone="success"
+                onConfirm={setStatus}
+                onCancel={() => setPendingStatus(null)}
+            />
 
             <div className="border-b border-slate-100 pb-4 flex items-center justify-between">
                 <div>
@@ -102,7 +99,7 @@ export default function VolunteersManager() {
                                     <td className="px-4 py-3">
                                         <select
                                             value={v.status || 'pending'}
-                                            onChange={e => setStatus(v.id, e.target.value)}
+                                            onChange={e => requestStatus(v, e.target.value)}
                                             disabled={v.status === 'completed'}
                                             className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700 disabled:opacity-50"
                                         >

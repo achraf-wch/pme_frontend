@@ -10,6 +10,7 @@ export default function NewsletterManager() {
     const [loading, setLoading] = useState(true);
     const [sending, setSending] = useState(false);
     const [removing, setRemoving] = useState(null);
+    const [confirmSend, setConfirmSend] = useState(false);
 
     useEffect(() => { fetchSubscribers(); }, []);
 
@@ -46,12 +47,17 @@ export default function NewsletterManager() {
 
     const sendNewsletter = async (e) => {
         e.preventDefault();
+        setConfirmSend(true);
+    };
+
+    const confirmSendNewsletter = async () => {
         setSending(true);
         setMessage(null);
         try {
             const res = await API.post('/admin/newsletter/send', form);
             setMessage({ type: 'success', text: res.data.message || 'Newsletter envoyée.' });
             setForm({ subject: '', body: '' });
+            setConfirmSend(false);
         } catch {
             setMessage({ type: 'error', text: 'Impossible d’envoyer la newsletter.' });
         } finally {
@@ -69,6 +75,16 @@ export default function NewsletterManager() {
                 tone="danger"
                 onConfirm={remove}
                 onCancel={() => setRemoving(null)}
+            />
+            <ConfirmDialog
+                open={confirmSend}
+                title="Envoyer la newsletter ?"
+                message={`Le message "${form.subject}" sera envoyé à ${subscribers.length} abonné${subscribers.length !== 1 ? 's' : ''}.`}
+                confirmLabel="Envoyer"
+                tone="success"
+                loading={sending}
+                onConfirm={confirmSendNewsletter}
+                onCancel={() => setConfirmSend(false)}
             />
 
             <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 lg:flex-row lg:items-end lg:justify-between">

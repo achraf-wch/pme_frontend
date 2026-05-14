@@ -1,11 +1,14 @@
 import { useEffect, useState } from 'react';
 import { getMyDonations } from '../../services/api';
 import API from '../../services/api';
+import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function MyDonations() {
     const [donations, setDonations] = useState([]);
     const [form, setForm] = useState({ donor_name: '', donor_email: '', amount: '' });
     const [message, setMessage] = useState('');
+    const [confirmDonation, setConfirmDonation] = useState(false);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => { fetchDonations(); }, []);
 
@@ -16,16 +19,33 @@ export default function MyDonations() {
 
     const handleDonate = async (e) => {
         e.preventDefault();
+        setConfirmDonation(true);
+    };
+
+    const confirmDonate = async () => {
+        setSubmitting(true);
         try {
             await API.post('/donations', { ...form, user_id: null });
             setMessage('Merci ! Votre don est en attente de confirmation.');
             setForm({ donor_name: '', donor_email: '', amount: '' });
+            setConfirmDonation(false);
             fetchDonations();
         } catch (err) { setMessage('Une erreur est survenue.'); }
+        finally { setSubmitting(false); }
     };
 
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 text-left">
+            <ConfirmDialog
+                open={confirmDonation}
+                title="Confirmer cette donation ?"
+                message={`Vous allez enregistrer une contribution de ${form.amount || '0'} EUR au nom de ${form.donor_name || 'ce donateur'}.`}
+                confirmLabel="Confirmer"
+                tone="success"
+                loading={submitting}
+                onConfirm={confirmDonate}
+                onCancel={() => setConfirmDonation(false)}
+            />
             <div className="space-y-6">
                 <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight italic">Faire un Don | تبرع</h3>
                 <form onSubmit={handleDonate} className="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100 space-y-4">

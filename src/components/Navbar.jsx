@@ -1,11 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getMe, logout } from '../services/api';
+import ConfirmDialog from './ui/ConfirmDialog';
 
 export default function Navbar() {
     const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
     const [isOpen, setIsOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [confirmLogout, setConfirmLogout] = useState(false);
+    const [loggingOut, setLoggingOut] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -34,12 +37,18 @@ export default function Navbar() {
     }, []);
 
     const handleLogout = async () => {
-        await logout();
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        setUser(null);
-        window.dispatchEvent(new Event('pme-auth-changed'));
-        navigate('/');
+        setLoggingOut(true);
+        try {
+            await logout();
+        } finally {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            setUser(null);
+            setConfirmLogout(false);
+            setLoggingOut(false);
+            window.dispatchEvent(new Event('pme-auth-changed'));
+            navigate('/');
+        }
     };
 
     const closeMenu = () => {
@@ -61,6 +70,16 @@ export default function Navbar() {
 
     return (
         <nav className="bg-white/95 backdrop-blur-md text-slate-900 sticky top-0 z-50 border-b border-slate-200 shadow-sm">
+            <ConfirmDialog
+                open={confirmLogout}
+                title="Se déconnecter ?"
+                message="Votre session locale sera fermée sur cet appareil."
+                confirmLabel="Sortir"
+                tone="danger"
+                loading={loggingOut}
+                onConfirm={handleLogout}
+                onCancel={() => setConfirmLogout(false)}
+            />
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex justify-between items-center">
                 
                 <Link to="/" className="flex items-center gap-3 group">
@@ -107,7 +126,7 @@ export default function Navbar() {
                     {user ? (
                         <div className="flex items-center gap-2">
                             <Link to="/dashboard" className="text-sm font-bold bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-all">Tableau de bord</Link>
-                            <button onClick={handleLogout} className="text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition-all">Sortir</button>
+                            <button onClick={() => setConfirmLogout(true)} className="text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition-all">Sortir</button>
                         </div>
                     ) : (
                         <div className="flex items-center gap-3 pl-2">
@@ -135,7 +154,7 @@ export default function Navbar() {
                             <>
                                 <Link to="/" className="w-full text-center py-3 border border-slate-200 text-slate-700 rounded-md font-bold" onClick={closeMenu}>Accueil</Link>
                                 <Link to="/dashboard" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Tableau de bord</Link>
-                                <button onClick={() => { closeMenu(); handleLogout(); }} className="w-full text-center py-3 border border-red-200 text-red-600 rounded-md font-bold">Sortir</button>
+                                <button onClick={() => { closeMenu(); setConfirmLogout(true); }} className="w-full text-center py-3 border border-red-200 text-red-600 rounded-md font-bold">Sortir</button>
                             </>
                         ) : (
                             <Link to="/register" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Demander l'adhésion</Link>

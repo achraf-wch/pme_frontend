@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import API from '../services/api';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 const PRESET_AMOUNTS = [10, 25, 50, 100, 200, 500];
 
@@ -9,6 +10,7 @@ export default function PublicDonation() {
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
+    const [confirmDonation, setConfirmDonation] = useState(false);
 
     const selectPreset = (amount) => {
         setCustomAmount(false);
@@ -17,12 +19,17 @@ export default function PublicDonation() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setConfirmDonation(true);
+    };
+
+    const confirmSubmit = async () => {
         setLoading(true);
         try {
             await API.post('/donations', form);
             setSuccess(true);
             setError('');
             setForm({ name: '', email: '', amount: '', frequency: 'once', note: '' });
+            setConfirmDonation(false);
         } catch (err) {
             setError('Erreur lors de l\'envoi. Veuillez réessayer. | حدث خطأ، حاول مجدداً.');
             setSuccess(false);
@@ -33,6 +40,16 @@ export default function PublicDonation() {
 
     return (
         <div className="bg-white pb-24">
+            <ConfirmDialog
+                open={confirmDonation}
+                title="Confirmer votre don ?"
+                message={`Vous allez enregistrer une contribution ${form.frequency === 'monthly' ? 'mensuelle' : 'unique'} de ${form.amount || '0'} EUR.`}
+                confirmLabel="Confirmer le don"
+                tone="success"
+                loading={loading}
+                onConfirm={confirmSubmit}
+                onCancel={() => setConfirmDonation(false)}
+            />
 
             {/* ═══════════════════════════════════════════════
                 EN-TÊTE

@@ -8,6 +8,7 @@ export default function SympathizersManager() {
     const [message, setMessage] = useState(null);
     const [loading, setLoading] = useState(true);
     const [removing, setRemoving] = useState(null);
+    const [pendingStatus, setPendingStatus] = useState(null);
 
     useEffect(() => { fetchSympathizers(); }, []);
 
@@ -46,10 +47,18 @@ export default function SympathizersManager() {
         }
     };
 
-    const setStatus = async (id, status) => {
+    const requestStatus = (item, status) => {
+        if ((item.status || 'pending') === status) return;
+        setPendingStatus({ item, status });
+    };
+
+    const setStatus = async () => {
+        if (!pendingStatus) return;
+        const { item, status } = pendingStatus;
+        setPendingStatus(null);
         try {
-            const res = await updateSympathizerStatus(id, status);
-            setList(prev => prev.map(item => item.id === id ? res.data : item));
+            const res = await updateSympathizerStatus(item.id, status);
+            setList(prev => prev.map(row => row.id === item.id ? res.data : row));
             setMessage({ type: 'success', text: 'Statut mis à jour.' });
         } catch {
             setMessage({ type: 'error', text: 'Mise à jour impossible.' });
@@ -66,6 +75,15 @@ export default function SympathizersManager() {
                 tone="danger"
                 onConfirm={remove}
                 onCancel={() => setRemoving(null)}
+            />
+            <ConfirmDialog
+                open={Boolean(pendingStatus)}
+                title="Changer le statut ?"
+                message={pendingStatus ? `${pendingStatus.item.name} passera au statut "${pendingStatus.status}".` : ''}
+                confirmLabel="Mettre à jour"
+                tone="success"
+                onConfirm={setStatus}
+                onCancel={() => setPendingStatus(null)}
             />
 
             <div className="flex flex-col gap-4 border-b border-slate-100 pb-5 lg:flex-row lg:items-end lg:justify-between">
@@ -130,7 +148,7 @@ export default function SympathizersManager() {
                                         <td className="px-4 py-3">
                                             <select
                                                 value={item.status || 'pending'}
-                                                onChange={e => setStatus(item.id, e.target.value)}
+                                                onChange={e => requestStatus(item, e.target.value)}
                                                 disabled={item.status === 'completed'}
                                                 className="rounded-md border border-slate-200 bg-white px-2 py-1 text-xs font-bold text-slate-700 disabled:opacity-50"
                                             >

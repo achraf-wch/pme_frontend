@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { getPublicEvent, getStorageUrl, registerForEvent } from '../services/api';
+import ConfirmDialog from '../components/ui/ConfirmDialog';
 
 export default function EventDetail() {
     const { id } = useParams();
     const [event, setEvent] = useState(null);
     const [loading, setLoading] = useState(true);
     const [message, setMessage] = useState('');
+    const [confirmReserve, setConfirmReserve] = useState(false);
+    const [reserving, setReserving] = useState(false);
 
     useEffect(() => {
         getPublicEvent(id)
@@ -16,11 +19,15 @@ export default function EventDetail() {
     }, [id]);
 
     const reserve = async () => {
+        setReserving(true);
         try {
             await registerForEvent(id);
             setMessage('Inscription confirmée.');
         } catch (err) {
             setMessage(err.response?.data?.message || 'Inscription impossible.');
+        } finally {
+            setConfirmReserve(false);
+            setReserving(false);
         }
     };
 
@@ -31,6 +38,16 @@ export default function EventDetail() {
 
     return (
         <div className="bg-white">
+            <ConfirmDialog
+                open={confirmReserve}
+                title="Confirmer votre inscription ?"
+                message={event ? `Vous allez réserver une place pour "${event.title}".` : ''}
+                confirmLabel="Réserver"
+                tone="success"
+                loading={reserving}
+                onConfirm={reserve}
+                onCancel={() => setConfirmReserve(false)}
+            />
             <section className="relative min-h-[520px] overflow-hidden bg-slate-900 text-white">
                 {event.attachment_path && (
                     <img src={getStorageUrl(event.attachment_path)} alt={event.title} className="absolute inset-0 h-full w-full object-cover opacity-45" />
@@ -92,7 +109,7 @@ export default function EventDetail() {
                             {isPast ? 'Cette activité est terminée. Consultez les récaps et les photos publiés.' : 'Inscrivez-vous pour suivre cette activité dans votre espace.'}
                         </p>
                         {!isPast && (
-                            <button onClick={reserve} className="mt-5 w-full rounded-md bg-slate-900 px-4 py-3 text-sm font-black uppercase tracking-widest text-white hover:bg-slate-700">
+                            <button onClick={() => setConfirmReserve(true)} className="mt-5 w-full rounded-md bg-slate-900 px-4 py-3 text-sm font-black uppercase tracking-widest text-white hover:bg-slate-700">
                                 Réserver
                             </button>
                         )}
