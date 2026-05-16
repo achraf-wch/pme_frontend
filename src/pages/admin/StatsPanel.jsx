@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import API from '../../services/api';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export default function StatsPanel() {
+    const { t } = useLanguage();
     const [stats, setStats] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -15,36 +17,36 @@ export default function StatsPanel() {
         if (!stats) return [];
 
         return [
-            stats.users && { title: 'Utilisateurs', value: stats.users.total, subValue: `${stats.users.central_admins || 0} admin. centrales · ${stats.users.supervisors || 0} superviseurs` },
-            stats.users && { title: 'Membres', value: stats.users.members, subValue: 'Actifs' },
-            stats.events && { title: 'Activités', value: stats.events.total, subValue: `${stats.events.registrations} inscriptions` },
-            stats.news && { title: 'Actualités', value: stats.news.total, subValue: `${stats.news.published} publiées` },
-            stats.polls && { title: 'Votes internes', value: stats.polls.total, subValue: `${stats.polls.votes} votes` },
-            stats.donations && { title: 'Contributions', value: Number(stats.donations.amount || 0).toLocaleString('fr-FR'), subValue: `${stats.donations.total} opérations` },
-            stats.newsletter && { title: 'Newsletter', value: stats.newsletter.subscribers, subValue: 'Abonnés' },
-            stats.volunteers && { title: 'Bénévoles', value: stats.volunteers.total, subValue: 'Inscrits' },
-            stats.membership_requests && { title: 'Demandes', value: stats.membership_requests.pending, subValue: 'En attente' },
-            stats.sympathizers && { title: 'Sympathisants', value: stats.sympathizers.total, subValue: 'Total' },
-            stats.audit && { title: 'Journal sécurité', value: stats.audit.total, subValue: 'Actions sensibles' },
+            stats.users && { title: t('users'), value: stats.users.total, subValue: `${stats.users.central_admins || 0} ${t('centralAdmins')} · ${stats.users.supervisors || 0} ${t('supervisors')}` },
+            stats.users && { title: t('roleLabel_member'), value: stats.users.members, subValue: t('active') },
+            stats.events && { title: t('activities'), value: stats.events.total, subValue: `${stats.events.registrations} ${t('registrations')}` },
+            stats.news && { title: t('news'), value: stats.news.total, subValue: `${stats.news.published} ${t('published')}` },
+            stats.polls && { title: t('internalVotes'), value: stats.polls.total, subValue: `${stats.polls.votes} ${t('votes')}` },
+            stats.donations && { title: t('contributions'), value: Number(stats.donations.amount || 0).toLocaleString('fr-FR'), subValue: `${stats.donations.total} ${t('operations')}` },
+            stats.newsletter && { title: t('newsletter'), value: stats.newsletter.subscribers, subValue: t('subscribers') },
+            stats.volunteers && { title: t('volunteer'), value: stats.volunteers.total, subValue: t('registered') },
+            stats.membership_requests && { title: t('pendingRequests'), value: stats.membership_requests.pending, subValue: t('pending') },
+            stats.sympathizers && { title: t('sympathizer'), value: stats.sympathizers.total, subValue: t('total') },
+            stats.audit && { title: t('securityLog'), value: stats.audit.total, subValue: t('sensitiveActions') },
         ].filter(Boolean);
-    }, [stats]);
+    }, [stats, t]);
 
     if (loading) {
-        return <div className="p-12 text-center text-slate-400 font-bold">Chargement des indicateurs...</div>;
+        return <div className="p-12 text-center text-slate-400 font-bold">{t('statsLoading')}</div>;
     }
 
     if (!stats) {
-        return <p className="text-red-500 font-bold">Erreur de chargement des statistiques.</p>;
+        return <p className="text-red-500 font-bold">{t('statsError')}</p>;
     }
 
     return (
         <div className="space-y-8 text-left">
             <div className="border-b border-slate-100 pb-5">
-                <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">Rapports</p>
-                <h3 className="text-2xl font-black text-slate-900 mt-1">Tableau de bord analytique</h3>
+                <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">{t('reports')}</p>
+                <h3 className="text-2xl font-black text-slate-900 mt-1">{t('analyticsDashboard')}</h3>
                 {stats.scope && (
                     <p className="mt-2 text-sm text-slate-500">
-                        Vue limitée au rôle actuel : activités et rapports partiels.
+                        {t('limitedView')}
                     </p>
                 )}
             </div>

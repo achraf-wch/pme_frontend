@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getActivePolls, submitVote } from '../../services/api';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export default function ActivePolls() {
+    const { t } = useLanguage();
     const [polls, setPolls] = useState([]);
     const [voting, setVoting] = useState({});
     const [message, setMessage] = useState('');
@@ -20,7 +22,7 @@ export default function ActivePolls() {
     const handleVote = (pollId, optionId) => {
         const poll = polls.find(item => item.id === pollId);
         if (poll && new Date(poll.start_date) > new Date()) {
-            setMessage('Ce vote est visible, mais il n’est pas encore ouvert.');
+            setMessage(t('voteNotOpenYet'));
             return;
         }
         const option = poll?.options?.find(item => item.id === optionId);
@@ -34,10 +36,10 @@ export default function ActivePolls() {
         setVoting(prev => ({ ...prev, [pollId]: true }));
         try {
             await submitVote(pollId, optionId);
-            setMessage('Votre vote a été enregistré avec succès !');
+            setMessage(t('voteRecorded'));
             fetchPolls();
         } catch (err) {
-            setMessage(err.response?.data?.message || 'Erreur lors du vote');
+            setMessage(err.response?.data?.message || t('voteError'));
         } finally {
             setVoting(prev => ({ ...prev, [pollId]: false }));
         }
@@ -47,9 +49,9 @@ export default function ActivePolls() {
         <div className="space-y-8 text-left">
             <ConfirmDialog
                 open={Boolean(pendingVote)}
-                title="Confirmer votre vote ?"
+                title={t('confirmVote')}
                 message={pendingVote ? `Votre choix "${pendingVote.optionText}" sera enregistré pour "${pendingVote.pollTitle}". Cette action ne pourra pas être répétée.` : ''}
-                confirmLabel="Valider mon vote"
+                confirmLabel={t('validateVote')}
                 tone="success"
                 loading={pendingVote ? Boolean(voting[pendingVote.pollId]) : false}
                 onConfirm={confirmVote}
@@ -57,7 +59,7 @@ export default function ActivePolls() {
             />
 
             <h3 className="text-2xl font-black text-[#1a1a2e] uppercase tracking-tight border-b border-slate-100 pb-4">
-                Sondages Actifs | الاستطلاعات
+                {t('activePollsTitle')}
             </h3>
             
             {message && (
@@ -68,7 +70,7 @@ export default function ActivePolls() {
 
             {polls.length === 0 ? (
                 <div className="bg-slate-50 p-10 rounded-[2rem] text-center border-2 border-dashed border-slate-200">
-                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">Aucun sondage actif pour le moment</p>
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">{t('noActivePoll')}</p>
                 </div>
             ) : (
                 <div className="grid gap-6">
@@ -80,17 +82,17 @@ export default function ActivePolls() {
                             <div className="flex items-center gap-2 mb-6">
                                 <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Fin le : {new Date(poll.end_date).toLocaleDateString('fr-FR')}
+                                    {t('endsOn')} : {new Date(poll.end_date).toLocaleDateString('fr-FR')}
                                 </p>
                             </div>
 
                             {new Date(poll.start_date) > new Date() ? (
                                 <div className="bg-amber-50 text-amber-700 p-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-center">
-                                    Ouvre le {new Date(poll.start_date).toLocaleString('fr-FR')}
+                                    {t('opensOn')} {new Date(poll.start_date).toLocaleString('fr-FR')}
                                 </div>
                             ) : poll.has_voted ? (
                                 <div className="bg-emerald-50 text-emerald-600 p-4 rounded-xl text-xs font-black uppercase tracking-[0.2em] text-center">
-                                    ✓ Participation Enregistrée
+                                    {t('participationRecorded')}
                                 </div>
                             ) : (
                                 <div className="flex flex-wrap gap-3">

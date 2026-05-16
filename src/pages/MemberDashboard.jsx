@@ -7,21 +7,23 @@ import MyEvents from './member/MyEvents';
 import MyMedia from './member/MyMedia';
 import MyNews from './member/MyNews';
 import ProfileEditor from './member/ProfileEditor';
-import { ROLE_DESCRIPTIONS, ROLE_LABELS, roleNameOf } from '../utils/roles';
+import { roleNameOf } from '../utils/roles';
 import NotificationBar from '../components/NotificationBar';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function MemberDashboard({ user }) {
+    const { t } = useLanguage();
     const [activeTab, setActiveTab] = useState('overview');
     const role = roleNameOf(user);
 
     const tabs = [
-        { id: 'overview', label: 'Pour moi', component: <DashboardFeed /> },
-        { id: 'profile', label: 'Profil', component: <ProfileEditor /> },
-        { id: 'polls', label: 'Votes ouverts', component: <ActivePolls /> },
-        { id: 'news', label: 'Actualités', component: <MyNews /> },
-        { id: 'media', label: 'Médias', component: <MyMedia /> },
-        { id: 'donations', label: 'Contributions', component: <MyDonations /> },
-        { id: 'events', label: 'Activités', component: <MyEvents /> },
+        { id: 'overview', label: t('forMe'), component: <DashboardFeed /> },
+        { id: 'profile', label: t('profile'), component: <ProfileEditor /> },
+        { id: 'polls', label: t('openVotes'), component: <ActivePolls /> },
+        { id: 'news', label: t('news'), component: <MyNews /> },
+        { id: 'media', label: t('media'), component: <MyMedia /> },
+        { id: 'donations', label: t('contributions'), component: <MyDonations /> },
+        { id: 'events', label: t('activities'), component: <MyEvents /> },
     ];
 
     return (
@@ -29,18 +31,18 @@ export default function MemberDashboard({ user }) {
             <div className="border-b border-slate-200 bg-white">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">Espace membre</p>
-                        <h1 className="text-3xl font-black text-slate-900 mt-1">Bienvenue, {user?.name}</h1>
-                        <p className="text-slate-500 mt-2">{ROLE_LABELS[role] || 'Membre'} · accès sécurisé</p>
-                        <p className="text-slate-500 mt-2" dir="rtl">{ROLE_DESCRIPTIONS[role]}</p>
+                        <p className="text-xs font-black text-emerald-700 uppercase tracking-widest">{t('memberSpace')}</p>
+                        <h1 className="text-3xl font-black text-slate-900 mt-1">{t('welcome')}, {user?.name}</h1>
+                        <p className="text-slate-500 mt-2">{t(`roleLabel_${role}`) || t('roleLabel_member')} · {t('secureAccess')}</p>
+                        <p className="text-slate-500 mt-2">{t(`roleDesc_${role}`)}</p>
                     </div>
                     <div className="flex flex-wrap gap-3">
                         <NotificationBar />
                         <Link to="/" className="px-4 py-2 rounded-md border border-slate-200 text-slate-700 font-bold text-sm hover:bg-slate-50">
-                            Retour au site
+                            {t('backToSite')}
                         </Link>
                         <Link to="/donate" className="px-4 py-2 rounded-md bg-emerald-700 text-white font-bold text-sm hover:bg-emerald-600">
-                            Contribuer
+                            {t('contribute')}
                         </Link>
                     </div>
                 </div>
@@ -49,10 +51,10 @@ export default function MemberDashboard({ user }) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
                 <div className="grid md:grid-cols-4 gap-4 mb-8">
                     {[
-                        ['Statut', ROLE_LABELS[role] || role],
-                        ['Vote interne', 'Selon votre éligibilité'],
-                        ['Contributions', 'Historique personnel'],
-                        ['Activités', 'Inscriptions suivies'],
+                        [t('status'), t(`roleLabel_${role}`) || role],
+                        [t('internalVote'), t('accordingEligibility')],
+                        [t('contributions'), t('personalHistory')],
+                        [t('activities'), t('trackedRegistrations')],
                     ].map(([label, value]) => (
                         <div key={label} className="bg-white border border-slate-200 rounded-lg p-5">
                             <p className="text-xs font-black text-slate-400 uppercase tracking-widest">{label}</p>

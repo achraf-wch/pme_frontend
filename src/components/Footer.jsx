@@ -1,6 +1,8 @@
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Footer() {
+    const { t } = useLanguage();
     return (
         <footer className="bg-[#1a252f] text-slate-400 border-t border-slate-800 font-sans">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 py-16">
@@ -26,21 +28,21 @@ export default function Footer() {
 
                     {/* Navigation Rapide */}
                     <div>
-                        <h3 className="text-white font-bold mb-6 text-xs uppercase tracking-[0.2em]">Plateforme</h3>
+                        <h3 className="text-white font-bold mb-6 text-xs uppercase tracking-[0.2em]">{t('publicSite')}</h3>
                         <ul className="space-y-3 text-sm">
-                            <li><Link to="/news" className="hover:text-blue-400 transition-colors flex items-center gap-2">Actualités & Communiqués</Link></li>
-                            <li><Link to="/events" className="hover:text-blue-400 transition-colors flex items-center gap-2">Nos Événements</Link></li>
-                            <li><Link to="/media" className="hover:text-blue-400 transition-colors flex items-center gap-2">Médiathèque</Link></li>
-                            <li><Link to="/program" className="hover:text-blue-400 transition-colors flex items-center gap-2">Programme</Link></li>
+                            <li><Link to="/news" className="hover:text-blue-400 transition-colors flex items-center gap-2">{t('news')}</Link></li>
+                            <li><Link to="/events" className="hover:text-blue-400 transition-colors flex items-center gap-2">{t('events')}</Link></li>
+                            <li><Link to="/media" className="hover:text-blue-400 transition-colors flex items-center gap-2">{t('media')}</Link></li>
+                            <li><Link to="/program" className="hover:text-blue-400 transition-colors flex items-center gap-2">{t('program')}</Link></li>
                             <li><Link to="/pages/social-project" className="hover:text-blue-400 transition-colors flex items-center gap-2">Projet sociétal</Link></li>
-                            <li><Link to="/search" className="hover:text-blue-400 transition-colors flex items-center gap-2">Recherche interne</Link></li>
-                            <li><Link to="/faq" className="hover:text-blue-400 transition-colors flex items-center gap-2">FAQ</Link></li>
+                            <li><Link to="/search" className="hover:text-blue-400 transition-colors flex items-center gap-2">{t('search')}</Link></li>
+                            <li><Link to="/faq" className="hover:text-blue-400 transition-colors flex items-center gap-2">{t('faq')}</Link></li>
                         </ul>
                     </div>
 
                     {/* Engagement Membre */}
                     <div>
-                        <h3 className="text-white font-bold mb-6 text-xs uppercase tracking-[0.2em]">Engagement</h3>
+                        <h3 className="text-white font-bold mb-6 text-xs uppercase tracking-[0.2em]">{t('engagement')}</h3>
                         <ul className="space-y-3 text-sm">
                             <li><Link to="/register" className="hover:text-blue-400 transition-colors">Demande d'Adhésion</Link></li>
                             <li><Link to="/donate" className="hover:text-blue-400 transition-colors">Don et Contribution</Link></li>
@@ -51,11 +53,11 @@ export default function Footer() {
 
                     {/* Mentions Légales */}
                     <div>
-                        <h3 className="text-white font-bold mb-6 text-xs uppercase tracking-[0.2em]">Cadre Légal</h3>
+                        <h3 className="text-white font-bold mb-6 text-xs uppercase tracking-[0.2em]">{t('legal')}</h3>
                         <ul className="space-y-3 text-sm">
-                            <li><Link to="/privacy" className="hover:text-blue-400 transition-colors italic">Protection des données (CNDP)</Link></li>
-                            <li><Link to="/terms" className="hover:text-blue-400 transition-colors">Conditions d'utilisation</Link></li>
-                            <li><Link to="/accessibility" className="hover:text-blue-400 transition-colors">Accessibilité</Link></li>
+                            <li><Link to="/privacy" className="hover:text-blue-400 transition-colors italic">{t('dataProtection')} (CNDP)</Link></li>
+                            <li><Link to="/terms" className="hover:text-blue-400 transition-colors">{t('terms')}</Link></li>
+                            <li><Link to="/accessibility" className="hover:text-blue-400 transition-colors">{t('accessibility')}</Link></li>
                             <li><Link to="/pages/leadership-structures" className="hover:text-blue-400 transition-colors">Leadership et structures</Link></li>
                         </ul>
                     </div>

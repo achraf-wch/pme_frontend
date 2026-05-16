@@ -6,8 +6,10 @@ import MemberDashboard from './MemberDashboard';
 import AdminDashboard from './AdminDashboard';
 import VisitorDashboard from './SympathizerDashboard';
 import { isAdminRole, roleNameOf } from '../utils/roles';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Dashboard() {
+    const { t } = useLanguage();
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
@@ -27,10 +29,10 @@ export default function Dashboard() {
         fetchUser();
     }, [navigate]);
 
-    if (loading) return <div>Loading...</div>;
+    if (loading) return <div>{t('loading')}</div>;
 
     // Now user is guaranteed to exist (not null)
-    if (!user) return <div>No user data</div>;
+    if (!user) return <div>{t('noUserData')}</div>;
 
     const role = roleNameOf(user);
 

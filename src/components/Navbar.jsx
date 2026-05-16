@@ -2,8 +2,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { getMe, logout } from '../services/api';
 import ConfirmDialog from './ui/ConfirmDialog';
+import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Navbar() {
+    const { language, setLanguage, t } = useLanguage();
     const [user, setUser] = useState(() => JSON.parse(localStorage.getItem('user') || 'null'));
     const [isOpen, setIsOpen] = useState(false);
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -56,25 +58,25 @@ export default function Navbar() {
         setIsMenuOpen(false);
     };
     const navItems = [
-        { to: '/', label: 'Accueil' },
-        { to: '/about', label: 'Parti' },
-        { to: '/pages/vision-mission', label: 'Vision' },
-        { to: '/pages/leadership-structures', label: 'Structures' },
-        { to: '/program', label: 'Programme' },
-        { to: '/news', label: 'Actualités' },
-        { to: '/events', label: 'Activités' },
-        { to: '/media', label: 'Médiathèque' },
-        { to: '/search', label: 'Recherche' },
-        { to: '/contact', label: 'Contact' },
+        { to: '/', label: t('home') },
+        { to: '/about', label: t('party') },
+        { to: '/pages/vision-mission', label: t('vision') },
+        { to: '/pages/leadership-structures', label: t('structures') },
+        { to: '/program', label: t('program') },
+        { to: '/news', label: t('news') },
+        { to: '/events', label: t('events') },
+        { to: '/media', label: t('media') },
+        { to: '/search', label: t('search') },
+        { to: '/contact', label: t('contact') },
     ];
 
     return (
         <nav className="bg-white/95 backdrop-blur-md text-slate-900 sticky top-0 z-50 border-b border-slate-200 shadow-sm">
             <ConfirmDialog
                 open={confirmLogout}
-                title="Se déconnecter ?"
-                message="Votre session locale sera fermée sur cet appareil."
-                confirmLabel="Sortir"
+                title={t('closeSession')}
+                message={t('sessionClosed')}
+                confirmLabel={t('logout')}
                 tone="danger"
                 loading={loggingOut}
                 onConfirm={handleLogout}
@@ -88,11 +90,23 @@ export default function Navbar() {
                     </div>
                     <div className="flex flex-col">
                         <span className="font-extrabold text-lg tracking-tight leading-none">Parti Maroc Émergent</span>
-                        <span className="text-[11px] text-slate-500 font-bold" dir="rtl">منصة رقمية حزبية متكاملة</span>
+                        <span className="text-[11px] text-slate-500 font-bold">{t('platformTagline')}</span>
                     </div>
                 </Link>
 
                 <div className="hidden lg:flex items-center gap-2">
+                    <div className="flex rounded-md border border-slate-200 bg-slate-50 p-1" aria-label="Langue">
+                        {['fr', 'ar'].map(code => (
+                            <button
+                                key={code}
+                                type="button"
+                                onClick={() => setLanguage(code)}
+                                className={`px-2.5 py-1 rounded text-xs font-black ${language === code ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'}`}
+                            >
+                                {code.toUpperCase()}
+                            </button>
+                        ))}
+                    </div>
                     <div className="relative">
                         <button
                             type="button"
@@ -101,7 +115,7 @@ export default function Navbar() {
                             aria-expanded={isMenuOpen}
                             aria-haspopup="true"
                         >
-                            Menu
+                            {t('menu')}
                             <span className={`w-2 h-2 border-r-2 border-b-2 border-slate-500 transition-transform ${isMenuOpen ? 'rotate-[-135deg] translate-y-0.5' : 'rotate-45 -translate-y-0.5'}`}></span>
                         </button>
                         {isMenuOpen && (
@@ -119,19 +133,19 @@ export default function Navbar() {
                             </div>
                         )}
                     </div>
-                    <Link to="/donate" className="px-3 py-2 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all text-sm font-extrabold">Contribuer</Link>
+                    <Link to="/donate" className="px-3 py-2 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all text-sm font-extrabold">{t('contribute')}</Link>
                     
                     <div className="w-px h-6 bg-slate-200 mx-2"></div>
 
                     {user ? (
                         <div className="flex items-center gap-2">
-                            <Link to="/dashboard" className="text-sm font-bold bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-all">Tableau de bord</Link>
-                            <button onClick={() => setConfirmLogout(true)} className="text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition-all">Sortir</button>
+                            <Link to="/dashboard" className="text-sm font-bold bg-slate-900 text-white px-4 py-2 rounded-md hover:bg-slate-700 transition-all">{t('dashboard')}</Link>
+                            <button onClick={() => setConfirmLogout(true)} className="text-xs font-bold uppercase tracking-widest text-red-600 border border-red-200 px-3 py-2 rounded-md hover:bg-red-50 transition-all">{t('logout')}</button>
                         </div>
                     ) : (
                         <div className="flex items-center gap-3 pl-2">
-                            <Link to="/login" className="text-sm font-semibold hover:text-emerald-700 transition-colors">Connexion</Link>
-                            <Link to="/register" className="bg-slate-900 text-white px-5 py-2.5 rounded-md font-bold text-sm hover:bg-slate-700 transition-all">Adhérer</Link>
+                            <Link to="/login" className="text-sm font-semibold hover:text-emerald-700 transition-colors">{t('login')}</Link>
+                            <Link to="/register" className="bg-slate-900 text-white px-5 py-2.5 rounded-md font-bold text-sm hover:bg-slate-700 transition-all">{t('join')}</Link>
                         </div>
                     )}
                 </div>
@@ -145,19 +159,31 @@ export default function Navbar() {
 
             {isOpen && (
                 <div className="lg:hidden bg-white border-t border-slate-200 p-5 space-y-3 shadow-xl">
+                    <div className="flex rounded-md border border-slate-200 bg-slate-50 p-1">
+                        {['fr', 'ar'].map(code => (
+                            <button
+                                key={code}
+                                type="button"
+                                onClick={() => setLanguage(code)}
+                                className={`flex-1 px-3 py-2 rounded text-xs font-black ${language === code ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'}`}
+                            >
+                                {code.toUpperCase()}
+                            </button>
+                        ))}
+                    </div>
                     {navItems.map(item => (
                         <Link key={item.to} to={item.to} className="block text-base font-semibold py-2" onClick={closeMenu}>{item.label}</Link>
                     ))}
-                    <Link to="/donate" className="block text-base font-extrabold text-emerald-700 py-2" onClick={closeMenu}>Contribuer</Link>
+                    <Link to="/donate" className="block text-base font-extrabold text-emerald-700 py-2" onClick={closeMenu}>{t('contribute')}</Link>
                     <div className="pt-4 border-t border-slate-200 flex flex-col gap-3">
                         {user ? (
                             <>
-                                <Link to="/" className="w-full text-center py-3 border border-slate-200 text-slate-700 rounded-md font-bold" onClick={closeMenu}>Accueil</Link>
-                                <Link to="/dashboard" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Tableau de bord</Link>
-                                <button onClick={() => { closeMenu(); setConfirmLogout(true); }} className="w-full text-center py-3 border border-red-200 text-red-600 rounded-md font-bold">Sortir</button>
+                                <Link to="/" className="w-full text-center py-3 border border-slate-200 text-slate-700 rounded-md font-bold" onClick={closeMenu}>{t('home')}</Link>
+                                <Link to="/dashboard" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>{t('dashboard')}</Link>
+                                <button onClick={() => { closeMenu(); setConfirmLogout(true); }} className="w-full text-center py-3 border border-red-200 text-red-600 rounded-md font-bold">{t('logout')}</button>
                             </>
                         ) : (
-                            <Link to="/register" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>Demander l'adhésion</Link>
+                            <Link to="/register" className="w-full text-center py-3 bg-slate-900 text-white rounded-md font-bold" onClick={closeMenu}>{t('join')}</Link>
                         )}
                     </div>
                 </div>
