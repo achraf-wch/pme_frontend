@@ -35,7 +35,7 @@ export default function UpcomingEvents() {
                         {events.map(ev => (
                             <article key={ev.id} className="bg-white border border-slate-200 rounded-lg overflow-hidden shadow-sm">
                                 {ev.attachment_path && (
-                                    <img src={getStorageUrl(ev.attachment_path)} alt={ev.title} className="w-full h-44 object-cover" />
+                                    <img src={getStorageUrl(ev.attachment_path)} alt={ev.title} loading="lazy" decoding="async" className="w-full h-44 object-cover" />
                                 )}
                                 <div className="p-5">
                                     <h3 className="font-black text-lg text-slate-900">{ev.title}</h3>

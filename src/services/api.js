@@ -154,7 +154,16 @@ export const updateEvent = (id, data) => {
 // ── Static Pages ──────────────────────────────────────────────────────────────
 
 export const getStaticPages  = ()           => API.get('/static-pages');
-export const updateStaticPage = (slug, data) => API.put(`/static-pages/${slug}`, data);
+export const updateStaticPage = (slug, data) => {
+    if (data instanceof FormData) {
+        data.append('_method', 'PUT');
+        return API.post(`/static-pages/${slug}`, data, {
+            headers: { 'Content-Type': 'multipart/form-data' },
+        });
+    }
+
+    return API.put(`/static-pages/${slug}`, data);
+};
 export const searchContent = (query) => API.get('/search', { params: { q: query } });
 
 // ── Media ─────────────────────────────────────────────────────────────────────

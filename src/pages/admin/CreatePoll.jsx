@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { createPoll, getPolls, getPollResults } from '../../services/api';
+import { createPoll, getBranches, getPolls, getPollResults } from '../../services/api';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 const AUDIENCE_OPTIONS = [
@@ -17,20 +17,58 @@ const AUDIENCE_OPTIONS = [
 const emptyForm = {
   title: '', description: '',
   startDate: '', endDate: '',
-  audience: ['member'],
+  audience: ['member'], party_branch_id: '',
   options: ['', ''],
 };
 
+function currentUser() {
+  return JSON.parse(localStorage.getItem('user') || 'null');
+}
+
+function currentRole() {
+  const user = currentUser();
+  return user?.role?.name || user?.role || 'visitor';
+}
+
+function isBranchOfficial(role = currentRole()) {
+  return ['local_official', 'regional_official'].includes(role);
+}
+
+function scopedPollForm(base = emptyForm) {
+  const user = currentUser();
+  return isBranchOfficial()
+    ? { ...base, audience: ['member'], party_branch_id: user?.party_branch_id || '' }
+    : { ...base };
+}
+
+function allowedAudienceOptions() {
+  return isBranchOfficial()
+    ? AUDIENCE_OPTIONS.filter(opt => opt.value === 'member')
+    : AUDIENCE_OPTIONS;
+}
+
+function writableBranches(branches) {
+  const user = currentUser();
+  if (isBranchOfficial()) {
+    return branches.filter(branch => String(branch.id) === String(user?.party_branch_id));
+  }
+  return branches;
+}
+
 export default function CreatePoll() {
-  const [form, setForm] = useState(emptyForm);
+  const [form, setForm] = useState(scopedPollForm());
   const [message, setMessage] = useState(null);
   const [saving, setSaving] = useState(false);
   const [polls, setPolls] = useState([]);
+  const [branches, setBranches] = useState([]);
   const [results, setResults] = useState({});
   const [openResults, setOpenResults] = useState(null);
   const [confirmPublish, setConfirmPublish] = useState(false);
 
-  useEffect(() => { fetchPolls(); }, []);
+  useEffect(() => {
+    fetchPolls();
+    getBranches().then(res => setBranches(res.data)).catch(() => setBranches([]));
+  }, []);
 
   const fetchPolls = async () => {
     try {
@@ -40,6 +78,7 @@ export default function CreatePoll() {
   };
 
   const toggleAudience = (val) => {
+    if (isBranchOfficial() && val !== 'member') return;
     setForm(f => {
       const has = f.audience.includes(val);
       if (has) return { ...f, audience: f.audience.filter(a => a !== val) };
@@ -85,10 +124,11 @@ export default function CreatePoll() {
         start_date: form.startDate,
         end_date: form.endDate,
         target_audience: form.audience,
+        party_branch_id: form.party_branch_id || '',
         options: validOpts,
       });
       setMessage({ type: 'success', text: 'Sondage créé avec succès !' });
-      setForm(emptyForm);
+      setForm(scopedPollForm());
       fetchPolls();
     } catch {
       setMessage({ type: 'error', text: 'Erreur lors de la création du sondage.' });
@@ -113,6 +153,11 @@ export default function CreatePoll() {
   const isPast = (poll) => new Date(poll.end_date) < new Date();
 
   const getMaxVotes = (data) => Math.max(...(data?.results?.map(r => r.votes) || [0]), 1);
+  const audienceOptions = allowedAudienceOptions();
+  const branchOptions = writableBranches(branches);
+  const branchScoped = isBranchOfficial();
+  const assignedBranchId = currentUser()?.party_branch_id || '';
+  const assignedBranch = branches.find(branch => String(branch.id) === String(assignedBranchId));
 
   return (
     <div style={s.root}>
@@ -156,9 +201,29 @@ export default function CreatePoll() {
           </div>
 
           <div style={s.fieldGroup}>
+            <label style={s.label}>Portée géographique</label>
+            <select
+              style={s.input}
+              value={form.party_branch_id}
+              onChange={e => setForm({ ...form, party_branch_id: e.target.value })}
+              disabled={branchScoped}
+            >
+              {!branchScoped && <option value="">Public national</option>}
+              {branchScoped && assignedBranchId && !assignedBranch && (
+                <option value={assignedBranchId}>Section assignée</option>
+              )}
+              {branchOptions.map(branch => (
+                <option key={branch.id} value={branch.id}>
+                  {branch.name} {branch.type ? `(${branch.type})` : ''}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div style={s.fieldGroup}>
             <label style={s.label}>Qui peut voter ?</label>
             <div style={s.audienceGrid}>
-              {AUDIENCE_OPTIONS.map(opt => {
+              {audienceOptions.map(opt => {
                 const active = form.audience.includes(opt.value);
                 return (
                   <button type="button" key={opt.value} onClick={() => toggleAudience(opt.value)}
@@ -243,6 +308,11 @@ export default function CreatePoll() {
                         {AUDIENCE_OPTIONS.find(o => o.value === a)?.label || a}
                       </span>
                     ))}
+                    {poll.party_branch && (
+                      <span style={{ ...s.audBadge, background: '#e6f4ea', color: '#2d6a4f' }}>
+                        {poll.party_branch.name}
+                      </span>
+                    )}
                   </div>
                   <h4 style={s.pollTitle}>{poll.title}</h4>
                   {poll.description && <p style={s.pollDesc}>{poll.description}</p>}

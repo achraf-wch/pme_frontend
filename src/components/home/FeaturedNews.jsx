@@ -33,7 +33,7 @@ function NewsCard({ article }) {
         <article className="group bg-white rounded-lg border border-slate-200 shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden flex flex-col">
             <div className="relative h-52 overflow-hidden bg-slate-100">
                 {imgUrl ? (
-                    <img src={imgUrl} alt={article.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    <img src={imgUrl} alt={article.title} loading="lazy" decoding="async" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                     <div className="w-full h-full bg-slate-100 flex items-center justify-center">
                         <span className="text-slate-400 font-black">PME</span>

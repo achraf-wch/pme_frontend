@@ -17,6 +17,7 @@ export default function HeroSection() {
                     <img
                         src="/imgs/pmeCreation.webp"
                         alt="Présentation de la création du Parti Maroc Émergent"
+                        fetchPriority="high"
                         className="w-full h-full object-cover opacity-45"
                     />
                     <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-950/85 to-emerald-950/70" />
@@ -24,7 +25,7 @@ export default function HeroSection() {
 
                 <div className="relative max-w-7xl mx-auto px-4 sm:px-6 pt-16 pb-16 md:pt-24 md:pb-20 grid lg:grid-cols-12 gap-10 items-center min-h-[calc(100vh-5rem)]">
                     <div className="lg:col-span-7">
-                        <img src="/imgs/logo.webp" alt="Logo حزب المغرب الصاعد" className="w-28 h-28 object-contain mb-6 bg-white/90 rounded-lg p-2" />
+                        <img src="/imgs/logo.webp" alt="Logo حزب المغرب الصاعد" fetchPriority="high" className="w-28 h-28 object-contain mb-6 bg-white/90 rounded-lg p-2" />
                         <p className="inline-flex bg-white/10 border border-white/20 rounded-md px-4 py-2 text-xs font-bold uppercase tracking-widest mb-6">
                             حزب المغرب الصاعد | Le PME
                         </p>
