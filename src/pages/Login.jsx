@@ -50,7 +50,7 @@ export default function Login() {
         <div className="flex items-center justify-center px-6 py-12 md:py-20 bg-slate-50/50 min-h-[calc(100vh-80px)]">
             <div className="w-full max-w-md bg-white rounded-[2.5rem] shadow-xl border border-slate-100 p-10 transform transition-all">
                 <div className="text-center mb-10">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-[#2c3e50] text-white rounded-2xl font-black text-lg mb-4 shadow-lg">PME</div>
+                    <div className="inline-flex items-center justify-center w-14 h-14 bg-slate-950 text-white rounded-2xl font-black text-lg mb-4 shadow-lg">PME</div>
                     <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter">Connexion</h2>
                     <p className="text-slate-400 text-sm mt-1 font-medium">Espace Membre</p>
                 </div>
@@ -62,7 +62,7 @@ export default function Login() {
                             placeholder="Email" 
                             value={email} 
                             onChange={e => setEmail(e.target.value)} 
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-slate-700 placeholder:text-slate-400"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none text-slate-700 placeholder:text-slate-400"
                             required 
                         />
                     </div>
@@ -73,7 +73,7 @@ export default function Login() {
                             placeholder="Mot de passe" 
                             value={password} 
                             onChange={e => setPassword(e.target.value)} 
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none text-slate-700 placeholder:text-slate-400"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none text-slate-700 placeholder:text-slate-400"
                             required 
                         />
                     </div>
@@ -86,7 +86,7 @@ export default function Login() {
 
                     <button 
                         type="submit" 
-                        className="w-full py-4 bg-[#2c3e50] hover:bg-slate-800 text-white font-black rounded-2xl shadow-lg transition-all active:scale-[0.98] uppercase tracking-widest text-sm mt-2"
+                        className="w-full py-4 bg-slate-950 hover:bg-slate-800 text-white font-black rounded-2xl shadow-lg transition-all active:scale-[0.98] uppercase tracking-widest text-sm mt-2"
                     >
                         Se connecter
                     </button>
@@ -103,14 +103,14 @@ export default function Login() {
                     onClick={handleGoogleLogin}
                     className="flex w-full items-center justify-center gap-3 rounded-2xl border border-slate-200 bg-white px-5 py-4 text-sm font-black text-slate-700 transition-all hover:bg-slate-50"
                 >
-                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 text-xs font-black text-blue-600">G</span>
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full border border-slate-200 text-xs font-black text-emerald-600">G</span>
                     Continuer avec Google
                 </button>
 
                 <div className="mt-8 pt-6 border-t border-slate-50 text-center">
                     <p className="text-slate-500 text-sm font-medium">
                         Pas encore membre ?{' '}
-                        <Link to="/register" className="text-blue-600 font-extrabold hover:text-blue-700 transition-colors">
+                        <Link to="/register" className="text-emerald-600 font-extrabold hover:text-emerald-700 transition-colors">
                             Créer un compte
                         </Link>
                     </p>

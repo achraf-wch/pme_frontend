@@ -191,7 +191,7 @@ export default function AdminPollList() {
             {/* Page Header */}
             <div className="flex items-center justify-between">
                 <div>
-                    <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Administration</p>
+                    <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">Administration</p>
                     <h3 className="text-2xl font-black text-slate-900">Sondages | الاستطلاعات</h3>
                 </div>
                 <span className="bg-slate-100 text-slate-600 px-4 py-1.5 rounded-full text-xs font-black">

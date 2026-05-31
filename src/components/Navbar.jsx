@@ -71,7 +71,7 @@ export default function Navbar() {
     ];
 
     return (
-        <nav className="bg-white/95 backdrop-blur-md text-slate-900 sticky top-0 z-50 border-b border-slate-200 shadow-sm">
+        <nav className="bg-slate-950/95 backdrop-blur-md text-white sticky top-0 z-50 border-b border-emerald-500/20 shadow-lg">
             <ConfirmDialog
                 open={confirmLogout}
                 title={t('closeSession')}
@@ -85,23 +85,23 @@ export default function Navbar() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 h-20 flex justify-between items-center">
                 
                 <Link to="/" className="flex items-center gap-3 group">
-                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm border border-slate-200 overflow-hidden">
+                    <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center shadow-sm border border-white/20 overflow-hidden">
                         <img src="/imgs/logo.webp" alt="PME" className="w-full h-full object-contain p-1" />
                     </div>
                     <div className="flex flex-col">
                         <span className="font-extrabold text-lg tracking-tight leading-none">Parti Maroc Émergent</span>
-                        <span className="text-[11px] text-slate-500 font-bold">{t('platformTagline')}</span>
+                        <span className="text-[11px] text-emerald-300 font-bold">{t('platformTagline')}</span>
                     </div>
                 </Link>
 
                 <div className="hidden lg:flex items-center gap-2">
-                    <div className="flex rounded-md border border-slate-200 bg-slate-50 p-1" aria-label="Langue">
+                    <div className="flex rounded-md border border-white/10 bg-white/10 p-1" aria-label="Langue">
                         {['fr', 'ar'].map(code => (
                             <button
                                 key={code}
                                 type="button"
                                 onClick={() => setLanguage(code)}
-                                className={`px-2.5 py-1 rounded text-xs font-black ${language === code ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-500'}`}
+                                className={`px-2.5 py-1 rounded text-xs font-black ${language === code ? 'bg-white text-emerald-700 shadow-sm' : 'text-slate-300'}`}
                             >
                                 {code.toUpperCase()}
                             </button>
@@ -111,21 +111,21 @@ export default function Navbar() {
                         <button
                             type="button"
                             onClick={() => setIsMenuOpen(open => !open)}
-                            className="inline-flex items-center gap-2 px-4 py-2 rounded-md hover:bg-slate-100 transition-all text-sm font-bold"
+                            className="inline-flex items-center gap-2 px-4 py-2 rounded-md hover:bg-white/10 transition-all text-sm font-bold"
                             aria-expanded={isMenuOpen}
                             aria-haspopup="true"
                         >
                             {t('menu')}
-                            <span className={`w-2 h-2 border-r-2 border-b-2 border-slate-500 transition-transform ${isMenuOpen ? 'rotate-[-135deg] translate-y-0.5' : 'rotate-45 -translate-y-0.5'}`}></span>
+                            <span className={`w-2 h-2 border-r-2 border-b-2 border-emerald-300 transition-transform ${isMenuOpen ? 'rotate-[-135deg] translate-y-0.5' : 'rotate-45 -translate-y-0.5'}`}></span>
                         </button>
                         {isMenuOpen && (
-                            <div className="absolute right-0 mt-3 w-64 bg-white border border-slate-200 rounded-lg shadow-xl p-2">
+                            <div className="absolute right-0 mt-3 w-64 bg-white border border-slate-200 rounded-lg shadow-xl p-2 text-slate-800">
                                 {navItems.map(item => (
                                     <Link
                                         key={item.to}
                                         to={item.to}
                                         onClick={() => setIsMenuOpen(false)}
-                                        className="block px-3 py-2 rounded-md hover:bg-slate-100 transition-all text-sm font-semibold"
+                                        className="block px-3 py-2 rounded-md hover:bg-emerald-50 hover:text-emerald-800 transition-all text-sm font-semibold"
                                     >
                                         {item.label}
                                     </Link>
@@ -133,9 +133,9 @@ export default function Navbar() {
                             </div>
                         )}
                     </div>
-                    <Link to="/donate" className="px-3 py-2 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition-all text-sm font-extrabold">{t('contribute')}</Link>
+                    <Link to="/donate" className="px-3 py-2 rounded-md bg-emerald-500 text-white hover:bg-emerald-400 transition-all text-sm font-extrabold">{t('contribute')}</Link>
                     
-                    <div className="w-px h-6 bg-slate-200 mx-2"></div>
+                    <div className="w-px h-6 bg-white/15 mx-2"></div>
 
                     {user ? (
                         <div className="flex items-center gap-2">
@@ -144,21 +144,21 @@ export default function Navbar() {
                         </div>
                     ) : (
                         <div className="flex items-center gap-3 pl-2">
-                            <Link to="/login" className="text-sm font-semibold hover:text-emerald-700 transition-colors">{t('login')}</Link>
-                            <Link to="/register" className="bg-slate-900 text-white px-5 py-2.5 rounded-md font-bold text-sm hover:bg-slate-700 transition-all">{t('join')}</Link>
+                            <Link to="/login" className="text-sm font-semibold hover:text-emerald-300 transition-colors">{t('login')}</Link>
+                            <Link to="/register" className="bg-white text-slate-950 px-5 py-2.5 rounded-md font-bold text-sm hover:bg-emerald-100 transition-all">{t('join')}</Link>
                         </div>
                     )}
                 </div>
 
-                <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 hover:bg-slate-100 rounded-md" aria-label="Ouvrir le menu">
-                    <div className="w-6 h-0.5 bg-slate-900 mb-1.5"></div>
-                    <div className="w-6 h-0.5 bg-slate-900 mb-1.5"></div>
-                    <div className="w-4 h-0.5 bg-slate-900 ml-2"></div>
+                <button onClick={() => setIsOpen(!isOpen)} className="lg:hidden p-2 hover:bg-white/10 rounded-md" aria-label="Ouvrir le menu">
+                    <div className="w-6 h-0.5 bg-white mb-1.5"></div>
+                    <div className="w-6 h-0.5 bg-white mb-1.5"></div>
+                    <div className="w-4 h-0.5 bg-emerald-300 ml-2"></div>
                 </button>
             </div>
 
             {isOpen && (
-                <div className="lg:hidden bg-white border-t border-slate-200 p-5 space-y-3 shadow-xl">
+                <div className="lg:hidden bg-white border-t border-slate-200 p-5 space-y-3 shadow-xl text-slate-800">
                     <div className="flex rounded-md border border-slate-200 bg-slate-50 p-1">
                         {['fr', 'ar'].map(code => (
                             <button
@@ -172,7 +172,7 @@ export default function Navbar() {
                         ))}
                     </div>
                     {navItems.map(item => (
-                        <Link key={item.to} to={item.to} className="block text-base font-semibold py-2" onClick={closeMenu}>{item.label}</Link>
+                        <Link key={item.to} to={item.to} className="block text-base font-semibold py-2 hover:text-emerald-700 transition-colors" onClick={closeMenu}>{item.label}</Link>
                     ))}
                     <Link to="/donate" className="block text-base font-extrabold text-emerald-700 py-2" onClick={closeMenu}>{t('contribute')}</Link>
                     <div className="pt-4 border-t border-slate-200 flex flex-col gap-3">

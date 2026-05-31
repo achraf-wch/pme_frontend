@@ -96,7 +96,7 @@ export default function MembershipRequest() {
                                 value={form.country}
                                 onChange={(e) => setForm({ ...form, country: e.target.value })}
                                 required
-                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 font-medium"
+                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-emerald-500 transition-all text-slate-700 font-medium"
                             />
                         </div>
                         <div className="space-y-2">
@@ -110,7 +110,7 @@ export default function MembershipRequest() {
                                 value={form.age}
                                 onChange={(e) => setForm({ ...form, age: e.target.value })}
                                 required
-                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 font-medium"
+                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-emerald-500 transition-all text-slate-700 font-medium"
                             />
                         </div>
                     </div>
@@ -124,7 +124,7 @@ export default function MembershipRequest() {
                                 value={form.regional_branch_id}
                                 onChange={(e) => setForm({ ...form, regional_branch_id: e.target.value, local_branch_id: '' })}
                                 required
-                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 font-medium"
+                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-emerald-500 transition-all text-slate-700 font-medium"
                             >
                                 <option value="">Choisir une région</option>
                                 {regionalBranches.map(branch => (
@@ -141,7 +141,7 @@ export default function MembershipRequest() {
                                 onChange={(e) => setForm({ ...form, local_branch_id: e.target.value })}
                                 required
                                 disabled={!form.regional_branch_id}
-                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 font-medium disabled:opacity-50"
+                                className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-emerald-500 transition-all text-slate-700 font-medium disabled:opacity-50"
                             >
                                 <option value="">Choisir une section locale</option>
                                 {localBranches.map(branch => (
@@ -159,7 +159,7 @@ export default function MembershipRequest() {
                             value={form.sex}
                             onChange={(e) => setForm({ ...form, sex: e.target.value })}
                             required
-                            className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 font-medium"
+                            className="w-full p-4 rounded-[1.25rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-emerald-500 transition-all text-slate-700 font-medium"
                         >
                             <option value="">Choisir</option>
                             <option value="female">Femme</option>
@@ -178,14 +178,14 @@ export default function MembershipRequest() {
                             onChange={(e) => setForm({ ...form, motivation: e.target.value })}
                             placeholder="Pourquoi souhaitez-vous nous rejoindre ?"
                             rows="5"
-                            className="w-full p-6 rounded-[1.5rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-blue-500 transition-all text-slate-700 font-medium"
+                            className="w-full p-6 rounded-[1.5rem] bg-slate-50 border-none shadow-inner focus:ring-2 focus:ring-emerald-500 transition-all text-slate-700 font-medium"
                         />
                     </div>
 
                     <button 
                         type="submit" 
                         disabled={!canSubmit}
-                        className="w-full py-5 bg-blue-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-blue-600/20 hover:bg-blue-700 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:hover:translate-y-0"
+                        className="w-full py-5 bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-[0.2em] shadow-xl shadow-emerald-600/20 hover:bg-emerald-700 hover:-translate-y-1 transition-all disabled:opacity-50 disabled:hover:translate-y-0"
                     >
                         {canSubmit ? 'Envoyer ma demande' : 'Demande déjà envoyée'}
                     </button>

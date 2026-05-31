@@ -64,13 +64,13 @@ export default function NewsList() {
     return (
         <div className="max-w-5xl mx-auto px-6 py-16">
             <div className="flex items-center gap-4 mb-12">
-                <div className="w-2 h-12 bg-blue-500 rounded-full"></div>
-                <h2 className="text-4xl font-black text-[#2c3e50] uppercase tracking-tighter">Dernières Actualités</h2>
+                <div className="w-2 h-12 bg-emerald-500 rounded-full"></div>
+                <h2 className="text-4xl font-black text-slate-950 uppercase tracking-tighter">Dernières Actualités</h2>
             </div>
 
             {loading ? (
                 <div className="flex flex-col items-center justify-center py-20">
-                    <div className="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mb-4"></div>
+                    <div className="w-12 h-12 border-4 border-emerald-200 border-t-emerald-600 rounded-full animate-spin mb-4"></div>
                     <p className="text-slate-500 font-medium">Chargement des actualités...</p>
                 </div>
             ) : (
@@ -93,13 +93,13 @@ export default function NewsList() {
                                         <div className="w-full h-64 bg-slate-100 flex items-center justify-center font-bold text-slate-300">Image PME</div>
                                     )}
                                 </div>
-                                <div className="absolute -bottom-4 -left-4 bg-blue-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
+                                <div className="absolute -bottom-4 -left-4 bg-emerald-600 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg">
                                     PME INFO
                                 </div>
                             </div>
 
                             <div className="md:col-span-7 pt-2">
-                                <div className="flex items-center gap-3 mb-4 text-xs font-bold text-blue-500 uppercase tracking-[0.2em]">
+                                <div className="flex items-center gap-3 mb-4 text-xs font-bold text-emerald-500 uppercase tracking-[0.2em]">
                                     <span>Communiqué</span>
                                     <span className="w-1 h-1 bg-slate-300 rounded-full"></span>
                                     <span className="text-slate-400 font-medium">
@@ -107,17 +107,17 @@ export default function NewsList() {
                                     </span>
                                 </div>
                                 
-                                <h3 className="text-2xl font-extrabold text-slate-800 mb-4 group-hover:text-blue-600 transition-colors leading-tight">
+                                <h3 className="text-2xl font-extrabold text-slate-800 mb-4 group-hover:text-emerald-600 transition-colors leading-tight">
                                     {article.title}
                                 </h3>
                                 
                                 <div className="flex items-center justify-between">
-                                    <Link to={`/news/${article.id}`} className="flex items-center gap-2 text-sm font-black text-slate-900 border-b-2 border-transparent hover:border-blue-500 transition-all pb-1 uppercase tracking-widest">
+                                    <Link to={`/news/${article.id}`} className="flex items-center gap-2 text-sm font-black text-slate-900 border-b-2 border-transparent hover:border-emerald-500 transition-all pb-1 uppercase tracking-widest">
                                         Parcourir
                                     </Link>
                                     
                                     <div className="flex gap-2">
-                                        <span className="p-2 bg-slate-50 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer">🔗</span>
+                                        <span className="p-2 bg-slate-50 rounded-lg hover:bg-emerald-50 transition-colors cursor-pointer">🔗</span>
                                     </div>
                                 </div>
                             </div>

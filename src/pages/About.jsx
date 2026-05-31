@@ -12,12 +12,12 @@ export default function About() {
             ═══════════════════════════════════════════════ */}
             <div className="bg-gradient-to-br from-[#0d1b2a] to-[#1a3a5c] py-24 px-6 text-center relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3b82f6 0, #3b82f6 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }}
+                    style={{ backgroundImage: 'repeating-linear-gradient(45deg, #10b981 0, #10b981 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }}
                 />
-                <p className="text-blue-400 font-bold uppercase tracking-widest text-sm mb-4">Qui sommes-nous | من نحن</p>
+                <p className="text-emerald-400 font-bold uppercase tracking-widest text-sm mb-4">Qui sommes-nous | من نحن</p>
                 <h1 className="text-5xl md:text-7xl font-black text-white mb-6">
                     À Propos<br />
-                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-emerald-400">
+                    <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-400">
                         حزب المغرب الصاعد
                     </span>
                 </h1>
@@ -36,7 +36,7 @@ export default function About() {
 
                         {/* Photo + badges */}
                         <div className="shrink-0 text-center">
-                            <div className="w-72 h-96 rounded-lg overflow-hidden shadow-2xl border-4 border-white ring-4 ring-blue-100 mx-auto bg-slate-100">
+                            <div className="w-72 h-96 rounded-lg overflow-hidden shadow-2xl border-4 border-white ring-4 ring-emerald-100 mx-auto bg-slate-100">
                                 <img
                                     src="/imgs/AliAmzineCv.webp"
                                     alt="CV du fondateur Ali Amzine"
@@ -47,7 +47,7 @@ export default function About() {
                             {/* Tags compétences */}
                             <div className="mt-6 flex flex-wrap gap-2 justify-center max-w-xs">
                                 {["IA & Informatique", "Intelligence Collective", "Innovation", "Politique", "Formation", "Économie"].map(s => (
-                                    <span key={s} className="text-xs bg-blue-50 text-blue-700 border border-blue-100 rounded-full px-3 py-1">{s}</span>
+                                    <span key={s} className="text-xs bg-emerald-50 text-emerald-700 border border-emerald-100 rounded-full px-3 py-1">{s}</span>
                                 ))}
                             </div>
                         </div>
@@ -55,15 +55,15 @@ export default function About() {
                         {/* Texte bio */}
                         <div className="flex-1 space-y-8">
                             <div>
-                                <span className="text-blue-600 font-bold uppercase tracking-widest text-xs">المؤسس | Le Fondateur</span>
-                                <h2 className="text-4xl font-black text-[#2c3e50] mt-2">
+                                <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">المؤسس | Le Fondateur</span>
+                                <h2 className="text-4xl font-black text-slate-950 mt-2">
                                     علي امزين <span className="text-slate-400 font-bold text-2xl">| Ali Amzine</span>
                                 </h2>
                             </div>
 
                             {/* Bio arabe */}
-                            <div className="bg-blue-50 p-8 rounded-lg border-r-4 border-blue-600">
-                                <h3 className="text-lg font-bold text-blue-800 mb-4" dir="rtl">السيرة الذاتية</h3>
+                            <div className="bg-emerald-50 p-8 rounded-lg border-r-4 border-emerald-600">
+                                <h3 className="text-lg font-bold text-emerald-800 mb-4" dir="rtl">السيرة الذاتية</h3>
                                 <p className="text-slate-700 leading-loose text-base" dir="rtl">
                                     هو مدير الأكاديمية الدولية للتكوين والتأهيل في التكنولوجيا واللغات والمهن. كاتب إقتصادي ومكون في الذكاء الجماعي والإبتكار، وفاعل سياسي واجتماعي. مصمم في صناعة المكاتب، مهندس إعلاميات وإدماج برامج الذكاء الإصطناعي، ومحلل سياسي ومكون في اللغات والتواصل.
                                 </p>
@@ -88,7 +88,7 @@ export default function About() {
                         <img src="/imgs/pmeCreation.webp" alt="Déclaration de constitution du PME" className="absolute inset-0 w-full h-full object-cover opacity-25" />
 
                         <div className="relative z-10 text-center space-y-6">
-                            <p className="text-blue-400 font-bold uppercase tracking-widest text-xs">
+                            <p className="text-emerald-400 font-bold uppercase tracking-widest text-xs">
                                 Déclaration | بيان | Declaration
                             </p>
                             <h3 className="text-3xl md:text-4xl font-black">
@@ -101,7 +101,7 @@ export default function About() {
                                 Declaration of the Constitution of the Emerging Morocco Party
                             </p>
                             <div className="flex flex-wrap justify-center gap-4 pt-4">
-                                <Link to="/register" className="px-8 py-3 bg-blue-600 hover:bg-blue-500 text-white font-bold rounded-xl transition-all">
+                                <Link to="/register" className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition-all">
                                     Rejoindre | انضم
                                 </Link>
                                 <Link to="/contact" className="px-8 py-3 bg-white/10 border border-white/20 text-white font-bold rounded-xl hover:bg-white/20 transition-all">
@@ -117,14 +117,14 @@ export default function About() {
                 ═══════════════════════════════════════════════ */}
                 <section>
                     <div className="text-right space-y-4">
-                        <span className="text-blue-600 font-bold uppercase tracking-widest text-xs">رؤيتنا | Notre Vision</span>
-                        <h3 className="text-3xl md:text-4xl font-black text-[#2c3e50]">NOTRE VISION INNOVANTE</h3>
-                        <div className="h-1 w-16 bg-blue-500 rounded-full ml-auto" />
+                        <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">رؤيتنا | Notre Vision</span>
+                        <h3 className="text-3xl md:text-4xl font-black text-slate-950">NOTRE VISION INNOVANTE</h3>
+                        <div className="h-1 w-16 bg-emerald-500 rounded-full ml-auto" />
                     </div>
 
                     <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-6">
                         {[
-                            { image: "/imgs/ANTI_POPULISTES.webp", title: "ANTI POPULISTES", color: "bg-blue-50 border-blue-200 text-blue-800" },
+                            { image: "/imgs/ANTI_POPULISTES.webp", title: "ANTI POPULISTES", color: "bg-emerald-50 border-emerald-200 text-emerald-800" },
                             { image: "/imgs/PRO_EMERGENCE.webp", title: "PRO EMERGENCE", color: "bg-red-50 border-red-200 text-red-800" },
                             { image: "/imgs/PRO_FORMATION.webp", title: "PRO FORMATION", color: "bg-emerald-50 border-emerald-200 text-emerald-800" }
                         ].map((v, i) => (
@@ -151,10 +151,10 @@ export default function About() {
                     BRAINSTORMING / INTELLIGENCE COLLECTIVE
                 ═══════════════════════════════════════════════ */}
                 <section>
-                    <div className="grid md:grid-cols-5 gap-10 items-stretch bg-gradient-to-br from-blue-50 to-slate-50 rounded-lg p-6 md:p-10 border border-blue-100">
+                    <div className="grid md:grid-cols-5 gap-10 items-stretch bg-gradient-to-br from-emerald-50 to-slate-50 rounded-lg p-6 md:p-10 border border-emerald-100">
                         <img src="/imgs/img.webp" alt="Intelligence collective du PME" className="md:col-span-2 w-full h-full min-h-80 object-cover rounded-lg bg-white" />
                         <div className="md:col-span-3 space-y-4">
-                            <h3 className="text-2xl font-black text-[#2c3e50]">
+                            <h3 className="text-2xl font-black text-slate-950">
                                 العمل بالذكاء الجماعي | Brainstorming Collectif
                             </h3>
                             <p className="text-slate-600 leading-loose" dir="rtl">
@@ -172,8 +172,8 @@ export default function About() {
                 ═══════════════════════════════════════════════ */}
                 <section>
                     <div className="text-center mb-12">
-                        <span className="text-blue-600 font-bold uppercase tracking-widest text-xs">Projet Phare | المشروع الرئيسي</span>
-                        <h3 className="text-3xl md:text-4xl font-black text-[#2c3e50] mt-2">
+                        <span className="text-emerald-600 font-bold uppercase tracking-widest text-xs">Projet Phare | المشروع الرئيسي</span>
+                        <h3 className="text-3xl md:text-4xl font-black text-slate-950 mt-2">
                             مشروع مدرستي الرقمية
                         </h3>
                         <p className="text-slate-500 italic mt-2">Mon École Digitale | Le projet PME</p>

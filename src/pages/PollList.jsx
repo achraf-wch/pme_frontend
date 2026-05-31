@@ -75,8 +75,8 @@ export default function PollList() {
                 onCancel={() => setPendingVote(null)}
             />
             <div className="flex items-center gap-4 mb-12">
-                <div className="w-2 h-12 bg-blue-500 rounded-full"></div>
-                <h2 className="text-4xl font-black text-[#2c3e50] uppercase tracking-tighter">Sondages & Opinions</h2>
+                <div className="w-2 h-12 bg-emerald-500 rounded-full"></div>
+                <h2 className="text-4xl font-black text-slate-950 uppercase tracking-tighter">Sondages & Opinions</h2>
             </div>
 
             {message && (
@@ -114,7 +114,7 @@ export default function PollList() {
                                                     <span className="font-medium">{percent}% ({votes} voix)</span>
                                                 </div>
                                                 <div className="w-full bg-slate-100 rounded-full h-2">
-                                                    <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${percent}%` }}></div>
+                                                    <div className="bg-emerald-500 h-2 rounded-full" style={{ width: `${percent}%` }}></div>
                                                 </div>
                                             </div>
                                         );
@@ -130,7 +130,7 @@ export default function PollList() {
                                                 key={opt.id}
                                                 onClick={() => handleVote(poll, opt)}
                                                 disabled={voting[poll.id]}
-                                                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-300 text-white font-bold rounded-full transition shadow-md"
+                                                className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 disabled:bg-emerald-300 text-white font-bold rounded-full transition shadow-md"
                                             >
                                                 {voting[poll.id] ? 'Envoi...' : opt.option_text}
                                             </button>

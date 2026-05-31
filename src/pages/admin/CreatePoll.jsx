@@ -299,8 +299,8 @@ export default function CreatePoll() {
               <div style={s.pollCardTop}>
                 <div style={s.pollCardLeft}>
                   <div style={s.pollStatusRow}>
-                    <span style={{ ...s.statusDot, background: active ? '#2d6a4f' : past ? '#888' : '#c9a84c' }} />
-                    <span style={{ ...s.statusLabel, color: active ? '#2d6a4f' : past ? '#888' : '#c9a84c' }}>
+                    <span style={{ ...s.statusDot, background: active ? '#2d6a4f' : past ? '#888' : '#34d399' }} />
+                    <span style={{ ...s.statusLabel, color: active ? '#2d6a4f' : past ? '#888' : '#34d399' }}>
                       {active ? 'En cours' : past ? 'Terminé' : 'À venir'}
                     </span>
                     {(poll.target_audience || []).map(a => (
@@ -343,7 +343,7 @@ export default function CreatePoll() {
                             <span style={s.barPct}>{pct}%</span>
                           </div>
                           <div style={s.barTrack}>
-                            <div style={{ ...s.barFill, width: `${pct}%`, background: isWinner ? '#1a1a2e' : '#c9a84c' }} />
+                            <div style={{ ...s.barFill, width: `${pct}%`, background: isWinner ? '#0f172a' : '#34d399' }} />
                           </div>
                           <span style={s.barVotes}>{r.votes} vote{r.votes !== 1 ? 's' : ''}</span>
                         </div>
@@ -362,35 +362,35 @@ export default function CreatePoll() {
 }
 
 const s = {
-  root: { fontFamily: "'Georgia', 'Times New Roman', serif", maxWidth: 860, margin: '0 auto', padding: '2rem 1rem', color: '#1a1a2e' },
+  root: { fontFamily: "'Georgia', 'Times New Roman', serif", maxWidth: 860, margin: '0 auto', padding: '2rem 1rem', color: '#0f172a' },
   card: { background: '#fff', border: '1px solid #e8e4dc', borderRadius: 16, marginBottom: '2.5rem', overflow: 'hidden' },
-  cardHeader: { background: '#1a1a2e', padding: '1.5rem 2rem', borderBottom: '3px solid #c9a84c' },
-  cardLabel: { fontSize: 10, letterSpacing: '0.2em', color: '#c9a84c', fontFamily: 'sans-serif', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 },
+  cardHeader: { background: '#0f172a', padding: '1.5rem 2rem', borderBottom: '3px solid #34d399' },
+  cardLabel: { fontSize: 10, letterSpacing: '0.2em', color: '#34d399', fontFamily: 'sans-serif', fontWeight: 700, textTransform: 'uppercase', marginBottom: 4 },
   cardTitle: { margin: 0, fontSize: 20, fontWeight: 400, color: '#f5f0e8', fontStyle: 'italic' },
   form: { padding: '2rem', display: 'flex', flexDirection: 'column', gap: '1.5rem' },
   fieldGroup: { display: 'flex', flexDirection: 'column', gap: 8 },
   label: { fontSize: 11, fontFamily: 'sans-serif', fontWeight: 700, letterSpacing: '0.15em', textTransform: 'uppercase', color: '#6b6b7a' },
-  input: { fontFamily: "'Georgia', serif", fontSize: 14, padding: '12px 16px', border: '1px solid #ddd8cf', borderRadius: 8, outline: 'none', color: '#1a1a2e', background: '#faf9f7', width: '100%', boxSizing: 'border-box' },
+  input: { fontFamily: "'Georgia', serif", fontSize: 14, padding: '12px 16px', border: '1px solid #ddd8cf', borderRadius: 8, outline: 'none', color: '#0f172a', background: '#faf9f7', width: '100%', boxSizing: 'border-box' },
   grid2: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' },
   audienceGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(170px, 1fr))', gap: 8 },
   audienceChip: { display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', border: '1px solid #e0dbd0', borderRadius: 10, cursor: 'pointer', background: '#faf9f7', transition: 'all 0.15s' },
-  audienceChipActive: { border: '1.5px solid #1a1a2e', background: '#f0ede5' },
-  chipLabel: { fontSize: 12, fontWeight: 700, fontFamily: 'sans-serif', color: '#1a1a2e' },
+  audienceChipActive: { border: '1.5px solid #0f172a', background: '#f0ede5' },
+  chipLabel: { fontSize: 12, fontWeight: 700, fontFamily: 'sans-serif', color: '#0f172a' },
   chipDesc: { fontSize: 10, color: '#888', marginTop: 1 },
   checkCircle: { width: 18, height: 18, borderRadius: '50%', border: '1.5px solid #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, color: 'transparent', flexShrink: 0 },
-  checkCircleActive: { background: '#1a1a2e', border: '1.5px solid #1a1a2e', color: '#c9a84c' },
+  checkCircleActive: { background: '#0f172a', border: '1.5px solid #0f172a', color: '#34d399' },
   optionsList: { display: 'flex', flexDirection: 'column', gap: 8 },
   optionRow: { display: 'flex', alignItems: 'center', gap: 8 },
-  optionNum: { width: 28, height: 28, borderRadius: '50%', background: '#1a1a2e', color: '#c9a84c', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0, fontFamily: 'sans-serif' },
+  optionNum: { width: 28, height: 28, borderRadius: '50%', background: '#0f172a', color: '#34d399', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 700, flexShrink: 0, fontFamily: 'sans-serif' },
   removeOptBtn: { background: '#fce8e8', border: 'none', borderRadius: 6, color: '#c0392b', cursor: 'pointer', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, flexShrink: 0 },
   addOptBtn: { padding: '10px', border: '1.5px dashed #ccc', borderRadius: 8, background: 'transparent', cursor: 'pointer', fontSize: 12, fontFamily: 'sans-serif', color: '#888', fontWeight: 700, letterSpacing: '0.05em', transition: 'all 0.15s' },
   formActions: { paddingTop: 8 },
-  btnPrimary: { padding: '14px 32px', background: '#1a1a2e', color: '#c9a84c', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'sans-serif', fontWeight: 700, fontSize: 12, letterSpacing: '0.2em', textTransform: 'uppercase', width: '100%' },
+  btnPrimary: { padding: '14px 32px', background: '#0f172a', color: '#34d399', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'sans-serif', fontWeight: 700, fontSize: 12, letterSpacing: '0.2em', textTransform: 'uppercase', width: '100%' },
   message: { padding: '12px 16px', borderRadius: 8, fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, letterSpacing: '0.05em', textAlign: 'center' },
   msgSuccess: { background: '#e6f4ea', color: '#2d6a4f' },
   msgError: { background: '#fce8e8', color: '#c0392b' },
   listHeader: { display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: '1rem' },
-  listTitle: { margin: 0, fontSize: 16, fontWeight: 400, fontStyle: 'italic', color: '#1a1a2e' },
+  listTitle: { margin: 0, fontSize: 16, fontWeight: 400, fontStyle: 'italic', color: '#0f172a' },
   listCount: { fontSize: 12, color: '#999', fontFamily: 'sans-serif' },
   pollsList: { display: 'flex', flexDirection: 'column', gap: 12 },
   pollCard: { background: '#fff', border: '1px solid #e8e4dc', borderRadius: 12, overflow: 'hidden' },
@@ -399,18 +399,18 @@ const s = {
   pollStatusRow: { display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8, flexWrap: 'wrap' },
   statusDot: { width: 8, height: 8, borderRadius: '50%', flexShrink: 0 },
   statusLabel: { fontSize: 11, fontFamily: 'sans-serif', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase' },
-  audBadge: { fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#1a1a2e', color: '#c9a84c', fontFamily: 'sans-serif', fontWeight: 700 },
-  pollTitle: { margin: '0 0 4px', fontSize: 16, fontWeight: 400, color: '#1a1a2e' },
+  audBadge: { fontSize: 10, padding: '2px 8px', borderRadius: 20, background: '#0f172a', color: '#34d399', fontFamily: 'sans-serif', fontWeight: 700 },
+  pollTitle: { margin: '0 0 4px', fontSize: 16, fontWeight: 400, color: '#0f172a' },
   pollDesc: { margin: '0 0 8px', fontSize: 13, color: '#888', lineHeight: 1.5 },
   pollDates: { fontSize: 11, fontFamily: 'sans-serif', color: '#aaa', letterSpacing: '0.05em' },
-  resultsBtn: { padding: '8px 16px', background: '#1a1a2e', color: '#c9a84c', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'sans-serif', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', flexShrink: 0, alignSelf: 'flex-start' },
+  resultsBtn: { padding: '8px 16px', background: '#0f172a', color: '#34d399', border: 'none', borderRadius: 8, cursor: 'pointer', fontFamily: 'sans-serif', fontWeight: 700, fontSize: 11, letterSpacing: '0.1em', textTransform: 'uppercase', flexShrink: 0, alignSelf: 'flex-start' },
   resultsPanel: { borderTop: '1px solid #e8e4dc', padding: '1.25rem', background: '#faf9f7' },
   resultsMeta: { fontSize: 11, fontFamily: 'sans-serif', fontWeight: 700, color: '#888', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: 16 },
   resultsBars: { display: 'flex', flexDirection: 'column', gap: 12 },
   barRow: { display: 'grid', gridTemplateColumns: '1fr auto', alignItems: 'center', gap: '6px 12px' },
   barLabel: { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gridColumn: '1', marginBottom: 4 },
-  barText: { fontSize: 13, color: '#1a1a2e', fontWeight: 400 },
-  barPct: { fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, color: '#1a1a2e' },
+  barText: { fontSize: 13, color: '#0f172a', fontWeight: 400 },
+  barPct: { fontSize: 12, fontFamily: 'sans-serif', fontWeight: 700, color: '#0f172a' },
   barTrack: { gridColumn: '1', height: 8, background: '#e8e4dc', borderRadius: 4, overflow: 'hidden' },
   barFill: { height: '100%', borderRadius: 4, transition: 'width 0.4s ease' },
   barVotes: { gridColumn: '2', gridRow: '1 / 3', fontSize: 12, fontFamily: 'sans-serif', color: '#888', whiteSpace: 'nowrap', alignSelf: 'center' },

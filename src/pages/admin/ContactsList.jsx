@@ -60,7 +60,7 @@ function ContactCard({ contact, onDelete }) {
                 />
             )}
 
-            <div className="group bg-white border border-slate-100 hover:border-blue-100 hover:shadow-xl p-6 rounded-3xl transition-all duration-300 relative overflow-hidden">
+            <div className="group bg-white border border-slate-100 hover:border-emerald-100 hover:shadow-xl p-6 rounded-3xl transition-all duration-300 relative overflow-hidden">
                 {/* Delete button — appears on hover */}
                 <button
                     onClick={() => setModal(true)}
@@ -72,14 +72,14 @@ function ContactCard({ contact, onDelete }) {
 
                 {/* Sender info */}
                 <div className="flex items-center gap-4 mb-5">
-                    <div className="w-11 h-11 rounded-2xl bg-blue-600 text-white flex items-center justify-center font-black text-sm shrink-0">
+                    <div className="w-11 h-11 rounded-2xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shrink-0">
                         {initials}
                     </div>
                     <div className="min-w-0">
                         <h4 className="font-black text-slate-900 truncate">{contact.name}</h4>
                         <a
                             href={`mailto:${contact.email}`}
-                            className="text-xs text-blue-500 font-semibold hover:underline truncate block"
+                            className="text-xs text-emerald-500 font-semibold hover:underline truncate block"
                         >
                             {contact.email}
                         </a>
@@ -128,7 +128,7 @@ export default function ContactsList() {
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-5">
                 <div>
-                    <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Communication</p>
+                    <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">Communication</p>
                     <h3 className="text-2xl font-black text-slate-900">Messages | الرسائل</h3>
                 </div>
                 <span className="bg-slate-100 text-slate-500 px-4 py-1.5 rounded-full text-xs font-black">

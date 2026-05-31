@@ -58,12 +58,12 @@ export default function ActivePolls() {
                 onCancel={() => setPendingVote(null)}
             />
 
-            <h3 className="text-2xl font-black text-[#1a1a2e] uppercase tracking-tight border-b border-slate-100 pb-4">
+            <h3 className="text-2xl font-black text-slate-950 uppercase tracking-tight border-b border-slate-100 pb-4">
                 {t('activePollsTitle')}
             </h3>
             
             {message && (
-                <div className="bg-blue-50 text-blue-700 p-4 rounded-2xl border border-blue-100 text-sm font-bold animate-pulse">
+                <div className="bg-emerald-50 text-emerald-700 p-4 rounded-2xl border border-emerald-100 text-sm font-bold animate-pulse">
                     {message}
                 </div>
             )}
@@ -76,7 +76,7 @@ export default function ActivePolls() {
                 <div className="grid gap-6">
                     {polls.map(poll => (
                         <div key={poll.id} className="bg-white border border-slate-100 rounded-[2rem] p-8 shadow-sm hover:shadow-md transition-all">
-                            <h4 className="text-xl font-black text-[#1a1a2e] mb-2 uppercase italic">{poll.title}</h4>
+                            <h4 className="text-xl font-black text-slate-950 mb-2 uppercase italic">{poll.title}</h4>
                             <p className="text-slate-500 text-sm mb-6 leading-relaxed">{poll.description}</p>
                             
                             <div className="flex items-center gap-2 mb-6">
@@ -101,7 +101,7 @@ export default function ActivePolls() {
                                             key={opt.id}
                                             onClick={() => handleVote(poll.id, opt.id)}
                                             disabled={voting[poll.id]}
-                                            className="px-6 py-3 bg-[#1a1a2e] text-[#c9a84c] rounded-xl hover:bg-black transition-all disabled:opacity-50 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-slate-200"
+                                            className="px-6 py-3 bg-slate-950 text-emerald-300 rounded-xl hover:bg-black transition-all disabled:opacity-50 font-black uppercase text-[10px] tracking-widest shadow-lg shadow-slate-200"
                                         >
                                             {voting[poll.id] ? '...' : opt.option_text}
                                         </button>

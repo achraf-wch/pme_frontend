@@ -37,7 +37,7 @@ export default function Register() {
                         placeholder="Nom complet" 
                         value={name} 
                         onChange={e => setName(e.target.value)} 
-                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                         required 
                     />
                     
@@ -46,7 +46,7 @@ export default function Register() {
                         placeholder="Email professionnel ou personnel" 
                         value={email} 
                         onChange={e => setEmail(e.target.value)} 
-                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                        className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                         required 
                     />
 
@@ -56,7 +56,7 @@ export default function Register() {
                             placeholder="Mot de passe" 
                             value={password} 
                             onChange={e => setPassword(e.target.value)} 
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                             required 
                         />
                         <input 
@@ -64,7 +64,7 @@ export default function Register() {
                             placeholder="Confirmer" 
                             value={passwordConfirmation} 
                             onChange={e => setPasswordConfirmation(e.target.value)} 
-                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 transition-all outline-none"
+                            className="w-full px-6 py-4 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-500 transition-all outline-none"
                             required 
                         />
                     </div>
@@ -77,7 +77,7 @@ export default function Register() {
 
                     <button 
                         type="submit" 
-                        className="w-full py-4 bg-gradient-to-r from-[#2c3e50] to-blue-900 text-white font-black rounded-2xl shadow-lg transition-all active:scale-[0.98] uppercase tracking-widest text-sm mt-4"
+                        className="w-full py-4 bg-gradient-to-r from-slate-950 to-emerald-900 text-white font-black rounded-2xl shadow-lg transition-all active:scale-[0.98] uppercase tracking-widest text-sm mt-4"
                     >
                         Valider mon compte
                     </button>
@@ -86,7 +86,7 @@ export default function Register() {
                 <div className="mt-8 text-center pt-6 border-t border-slate-50">
                     <p className="text-slate-500 text-sm font-medium">
                         Déjà inscrit ?{' '}
-                        <Link to="/login" className="text-blue-600 font-extrabold hover:text-blue-700">
+                        <Link to="/login" className="text-emerald-600 font-extrabold hover:text-emerald-700">
                             Se connecter ici
                         </Link>
                     </p>

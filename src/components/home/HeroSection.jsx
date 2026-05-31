@@ -1,17 +1,18 @@
 import { Link } from 'react-router-dom';
+import Icon from '../Icon';
 
 const modules = [
-    { title: 'Anti-populistes', titleAr: 'ضد الشعبوية', text: 'Une parole politique réaliste, mesurable et utile au citoyen.' },
-    { title: 'Pro émergence', titleAr: 'مع مغرب صاعد', text: 'Industrie, tourisme, agriculture, export, recherche et innovation.' },
-    { title: 'Pro formation', titleAr: 'مع التأهيل', text: 'Qualification des jeunes, langues, métiers, technologies et IA.' },
-    { title: 'Intelligence collective', titleAr: 'الذكاء الجماعي', text: 'Laboratoires d’idées, brainstorming, comités spécialisés et régions.' },
-    { title: 'Mon école digitale', titleAr: 'مدرستي الرقمية', text: 'Un projet éducatif numérique au service du savoir et de l’égalité.' },
-    { title: 'Participation', titleAr: 'المشاركة', text: 'Adhésion, bénévolat, contributions, dialogue militant et proximité.' },
+    { icon: 'shield', title: 'Anti-populistes', titleAr: 'ضد الشعبوية', text: 'Une parole politique réaliste, mesurable et utile au citoyen.' },
+    { icon: 'spark', title: 'Pro émergence', titleAr: 'مع مغرب صاعد', text: 'Industrie, tourisme, agriculture, export, recherche et innovation.' },
+    { icon: 'users', title: 'Pro formation', titleAr: 'مع التأهيل', text: 'Qualification des jeunes, langues, métiers, technologies et IA.' },
+    { icon: 'bot', title: 'Intelligence collective', titleAr: 'الذكاء الجماعي', text: 'Laboratoires d’idées, brainstorming, comités spécialisés et régions.' },
+    { icon: 'news', title: 'Mon école digitale', titleAr: 'مدرستي الرقمية', text: 'Un projet éducatif numérique au service du savoir et de l’égalité.' },
+    { icon: 'check', title: 'Participation', titleAr: 'المشاركة', text: 'Adhésion, bénévolat, contributions, dialogue militant et proximité.' },
 ];
 
 export default function HeroSection() {
     return (
-        <div className="bg-white">
+        <div className="bg-[#f7fbf8]">
             <section className="relative overflow-hidden bg-slate-950 text-white">
                 <div className="absolute inset-0">
                     <img
@@ -52,11 +53,14 @@ export default function HeroSection() {
                         </div>
                     </div>
 
-                    <div className="lg:col-span-5 bg-white/95 text-slate-900 rounded-lg p-6 md:p-8 shadow-2xl">
+                    <div className="lg:col-span-5 bg-white/95 text-slate-900 rounded-lg p-6 md:p-8 shadow-2xl ring-1 ring-white/40">
                         <p className="text-xs font-black uppercase tracking-widest text-emerald-700 mb-4">Notre vision innovante</p>
                         <div className="grid grid-cols-2 gap-3">
                             {modules.map(module => (
-                                <div key={module.title} className="border border-slate-200 rounded-md p-4">
+                                <div key={module.title} className="border border-slate-200 rounded-md p-4 bg-gradient-to-br from-white to-emerald-50/50">
+                                    <div className="mb-3 flex h-9 w-9 items-center justify-center rounded-md bg-slate-950 text-emerald-300">
+                                        <Icon name={module.icon} className="h-4 w-4" />
+                                    </div>
                                     <h3 className="font-black text-sm">{module.title}</h3>
                                     <p className="text-xs text-emerald-700 font-bold mt-1" dir="rtl">{module.titleAr}</p>
                                     <p className="text-xs text-slate-500 mt-3 leading-relaxed">{module.text}</p>
@@ -67,15 +71,18 @@ export default function HeroSection() {
                 </div>
             </section>
 
-            <section className="px-4 sm:px-6 py-14 bg-white">
+            <section className="px-4 sm:px-6 py-14 bg-[#f7fbf8]">
                 <div className="max-w-7xl mx-auto grid md:grid-cols-4 gap-4">
                     {[
-                        ['Tel. WhatsApp', '+212 674 29 30 63'],
-                        ['La Politique Autrement', 'من أجل سياسة مختلفة'],
-                        ['Serving the Country', 'من أجل خدمة الوطن والمجتمع'],
-                        ['United by a Goal', 'متحدون بهدف مشترك'],
-                    ].map(([fr, ar]) => (
-                        <div key={fr} className="border border-slate-200 rounded-lg p-5 bg-slate-50">
+                        ['calendar', 'Tel. WhatsApp', '+212 674 29 30 63'],
+                        ['spark', 'La Politique Autrement', 'من أجل سياسة مختلفة'],
+                        ['shield', 'Serving the Country', 'من أجل خدمة الوطن والمجتمع'],
+                        ['users', 'United by a Goal', 'متحدون بهدف مشترك'],
+                    ].map(([icon, fr, ar]) => (
+                        <div key={fr} className="border border-emerald-100 rounded-lg p-5 bg-white shadow-sm">
+                            <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-md bg-emerald-100 text-emerald-800">
+                                <Icon name={icon} className="h-5 w-5" />
+                            </div>
                             <p className="font-black text-slate-900">{fr}</p>
                             <p className="text-sm text-slate-500 mt-1" dir="rtl">{ar}</p>
                         </div>

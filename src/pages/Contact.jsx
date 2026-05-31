@@ -52,9 +52,9 @@ export default function Contact() {
             ═══════════════════════════════════════════════ */}
             <div className="bg-gradient-to-br from-[#0d1b2a] to-[#1a3a5c] py-20 px-6 text-center relative overflow-hidden">
                 <div className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3b82f6 0, #3b82f6 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }}
+                    style={{ backgroundImage: 'repeating-linear-gradient(45deg, #10b981 0, #10b981 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }}
                 />
-                <p className="text-blue-400 font-bold uppercase tracking-widest text-xs mb-4 relative z-10">
+                <p className="text-emerald-400 font-bold uppercase tracking-widest text-xs mb-4 relative z-10">
                     Contact | اتصل بنا
                 </p>
                 <h1 className="text-5xl md:text-6xl font-black text-white relative z-10">
@@ -83,7 +83,7 @@ export default function Contact() {
                                     key={i}
                                     className="flex items-start gap-4 p-5 bg-white border border-slate-100 rounded-2xl shadow-sm hover:shadow-md transition-all"
                                 >
-                                    <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center text-2xl shrink-0">
+                                    <div className="w-12 h-12 bg-emerald-50 rounded-xl flex items-center justify-center text-2xl shrink-0">
                                         {info.icon}
                                     </div>
                                     <div>
@@ -140,9 +140,9 @@ export default function Contact() {
                     <div className="lg:col-span-7 bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 p-8 md:p-12 relative overflow-hidden">
 
                         {/* Décoration */}
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-blue-500/5 rounded-full -mr-20 -mt-20 pointer-events-none" />
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/5 rounded-full -mr-20 -mt-20 pointer-events-none" />
 
-                        <h2 className="text-2xl font-black text-[#2c3e50] mb-8">
+                        <h2 className="text-2xl font-black text-slate-950 mb-8">
                             Envoyez-nous un message
                             <span className="block text-base font-bold text-slate-400 mt-1" dir="rtl">أرسل لنا رسالة</span>
                         </h2>
@@ -176,7 +176,7 @@ export default function Contact() {
                                         type="text"
                                         value={form.name}
                                         onChange={e => setForm({ ...form, name: e.target.value })}
-                                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
                                         placeholder="Votre nom"
                                         required
                                     />
@@ -187,7 +187,7 @@ export default function Contact() {
                                         type="email"
                                         value={form.email}
                                         onChange={e => setForm({ ...form, email: e.target.value })}
-                                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                        className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
                                         placeholder="votre@email.com"
                                         required
                                     />
@@ -201,7 +201,7 @@ export default function Contact() {
                                     type="text"
                                     value={form.subject}
                                     onChange={e => setForm({ ...form, subject: e.target.value })}
-                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
                                     placeholder="Objet de votre message"
                                 />
                             </div>
@@ -213,7 +213,7 @@ export default function Contact() {
                                     value={form.message}
                                     onChange={e => setForm({ ...form, message: e.target.value })}
                                     rows="5"
-                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700 resize-none"
+                                    className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700 resize-none"
                                     placeholder="Comment pouvons-nous vous aider ? | كيف يمكننا مساعدتك؟"
                                     required
                                 />
@@ -222,7 +222,7 @@ export default function Contact() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full py-4 bg-[#2c3e50] hover:bg-slate-700 disabled:opacity-60 text-white font-black rounded-2xl shadow-xl transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3"
+                                className="w-full py-4 bg-slate-950 hover:bg-slate-700 disabled:opacity-60 text-white font-black rounded-2xl shadow-xl transition-all active:scale-[0.98] uppercase tracking-[0.2em] text-sm flex items-center justify-center gap-3"
                             >
                                 {loading ? (
                                     <>

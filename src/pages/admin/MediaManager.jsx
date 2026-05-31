@@ -176,7 +176,7 @@ export default function MediaManager() {
             {/* Modals */}
             {uploadModal && (
                 <ConfirmModal
-                    icon={{ bg: 'bg-blue-50', emoji: '📤' }}
+                    icon={{ bg: 'bg-emerald-50', emoji: '📤' }}
                     title="Confirmer l'upload ?"
                     message={`"${file?.name}" sera ajouté à la médiathèque et accessible à l'audience sélectionnée.`}
                     confirmLabel="Uploader"
@@ -201,7 +201,7 @@ export default function MediaManager() {
 
             {/* Header */}
             <div>
-                <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Contenu</p>
+                <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">Contenu</p>
                 <h3 className="text-2xl font-black text-slate-900">Médiathèque | المكتبة</h3>
             </div>
 
