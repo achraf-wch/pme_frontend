@@ -107,7 +107,7 @@ export default function DashboardFeed() {
                 ) : (
                     <div className="grid gap-3 md:grid-cols-2">
                         {events.slice(0, 4).map(event => {
-                            const alreadyReserved = registeredEventIds.has(event.id);
+                            const alreadyReserved = event.has_registered || registeredEventIds.has(event.id);
                             return (
                             <article key={event.id} className="rounded-lg border border-slate-200 bg-white p-4">
                                 <p className="text-sm font-black text-slate-900">{event.title}</p>

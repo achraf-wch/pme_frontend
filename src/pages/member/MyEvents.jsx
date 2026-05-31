@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
 import { getMyEvents, getPublicEvents, registerForEvent } from '../../services/api';
 import ConfirmDialog from '../../components/ui/ConfirmDialog';
+import { useLanguage } from '../../i18n/LanguageContext';
 
 export default function MyEvents() {
+    const { t } = useLanguage();
     const [registeredEvents, setRegisteredEvents] = useState([]);
     const [availableEvents, setAvailableEvents] = useState([]);
     const [message, setMessage] = useState('');
@@ -29,10 +31,10 @@ export default function MyEvents() {
         setLoading(true);
         try {
             await registerForEvent(event.id);
-            setMessage('Inscription réussie.');
+            setMessage(t('registrationConfirmed'));
             fetchData();
         } catch (err) {
-            setMessage(err.response?.data?.message || 'Erreur lors de l’inscription');
+            setMessage(err.response?.data?.message || t('registrationImpossible'));
         } finally { setLoading(false); }
     };
 
@@ -40,10 +42,10 @@ export default function MyEvents() {
         <div className={`p-6 rounded-[2rem] border transition-all ${isRegistered ? 'bg-slate-50 border-slate-100' : 'bg-white border-slate-100 shadow-sm hover:shadow-md'}`}>
             <div className="flex justify-between items-start mb-4">
                 <h4 className="text-lg font-black text-slate-800 uppercase tracking-tight leading-none">{ev.title}</h4>
-                {isRegistered && <span className="bg-emerald-500 text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest">Inscrit</span>}
+                {isRegistered && <span className="bg-emerald-500 text-white text-[8px] font-black px-2 py-1 rounded-md uppercase tracking-widest">{t('registered')}</span>}
             </div>
             <div className="space-y-1 mb-6">
-                <p className="text-blue-500 text-[10px] font-black uppercase tracking-widest">📍 {ev.location}</p>
+                <p className="text-emerald-500 text-[10px] font-black uppercase tracking-widest">📍 {ev.location}</p>
                 <p className="text-slate-400 text-[10px] font-bold uppercase tracking-widest">📅 {new Date(ev.start_time).toLocaleString('fr-FR')}</p>
             </div>
             {isRegistered ? (
@@ -51,15 +53,15 @@ export default function MyEvents() {
                     disabled
                     className="w-full py-3 bg-emerald-100 text-emerald-700 rounded-xl font-black uppercase text-[10px] tracking-widest"
                 >
-                    Déjà réservé
+                    {t('alreadyReserved')}
                 </button>
             ) : (
                 <button 
                     onClick={() => handleRegister(ev)} 
                     disabled={loading}
-                    className="w-full py-3 bg-[#1a1a2e] text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all disabled:opacity-50"
+                    className="w-full py-3 bg-slate-950 text-white rounded-xl font-black uppercase text-[10px] tracking-widest hover:bg-black transition-all disabled:opacity-50"
                 >
-                    {loading ? 'Traitement...' : "Réserver ma place"}
+                    {loading ? t('processingAction') : t('reserveMyPlace')}
                 </button>
             )}
         </div>
@@ -69,9 +71,9 @@ export default function MyEvents() {
         <div className="space-y-12 text-left">
             <ConfirmDialog
                 open={Boolean(pendingEvent)}
-                title="Confirmer votre inscription ?"
+                title={t('confirmRegistration')}
                 message={pendingEvent ? `Vous allez réserver une place pour "${pendingEvent.title}".` : ''}
-                confirmLabel="Réserver"
+                confirmLabel={t('reserve')}
                 tone="success"
                 loading={loading}
                 onConfirm={confirmRegister}
@@ -84,7 +86,7 @@ export default function MyEvents() {
                 </div>
             )}
             <section>
-                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight mb-6 italic">Mes Inscriptions | مشاركاتي</h3>
+                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight mb-6 italic">{t('trackedRegistrations')}</h3>
                 {registeredEvents.length === 0 ? (
                     <p className="text-slate-400 text-xs font-bold uppercase tracking-widest bg-slate-50 p-8 rounded-2xl border-2 border-dashed border-slate-200 text-center">Aucun événement prévu.</p>
                 ) : (
@@ -95,10 +97,10 @@ export default function MyEvents() {
             </section>
 
             <section>
-                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight mb-6 italic">À Découvrir | فعاليات قادمة</h3>
+                <h3 className="text-2xl font-black text-slate-800 uppercase tracking-tight mb-6 italic">{t('eventUpcoming')}</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {availableEvents.map(ev => (
-                        <EventCard key={ev.id} ev={ev} isRegistered={registeredEventIds.has(ev.id)} />
+                        <EventCard key={ev.id} ev={ev} isRegistered={ev.has_registered || registeredEventIds.has(ev.id)} />
                     ))}
                 </div>
             </section>
