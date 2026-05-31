@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Navbar from './Navbar';
 import Footer from './Footer';
+import SmartResponder from './SmartResponder';
 import { useLanguage } from '../i18n/LanguageContext';
 
 export default function Layout() {
@@ -21,6 +22,7 @@ export default function Layout() {
             <main style={mainStyle}>
                 <Outlet />  {/* This renders the nested route component */}
             </main>
+            <SmartResponder />
             <Footer />
         </div>
     );
