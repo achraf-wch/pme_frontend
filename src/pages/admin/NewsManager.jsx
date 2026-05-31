@@ -14,9 +14,18 @@ const AUDIENCE_OPTIONS = [
     { value: 'super_admin',       label: 'Superviseur',     desc: 'Supervision complète',     icon: '⭐' },
 ];
 
+const SOCIAL_CHANNELS = [
+    { value: 'facebook', label: 'Facebook' },
+    { value: 'x', label: 'X' },
+    { value: 'instagram', label: 'Instagram' },
+    { value: 'linkedin', label: 'LinkedIn' },
+    { value: 'whatsapp', label: 'WhatsApp' },
+];
+
 const emptyForm = {
     title: '', type: 'news', topic: '', region: '',
     content: '', published_at: '', is_published: true, audience: ['public'], party_branch_id: '',
+    auto_share_social: false, social_channels: [],
 };
 
 function currentUser() {
@@ -157,6 +166,11 @@ function NewsCard({ item, onEdit, onDelete }) {
                                 {AUDIENCE_OPTIONS.find(o => o.value === a)?.label || a}
                             </span>
                         ))}
+                        {item.auto_share_social && (
+                            <span className="px-2 py-0.5 rounded-full text-[9px] font-black bg-emerald-600 text-white">
+                                Social auto: {(item.social_channels || []).join(', ') || 'canaux'}
+                            </span>
+                        )}
                     </div>
 
                     <h4 className="font-black text-slate-900 text-sm leading-snug line-clamp-1">{item.title}</h4>
@@ -211,6 +225,11 @@ export default function NewsManager() {
         return { ...f, audience: has ? f.audience.filter(a => a !== val) : [...f.audience, val] };
     });
 
+    const toggleSocialChannel = (val) => setForm(f => {
+        const has = f.social_channels.includes(val);
+        return { ...f, social_channels: has ? f.social_channels.filter(a => a !== val) : [...f.social_channels, val] };
+    });
+
     const audienceOptions = allowedAudienceOptions();
     const branchOptions = writableBranches(branches);
     const branchScoped = isBranchOfficial();
@@ -225,6 +244,8 @@ export default function NewsManager() {
             published_at: item.published_at ? item.published_at.slice(0, 16) : '',
             is_published: !!item.is_published, audience: branchScoped ? ['member'] : (item.audience || ['public']),
             party_branch_id: branchScoped ? assignedBranchId : (item.party_branch_id || ''),
+            auto_share_social: !!item.auto_share_social,
+            social_channels: item.social_channels || [],
         });
         setPreview(getStorageUrl(item.image_path));
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -238,6 +259,7 @@ export default function NewsManager() {
     const handleSubmitAttempt = (e) => {
         e.preventDefault();
         if (form.audience.length === 0) return setValidationMsg('Veuillez sélectionner au moins une audience.');
+        if (form.auto_share_social && form.social_channels.length === 0) return setValidationMsg('Veuillez sélectionner au moins un réseau social.');
         setConfirmOpen(true);
     };
 
@@ -248,6 +270,8 @@ export default function NewsManager() {
             title: form.title, type: form.type, topic: form.topic, region: form.region,
             content: form.content, published_at: form.published_at,
             is_published: form.is_published ? '1' : '0', audience: form.audience,
+            auto_share_social: form.auto_share_social ? '1' : '0',
+            social_channels: form.auto_share_social ? form.social_channels : [],
             party_branch_id: form.party_branch_id || '',
         };
         if (imageFile) payload.image = imageFile;
@@ -418,6 +442,46 @@ export default function NewsManager() {
                                     onChange={e => setAttachmentFile(e.target.files[0] ?? null)} className="hidden" />
                             </label>
                         </div>
+                    </div>
+
+                    {/* Social media automation */}
+                    <div className="rounded-3xl border border-emerald-100 bg-emerald-50/60 p-5">
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <Label>Réseaux sociaux</Label>
+                                <h3 className="text-base font-black text-slate-900">Diffusion automatique des publications</h3>
+                                <p className="mt-1 text-sm leading-relaxed text-slate-500">
+                                    Préparez cet article pour une publication synchronisée sur les comptes officiels après connexion des API sociales.
+                                </p>
+                                <p className="mt-1 text-xs font-bold text-emerald-700" dir="rtl">
+                                    ربط المنشورات بمواقع التواصل الاجتماعي بشكل أوتوماتيكي.
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setForm(f => ({ ...f, auto_share_social: !f.auto_share_social }))}
+                                className={`shrink-0 rounded-2xl border px-4 py-3 text-sm font-black transition-all ${form.auto_share_social ? 'border-emerald-700 bg-emerald-700 text-white' : 'border-emerald-200 bg-white text-emerald-800'}`}
+                            >
+                                {form.auto_share_social ? 'Activée' : 'Activer'}
+                            </button>
+                        </div>
+                        {form.auto_share_social && (
+                            <div className="mt-5 grid grid-cols-2 gap-2 sm:grid-cols-5">
+                                {SOCIAL_CHANNELS.map(channel => {
+                                    const active = form.social_channels.includes(channel.value);
+                                    return (
+                                        <button
+                                            key={channel.value}
+                                            type="button"
+                                            onClick={() => toggleSocialChannel(channel.value)}
+                                            className={`rounded-2xl border px-3 py-3 text-xs font-black transition-all ${active ? 'border-slate-900 bg-slate-900 text-white' : 'border-emerald-200 bg-white text-slate-600 hover:border-emerald-400'}`}
+                                        >
+                                            {channel.label}
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                        )}
                     </div>
 
                     {/* Publish toggle */}
