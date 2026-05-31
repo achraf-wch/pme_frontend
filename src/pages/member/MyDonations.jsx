@@ -5,7 +5,7 @@ import ConfirmDialog from '../../components/ui/ConfirmDialog';
 
 export default function MyDonations() {
     const [donations, setDonations] = useState([]);
-    const [form, setForm] = useState({ donor_name: '', donor_email: '', amount: '' });
+    const [form, setForm] = useState({ donor_name: '', donor_email: '', amount: '', rib: '' });
     const [message, setMessage] = useState('');
     const [confirmDonation, setConfirmDonation] = useState(false);
     const [submitting, setSubmitting] = useState(false);
@@ -27,7 +27,7 @@ export default function MyDonations() {
         try {
             await API.post('/donations', { ...form, user_id: null });
             setMessage('Merci ! Votre don est en attente de confirmation.');
-            setForm({ donor_name: '', donor_email: '', amount: '' });
+            setForm({ donor_name: '', donor_email: '', amount: '', rib: '' });
             setConfirmDonation(false);
             fetchDonations();
         } catch (err) { setMessage('Une erreur est survenue.'); }
@@ -52,9 +52,10 @@ export default function MyDonations() {
                     <input type="text" placeholder="Nom Complet" className="w-full p-4 rounded-2xl border-none shadow-sm font-bold" value={form.donor_name} onChange={e => setForm({...form, donor_name: e.target.value})} required />
                     <input type="email" placeholder="Email" className="w-full p-4 rounded-2xl border-none shadow-sm font-bold text-sm" value={form.donor_email} onChange={e => setForm({...form, donor_email: e.target.value})} required />
                     <div className="relative">
-                        <input type="number" step="0.01" placeholder="Montant" className="w-full p-4 rounded-2xl border-none shadow-sm font-black text-xl text-blue-600" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required />
+                        <input type="number" step="0.01" placeholder="Montant" className="w-full p-4 rounded-2xl border-none shadow-sm font-black text-xl text-emerald-600" value={form.amount} onChange={e => setForm({...form, amount: e.target.value})} required />
                         <span className="absolute right-4 top-4 font-black text-slate-300">€</span>
                     </div>
+                    <input type="text" placeholder="RIB utilise pour le virement" className="w-full p-4 rounded-2xl border-none shadow-sm font-bold font-mono text-sm" value={form.rib} onChange={e => setForm({...form, rib: e.target.value})} required />
                     <button type="submit" className="w-full py-4 bg-emerald-600 text-white rounded-2xl font-black uppercase text-xs tracking-widest hover:bg-emerald-700 transition-all shadow-xl shadow-emerald-600/20">Confirmer la Donation</button>
                     {message && <p className="text-center text-[10px] font-black text-emerald-600 uppercase tracking-widest">{message}</p>}
                 </form>
@@ -67,9 +68,10 @@ export default function MyDonations() {
                         <div key={d.id} className="bg-white p-5 rounded-2xl border border-slate-100 flex justify-between items-center shadow-sm">
                             <div>
                                 <p className="font-black text-slate-800 text-lg">{d.amount} €</p>
+                                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">RIB: {d.rib || 'Non renseigne'}</p>
                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{new Date(d.created_at).toLocaleDateString()}</p>
                             </div>
-                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${d.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
+                            <span className={`px-3 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${d.status === 'completed' || d.status === 'confirmed' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600'}`}>
                                 {d.status}
                             </span>
                         </div>

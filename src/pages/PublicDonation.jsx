@@ -5,7 +5,7 @@ import ConfirmDialog from '../components/ui/ConfirmDialog';
 const PRESET_AMOUNTS = [10, 25, 50, 100, 200, 500];
 
 export default function PublicDonation() {
-    const [form, setForm] = useState({ name: '', email: '', amount: '', frequency: 'once', note: '' });
+    const [form, setForm] = useState({ name: '', email: '', amount: '', rib: '', frequency: 'once', note: '' });
     const [customAmount, setCustomAmount] = useState(false);
     const [success, setSuccess] = useState(false);
     const [error, setError] = useState('');
@@ -28,7 +28,7 @@ export default function PublicDonation() {
             await API.post('/donations', form);
             setSuccess(true);
             setError('');
-            setForm({ name: '', email: '', amount: '', frequency: 'once', note: '' });
+            setForm({ name: '', email: '', amount: '', rib: '', frequency: 'once', note: '' });
             setConfirmDonation(false);
         } catch (err) {
             setError('Erreur lors de l\'envoi. Veuillez réessayer. | حدث خطأ، حاول مجدداً.');
@@ -57,11 +57,11 @@ export default function PublicDonation() {
             <div className="bg-gradient-to-br from-[#0d1b2a] to-[#1a3a5c] py-20 px-6 text-center relative overflow-hidden">
                 <div
                     className="absolute inset-0 opacity-10"
-                    style={{ backgroundImage: 'repeating-linear-gradient(45deg, #3b82f6 0, #3b82f6 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }}
+                    style={{ backgroundImage: 'repeating-linear-gradient(45deg, #10b981 0, #10b981 1px, transparent 0, transparent 50%)', backgroundSize: '20px 20px' }}
                 />
                 {/* Cercles déco */}
                 <div className="absolute -top-20 -left-20 w-64 h-64 bg-emerald-500/10 rounded-full pointer-events-none" />
-                <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-blue-500/10 rounded-full pointer-events-none" />
+                <div className="absolute -bottom-20 -right-20 w-48 h-48 bg-emerald-500/10 rounded-full pointer-events-none" />
 
                 <div className="relative z-10 space-y-3">
                     <p className="text-emerald-400 font-bold uppercase tracking-widest text-xs">
@@ -70,7 +70,7 @@ export default function PublicDonation() {
                     <h1 className="text-5xl md:text-6xl font-black text-white">
                         Faire un Don
                     </h1>
-                    <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-400" dir="rtl">
+                    <p className="text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-400" dir="rtl">
                         تبرع لدعم حزب المغرب الصاعد
                     </p>
                     <p className="text-slate-300 text-lg max-w-xl mx-auto mt-4">
@@ -92,7 +92,7 @@ export default function PublicDonation() {
 
                         {/* Pourquoi donner */}
                         <div className="space-y-3">
-                            <h2 className="text-2xl font-black text-[#2c3e50]">
+                            <h2 className="text-2xl font-black text-slate-950">
                                 Pourquoi soutenir le PME ?
                             </h2>
                             <p className="text-slate-500 leading-relaxed">
@@ -126,9 +126,9 @@ export default function PublicDonation() {
                         <div className="flex items-start gap-3 p-5 bg-emerald-50 border border-emerald-100 rounded-2xl">
                             <span className="text-2xl shrink-0">🔒</span>
                             <div>
-                                <p className="font-bold text-emerald-700 text-sm">Paiement 100% sécurisé</p>
-                                <p className="text-emerald-600 text-xs mt-0.5">Via PayPal ou carte bancaire. Vos données sont protégées.</p>
-                                <p className="text-emerald-600 text-xs mt-0.5" dir="rtl">دفع آمن عبر PayPal أو بطاقة بنكية</p>
+                                <p className="font-bold text-emerald-700 text-sm">Validation bancaire manuelle</p>
+                                <p className="text-emerald-600 text-xs mt-0.5">Votre RIB permet a l'administration de verifier le virement avant confirmation.</p>
+                                <p className="text-emerald-600 text-xs mt-0.5" dir="rtl">يتم التحقق من التحويل يدويا قبل تأكيد المساهمة</p>
                             </div>
                         </div>
                     </div>
@@ -144,7 +144,7 @@ export default function PublicDonation() {
                                 <div className="w-24 h-24 bg-emerald-50 rounded-full flex items-center justify-center text-5xl mx-auto">
                                     ✅
                                 </div>
-                                <h3 className="text-3xl font-black text-[#2c3e50]">Merci pour votre don !</h3>
+                                <h3 className="text-3xl font-black text-slate-950">Merci pour votre don !</h3>
                                 <p className="text-slate-500 text-lg">Votre contribution sera traitée très prochainement.</p>
                                 <p className="text-slate-400 text-base" dir="rtl">شكراً جزيلاً على تبرعك. سيتم معالجته قريباً.</p>
                                 <div className="pt-2">
@@ -166,7 +166,7 @@ export default function PublicDonation() {
                                 {/* Décoration */}
                                 <div className="absolute top-0 right-0 w-40 h-40 bg-emerald-500/5 rounded-full -mr-20 -mt-20 pointer-events-none" />
 
-                                <h2 className="text-2xl font-black text-[#2c3e50] mb-8">
+                                <h2 className="text-2xl font-black text-slate-950 mb-8">
                                     Votre contribution
                                     <span className="block text-base font-bold text-slate-400 mt-1" dir="rtl">مساهمتك</span>
                                 </h2>
@@ -254,7 +254,7 @@ export default function PublicDonation() {
                                                 type="text"
                                                 value={form.name}
                                                 onChange={e => setForm({ ...form, name: e.target.value })}
-                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
                                                 placeholder="Votre nom complet"
                                                 required
                                             />
@@ -267,7 +267,7 @@ export default function PublicDonation() {
                                                 type="email"
                                                 value={form.email}
                                                 onChange={e => setForm({ ...form, email: e.target.value })}
-                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
                                                 placeholder="votre@email.com"
                                                 required
                                             />
@@ -277,18 +277,31 @@ export default function PublicDonation() {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
                                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
+                                                RIB | رقم الحساب البنكي
+                                            </label>
+                                            <input
+                                                type="text"
+                                                value={form.rib}
+                                                onChange={e => setForm({ ...form, rib: e.target.value })}
+                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
+                                                placeholder="RIB utilise pour le virement"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
                                                 Type | النوع
                                             </label>
                                             <select
                                                 value={form.frequency}
                                                 onChange={e => setForm({ ...form, frequency: e.target.value })}
-                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
                                             >
                                                 <option value="once">Contribution unique</option>
                                                 <option value="monthly">Contribution mensuelle</option>
                                             </select>
                                         </div>
-                                        <div>
+                                        <div className="md:col-span-2">
                                             <label className="block text-xs font-black text-slate-400 uppercase tracking-widest mb-2">
                                                 Note | ملاحظة
                                             </label>
@@ -296,7 +309,7 @@ export default function PublicDonation() {
                                                 type="text"
                                                 value={form.note}
                                                 onChange={e => setForm({ ...form, note: e.target.value })}
-                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-blue-500/10 focus:border-blue-400 transition-all outline-none text-slate-700"
+                                                className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:ring-4 focus:ring-emerald-500/10 focus:border-emerald-400 transition-all outline-none text-slate-700"
                                                 placeholder="Objet de la contribution"
                                             />
                                         </div>
@@ -327,8 +340,8 @@ export default function PublicDonation() {
 
                                     {/* Disclaimer */}
                                     <p className="text-center text-xs text-slate-400 leading-relaxed">
-                                        🔒 Paiement sécurisé via PayPal · Vos données sont protégées · <br />
-                                        <span dir="rtl">بياناتك محمية · دفع آمن عبر PayPal</span>
+                                        Votre demande sera verifiee par l'administration apres controle bancaire. <br />
+                                        <span dir="rtl">سيتم التحقق من طلبك من طرف الإدارة بعد المراجعة البنكية</span>
                                     </p>
                                 </form>
                             </div>

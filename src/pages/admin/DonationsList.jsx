@@ -3,7 +3,7 @@ import { getDonations, updateDonationStatus } from '../../services/api';
 
 // ─── Confirmation Modal ───────────────────────────────────────────────────────
 function ConfirmModal({ donor, targetStatus, onConfirm, onCancel }) {
-    const isConfirm = targetStatus === 'confirmed';
+    const isConfirm = targetStatus === 'completed';
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-sm" onClick={onCancel} />
@@ -21,6 +21,9 @@ function ConfirmModal({ donor, targetStatus, onConfirm, onCancel }) {
                     <span className={`font-bold ${isConfirm ? 'text-emerald-600' : 'text-red-600'}`}>
                         {isConfirm ? 'confirmée' : 'échouée'}
                     </span>.
+                    <span className="block mt-3 text-xs text-slate-400">
+                        RIB a verifier: <span className="font-black text-slate-700">{donor.rib || 'Non renseigne'}</span>
+                    </span>
                 </p>
                 <div className="flex gap-3">
                     <button
@@ -47,6 +50,7 @@ function ConfirmModal({ donor, targetStatus, onConfirm, onCancel }) {
 
 // ─── Status Badge ─────────────────────────────────────────────────────────────
 const STATUS_CONFIG = {
+    completed: { label: 'Confirmée', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
     confirmed: { label: 'Confirmée', cls: 'bg-emerald-50 text-emerald-700 border-emerald-200' },
     failed:    { label: 'Échouée',   cls: 'bg-red-50 text-red-700 border-red-200' },
     pending:   { label: 'En attente', cls: 'bg-amber-50 text-amber-700 border-amber-200' },
@@ -63,7 +67,7 @@ function StatusBadge({ status }) {
 
 // ─── Donation Card ────────────────────────────────────────────────────────────
 function DonationCard({ donation, onUpdateStatus }) {
-    const [modal, setModal] = useState(null); // 'confirmed' | 'failed' | null
+    const [modal, setModal] = useState(null); // 'completed' | 'failed' | null
 
     const dateStr = new Date(donation.created_at).toLocaleDateString('fr-FR', {
         day: '2-digit', month: 'short', year: 'numeric',
@@ -92,11 +96,15 @@ function DonationCard({ donation, onUpdateStatus }) {
                         <div className="min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
                                 <p className="font-black text-slate-900">{donation.name}</p>
-                                <span className="text-blue-600 font-black text-sm">{donation.amount} €</span>
+                                <span className="text-emerald-600 font-black text-sm">{donation.amount} €</span>
                             </div>
                             <p className="text-xs text-slate-400 font-medium mt-0.5">
                                 {donation.email} · {dateStr}
                             </p>
+                            <div className="mt-2 inline-flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-1.5 text-xs text-amber-800">
+                                <span className="font-black uppercase tracking-widest">RIB</span>
+                                <span className="font-mono font-bold break-all">{donation.rib || 'Non renseigne'}</span>
+                            </div>
                         </div>
                     </div>
 
@@ -105,9 +113,9 @@ function DonationCard({ donation, onUpdateStatus }) {
                         <StatusBadge status={donation.status} />
 
                         <div className="flex gap-2">
-                            {donation.status !== 'confirmed' && (
+                            {donation.status !== 'completed' && donation.status !== 'confirmed' && (
                                 <button
-                                    onClick={() => setModal('confirmed')}
+                                    onClick={() => setModal('completed')}
                                     className="px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold hover:bg-emerald-600 hover:text-white transition-all border border-emerald-200"
                                 >
                                     Confirmer
@@ -146,10 +154,15 @@ export default function DonationsList() {
         setDonations(prev => prev.map(d => d.id === id ? { ...d, status } : d));
     };
 
-    const filtered = filter === 'all' ? donations : donations.filter(d => d.status === filter);
+    const filtered = filter === 'all'
+        ? donations
+        : donations.filter(d => filter === 'completed'
+            ? d.status === 'completed' || d.status === 'confirmed'
+            : d.status === filter
+        );
 
     const total = donations
-        .filter(d => d.status === 'confirmed')
+        .filter(d => d.status === 'completed' || d.status === 'confirmed')
         .reduce((sum, d) => sum + Number(d.amount), 0);
 
     if (loading) return (
@@ -163,7 +176,7 @@ export default function DonationsList() {
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-100 pb-5">
                 <div>
-                    <p className="text-xs font-black text-blue-600 uppercase tracking-widest mb-1">Finance</p>
+                    <p className="text-xs font-black text-emerald-600 uppercase tracking-widest mb-1">Finance</p>
                     <h3 className="text-2xl font-black text-slate-900">Donations | المساهمات</h3>
                 </div>
                 <div className="flex items-center gap-3">
@@ -183,7 +196,7 @@ export default function DonationsList() {
                 {[
                     { key: 'all', label: 'Tous' },
                     { key: 'pending', label: 'En attente' },
-                    { key: 'confirmed', label: 'Confirmées' },
+                    { key: 'completed', label: 'Confirmées' },
                     { key: 'failed', label: 'Échouées' },
                 ].map(({ key, label }) => (
                     <button
@@ -199,7 +212,12 @@ export default function DonationsList() {
                         <span className={`ml-2 px-1.5 py-0.5 rounded-md text-[10px] ${
                             filter === key ? 'bg-white/20 text-white' : 'bg-white text-slate-500'
                         }`}>
-                            {key === 'all' ? donations.length : donations.filter(d => d.status === key).length}
+                            {key === 'all'
+                                ? donations.length
+                                : donations.filter(d => key === 'completed'
+                                    ? d.status === 'completed' || d.status === 'confirmed'
+                                    : d.status === key
+                                ).length}
                         </span>
                     </button>
                 ))}
